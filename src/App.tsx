@@ -1,0 +1,100 @@
+import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import Home from './pages/user/Home';
+import PersonalPage from './pages/user/PersonalPage';
+import EditProfilePage from './pages/user/EditProfilePage';
+import SecurityPage from './pages/user/SecurityPage';
+import AdminDashboard from './pages/admin/AdminDashboard';
+
+import { ThemeProvider } from "@/components/shared/theme-provider"
+import { AuthProvider, useAuth } from "@/contexts/auth-context"
+import { Toaster } from "@/components/ui/sonner"
+import { Header } from "@/components/layout/header"
+import { Footer } from "@/components/layout/footer"
+import { PhoneChecker } from "@/components/sections/phone-checker"
+import { ReportForm } from "@/components/sections/report-form"
+import { NewsSection } from "@/components/sections/news-section"
+import { GuidesSection } from "@/components/sections/guides-section"
+import NewsDetailPage from "./pages/user/NewsDetailPage"
+
+// Protected route component for admin pages
+function AdminRoute({ children }: { children: React.ReactNode }) {
+    const { isAuthenticated, isAdmin } = useAuth()
+
+    if (!isAuthenticated || !isAdmin) {
+        return <Navigate to="/" replace />
+    }
+
+    return <>{children}</>
+}
+
+function ScrollToTop() {
+    const { pathname } = useLocation()
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+    }, [pathname])
+    return null
+}
+
+function AppRoutes() {
+    return (
+        <Routes>
+            {/* Admin route — full-screen layout, no header/footer */}
+            <Route
+                path="/admin/*"
+                element={
+                    <AdminRoute>
+                        <AdminDashboard />
+                    </AdminRoute>
+                }
+            />
+
+            {/* Public routes with shared header/footer */}
+            <Route
+                path="*"
+                element={
+                    <div className="flex min-h-screen flex-col bg-background">
+                        <Header />
+                        <main className="flex flex-1 flex-col">
+                            <Routes>
+                                <Route path="/" element={<Home />} />
+                                <Route path="/taikhoan" element={<PersonalPage />} />
+                                <Route path="/taikhoan/chinhsua" element={<EditProfilePage />} />
+                                <Route path="/baomat" element={<SecurityPage />} />
+                                <Route
+                                    path="/kiemtra"
+                                    element={
+                                        <div className="flex flex-1 items-center justify-center p-4">
+                                            <PhoneChecker />
+                                        </div>
+                                    }
+                                />
+                                <Route path="/baocao" element={<ReportForm />} />
+                                <Route path="/tintuc" element={<NewsSection />} />
+                                <Route path="/tintuc/:id" element={<NewsDetailPage />} />
+                                <Route path="/huongdan" element={<GuidesSection />} />
+                            </Routes>
+                        </main>
+                        <Footer />
+                    </div>
+                }
+            />
+        </Routes>
+    )
+}
+
+function App() {
+    return (
+        <AuthProvider>
+            <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+                <Router>
+                    <ScrollToTop />
+                    <AppRoutes />
+                    <Toaster />
+                </Router>
+            </ThemeProvider>
+        </AuthProvider>
+    );
+}
+
+export default App;
