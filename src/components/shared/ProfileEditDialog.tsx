@@ -29,6 +29,7 @@ export function ProfileEditDialog({ open, onOpenChange }: ProfileEditDialogProps
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     const [name, setName] = useState(user?.name || "")
+    const [oldPassword, setOldPassword] = useState("")
     const [newPassword, setNewPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
@@ -39,6 +40,7 @@ export function ProfileEditDialog({ open, onOpenChange }: ProfileEditDialogProps
     const handleOpenChange = (isOpen: boolean) => {
         if (isOpen) {
             setName(user?.name || "")
+            setOldPassword("")
             setNewPassword("")
             setConfirmPassword("")
             setAvatarPreview(null)
@@ -78,6 +80,11 @@ export function ProfileEditDialog({ open, onOpenChange }: ProfileEditDialogProps
         setError("")
 
         // Validate passwords
+        if (newPassword && !oldPassword) {
+            setError("Vui lòng nhập mật khẩu cũ để đổi mật khẩu")
+            return
+        }
+
         if (newPassword && newPassword.length < 6) {
             setError("Mật khẩu mới phải có ít nhất 6 ký tự")
             return
@@ -96,14 +103,16 @@ export function ProfileEditDialog({ open, onOpenChange }: ProfileEditDialogProps
         setIsLoading(true)
 
         try {
-            const updateData: { name?: string; password?: string; avatar?: string } = {}
+            const updateData: { name?: string; oldPassword?: string; newPassword?: string; confirmPassword?: string; avatar?: string } = {}
 
             if (name !== user?.name) {
                 updateData.name = name
             }
 
-            if (newPassword) {
-                updateData.password = newPassword
+            if (newPassword && oldPassword) {
+                updateData.oldPassword = oldPassword
+                updateData.newPassword = newPassword
+                updateData.confirmPassword = confirmPassword
             }
 
             if (avatarPreview) {
@@ -221,6 +230,19 @@ export function ProfileEditDialog({ open, onOpenChange }: ProfileEditDialogProps
                                 <p className="text-xs text-muted-foreground">
                                     Email không thể thay đổi
                                 </p>
+                            </div>
+
+                            {/* Old Password */}
+                            <div className="space-y-2">
+                                <Label htmlFor="old-password">Mật khẩu cũ</Label>
+                                <Input
+                                    id="old-password"
+                                    type="password"
+                                    value={oldPassword}
+                                    onChange={(e) => setOldPassword(e.target.value)}
+                                    placeholder="Nhập mật khẩu hiện tại để đổi mật khẩu"
+                                    disabled={isLoading}
+                                />
                             </div>
 
                             {/* New Password */}

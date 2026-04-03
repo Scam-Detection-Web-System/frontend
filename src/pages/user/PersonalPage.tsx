@@ -211,7 +211,10 @@ export default function PersonalPage() {
                         {/* Đăng xuất */}
                         <Button
                             variant="outline"
-                            onClick={logout}
+                            onClick={async () => {
+                                await logout();
+                                window.location.href = "/";
+                            }}
                             className="w-full gap-2 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
                         >
                             <LogOut className="h-4 w-4" />

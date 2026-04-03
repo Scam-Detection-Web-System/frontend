@@ -5,6 +5,7 @@ import {
     Clock,
     Activity,
 } from "lucide-react"
+import { Routes, Route } from "react-router-dom"
 import { AdminSidebar } from "@/components/admin/AdminSidebar"
 import { AdminStatsCard } from "@/components/admin/AdminStatsCard"
 import { AdminReportsTable } from "@/components/admin/AdminReportsTable"
@@ -14,8 +15,10 @@ import { DashboardProviderStats } from "@/components/admin/DashboardProviderStat
 import { ModeToggle } from "@/components/shared/mode-toggle"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import AdminUsers from "./AdminUsers"
+import AdminBlogs from "./AdminBlogs"
 
-export default function AdminDashboard() {
+function DashboardHome() {
     return (
         <div className="flex h-screen bg-slate-50 dark:bg-slate-950">
             <AdminSidebar />
@@ -164,5 +167,15 @@ export default function AdminDashboard() {
                 </main>
             </div>
         </div>
+    )
+}
+
+export default function AdminDashboard() {
+    return (
+        <Routes>
+            <Route index element={<DashboardHome />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="news" element={<AdminBlogs />} />
+        </Routes>
     )
 }

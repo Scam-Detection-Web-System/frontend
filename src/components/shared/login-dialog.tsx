@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/auth-context"
+import { authService } from "@/services/auth.service"
+import { apiFetch } from "@/lib/api"
 import {
     Dialog,
     DialogContent,
@@ -16,7 +18,7 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle, CheckCircle2, ArrowLeft, Mail, KeyRound, ShieldCheck } from "lucide-react"
 
-type DialogMode = "login" | "register" | "forgot" | "verify" | "reset" | "success"
+type DialogMode = "login" | "register" | "forgot" | "verify" | "reset" | "success" | "verify-email"
 
 interface LoginDialogProps {
     open: boolean
@@ -33,16 +35,17 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
     // ── Auth modes ──────────────────────────────────────────────
     const [mode, setMode] = useState<DialogMode>("login")
     const [username, setUsername] = useState("")
+    const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
-    const [name, setName] = useState("")
+    const [registerUsername, setRegisterUsername] = useState("")
     const [registerEmail, setRegisterEmail] = useState("")
+    const [gender, setGender] = useState("")
     const [error, setError] = useState("")
     const [isLoading, setIsLoading] = useState(false)
 
     // ── Forgot password flow ─────────────────────────────────────
     const [forgotEmail, setForgotEmail] = useState("")
     const [otpCode, setOtpCode] = useState<string[]>(Array(OTP_LENGTH).fill(""))
-    const [simulatedOtp, setSimulatedOtp] = useState("")   // mock OTP stored in state
     const [countdown, setCountdown] = useState(0)
     const [newPassword, setNewPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
@@ -57,9 +60,9 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
         if (!open) {
             setTimeout(() => {
                 setMode("login")
-                setUsername(""); setPassword(""); setName(""); setRegisterEmail("")
+                setUsername(""); setEmail(""); setPassword(""); setRegisterUsername(""); setRegisterEmail(""); setGender("")
                 setForgotEmail(""); setOtpCode(Array(OTP_LENGTH).fill(""))
-                setSimulatedOtp(""); setNewPassword(""); setConfirmPassword("")
+                setNewPassword(""); setConfirmPassword("")
                 setError(""); setIsLoading(false)
                 if (countdownRef.current) clearInterval(countdownRef.current)
                 setCountdown(0)
@@ -99,17 +102,43 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
         setIsLoading(true)
         try {
             if (mode === "login") {
-                await login(username, password)
+                await login(email, password)
                 onOpenChange(false)
-                if (username === "admin") navigate("/admin")
+                setEmail(""); setPassword("")
             } else if (mode === "register") {
-                if (!name.trim()) throw new Error("Vui lòng nhập tên của bạn")
-                await register(registerEmail, password, name)
-                onOpenChange(false)
+                if (!registerUsername.trim()) throw new Error("Vui lòng nhập tên đăng nhập")
+                if (!gender) throw new Error("Vui lòng chọn giới tính")
+                await register(registerEmail, password, registerUsername, gender)
+                // Sau đăng ký backend gửi OTP email, chuyển sang màn hình xác minh
+                setOtpCode(Array(OTP_LENGTH).fill(""))
+                startCountdown()
+                transitionTo("verify-email")
             }
-            setUsername(""); setPassword(""); setName(""); setRegisterEmail("")
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Có lỗi xảy ra")
+            const msg = err instanceof Error ? err.message : "Có lỗi xảy ra"
+            // Nếu lỗi là chưa xác minh email → chuyển sang màn hình nhập OTP
+            if (
+                mode === "login" &&
+                (msg.toLowerCase().includes("verify your email") ||
+                 msg.toLowerCase().includes("email") && msg.toLowerCase().includes("verif"))
+            ) {
+                // Lưu email đã nhập vào registerEmail để dùng cho flow verify-email
+                setRegisterEmail(email)
+                setOtpCode(Array(OTP_LENGTH).fill(""))
+                // Gửi lại OTP cho email này
+                try {
+                    await apiFetch("/auth/resend-otp", {
+                        method: "POST",
+                        body: JSON.stringify({ email })
+                    })
+                } catch {
+                    // Bỏ qua lỗi resend, vẫn chuyển màn hình
+                }
+                startCountdown()
+                transitionTo("verify-email")
+            } else {
+                setError(msg)
+            }
         } finally {
             setIsLoading(false)
         }
@@ -121,14 +150,16 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
         if (!forgotEmail.trim()) { setError("Vui lòng nhập địa chỉ email"); return }
         setError("")
         setIsLoading(true)
-        await new Promise(r => setTimeout(r, 800))  // simulate network delay
-        const code = Math.floor(100000 + Math.random() * 900000).toString()
-        setSimulatedOtp(code)
-        console.log(`[DEV] Mã OTP mô phỏng: ${code}`)  // visible in browser console
-        setIsLoading(false)
-        startCountdown()
-        setOtpCode(Array(OTP_LENGTH).fill(""))
-        transitionTo("verify")
+        try {
+            await authService.forgotPassword(forgotEmail)
+            startCountdown()
+            setOtpCode(Array(OTP_LENGTH).fill(""))
+            transitionTo("verify")
+        } catch (err: any) {
+            setError(err.message || "Không thể gửi email OTP")
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     // ── Step 2 — Verify OTP ──────────────────────────────────────
@@ -136,7 +167,8 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
         e.preventDefault()
         const entered = otpCode.join("")
         if (entered.length < OTP_LENGTH) { setError("Vui lòng nhập đủ 6 chữ số"); return }
-        if (entered !== simulatedOtp) { setError("Mã xác nhận không đúng. Vui lòng thử lại."); return }
+        
+        // Không thể gọi api xác minh riêng lẻ vì API gộp chung trong lúc Reset Password
         setError("")
         setNewPassword(""); setConfirmPassword("")
         transitionTo("reset")
@@ -145,14 +177,36 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
     const handleResendOtp = async () => {
         if (countdown > 0) return
         setIsLoading(true)
-        await new Promise(r => setTimeout(r, 800))
-        const code = Math.floor(100000 + Math.random() * 900000).toString()
-        setSimulatedOtp(code)
-        console.log(`[DEV] Mã OTP mới: ${code}`)
-        setOtpCode(Array(OTP_LENGTH).fill(""))
         setError("")
-        setIsLoading(false)
-        startCountdown()
+        try {
+            const targetEmail = mode === "verify-email" ? registerEmail : forgotEmail
+            await authService.resendOtp(targetEmail)
+            setOtpCode(Array(OTP_LENGTH).fill(""))
+            startCountdown()
+        } catch (err: any) {
+            setError(err.message || "Lỗi gửi lại OTP")
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    // ── Verify Email OTP (Registration) ──────────────────────────
+    const handleVerifyRegistrationOtp = async (e: React.FormEvent) => {
+        e.preventDefault()
+        const entered = otpCode.join("")
+        if (entered.length < OTP_LENGTH) { setError("Vui lòng nhập đủ 6 chữ số"); return }
+        
+        setError("")
+        setIsLoading(true)
+        try {
+            await authService.verifyEmail(registerEmail, entered)
+            // Verification successful, show success and allow login
+            transitionTo("success")
+        } catch (err: any) {
+            setError(err.message || "Mã OTP không hợp lệ hoặc đã hết hạn")
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     // ── OTP input handlers ───────────────────────────────────────
@@ -182,20 +236,22 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
     // ── Step 3 — Reset password ──────────────────────────────────
     const handleResetPassword = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (newPassword.length < 6) { setError("Mật khẩu phải có ít nhất 6 ký tự"); return }
         if (newPassword !== confirmPassword) { setError("Mật khẩu xác nhận không khớp"); return }
         setError("")
         setIsLoading(true)
-        await new Promise(r => setTimeout(r, 800))
-        // Update password in localStorage (same as auth-context updateProfile)
-        const usersJson = localStorage.getItem("auth_users") || "{}"
-        const users = JSON.parse(usersJson)
-        if (users[forgotEmail]) {
-            users[forgotEmail].password = newPassword
-            localStorage.setItem("auth_users", JSON.stringify(users))
+        try {
+            await authService.resetPassword(
+                forgotEmail,
+                otpCode.join(""),
+                newPassword,
+                confirmPassword
+            )
+            transitionTo("success")
+        } catch (err: any) {
+            setError(err.message || "Mã OTP không hợp lệ, hoặc mật khẩu sai định dạng")
+        } finally {
+            setIsLoading(false)
         }
-        setIsLoading(false)
-        transitionTo("success")
     }
 
     // ── Helpers ──────────────────────────────────────────────────
@@ -206,9 +262,10 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
         login: "Đăng nhập",
         register: "Đăng ký tài khoản",
         forgot: "Quên mật khẩu",
-        verify: "Xác nhận email",
+        verify: "Khôi phục mật khẩu",
         reset: "Đặt lại mật khẩu",
         success: "Thành công!",
+        "verify-email": "Xác nhận email",
     }
     const descMap: Record<DialogMode, string> = {
         login: "Đăng nhập để báo cáo lừa đảo và sử dụng các tính năng khác",
@@ -216,7 +273,8 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
         forgot: "Nhập địa chỉ email để nhận mã xác nhận",
         verify: `Mã xác nhận đã được gửi tới ${forgotEmail}`,
         reset: "Tạo mật khẩu mới cho tài khoản của bạn",
-        success: "Mật khẩu của bạn đã được đặt lại thành công",
+        success: mode === "verify-email" || (mode === "success" && registerEmail && !forgotEmail) ? "Xác nhận email thành công. Bạn có thể đăng nhập ngay bây giờ" : "Mật khẩu của bạn đã được đặt lại thành công",
+        "verify-email": `Mã xác nhận đã được gửi tới ${registerEmail}`,
     }
 
     const iconMap: Record<string, React.ReactNode> = {
@@ -271,13 +329,13 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                     {mode === "login" && (
                         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
                             <div className="space-y-2">
-                                <Label htmlFor="username">Tên đăng nhập / Email</Label>
+                                <Label htmlFor="email">Email</Label>
                                 <Input
-                                    id="username"
-                                    type="text"
-                                    placeholder="admin hoặc email@example.com"
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
+                                    id="email"
+                                    type="email"
+                                    placeholder="email@example.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     required
                                     disabled={isLoading}
                                 />
@@ -301,7 +359,6 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
-                                    minLength={6}
                                     disabled={isLoading}
                                 />
                             </div>
@@ -330,13 +387,13 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                     {mode === "register" && (
                         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
                             <div className="space-y-2">
-                                <Label htmlFor="name">Tên của bạn</Label>
+                                <Label htmlFor="reg-username">Tên đăng nhập</Label>
                                 <Input
-                                    id="name"
+                                    id="reg-username"
                                     type="text"
-                                    placeholder="Nguyen Van A"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="nguyenvana"
+                                    value={registerUsername}
+                                    onChange={(e) => setRegisterUsername(e.target.value)}
                                     required
                                     disabled={isLoading}
                                 />
@@ -354,6 +411,22 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                                 />
                             </div>
                             <div className="space-y-2">
+                                <Label htmlFor="reg-gender">Giới tính</Label>
+                                <select
+                                    id="reg-gender"
+                                    value={gender}
+                                    onChange={(e) => setGender(e.target.value)}
+                                    required
+                                    disabled={isLoading}
+                                    className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    <option value="">-- Chọn giới tính --</option>
+                                    <option value="MALE">Nam</option>
+                                    <option value="FEMALE">Nữ</option>
+                                    <option value="OTHER">Khác</option>
+                                </select>
+                            </div>
+                            <div className="space-y-2">
                                 <Label htmlFor="reg-password">Mật khẩu</Label>
                                 <Input
                                     id="reg-password"
@@ -362,10 +435,8 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
-                                    minLength={6}
                                     disabled={isLoading}
                                 />
-                                <p className="text-xs text-muted-foreground">Mật khẩu phải có ít nhất 6 ký tự</p>
                             </div>
 
                             {error && (
@@ -529,7 +600,6 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
                                     required
-                                    minLength={6}
                                     disabled={isLoading}
                                     autoFocus
                                 />
@@ -543,11 +613,9 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                     required
-                                    minLength={6}
                                     disabled={isLoading}
                                 />
                             </div>
-                            <p className="text-xs text-muted-foreground">Mật khẩu phải có ít nhất 6 ký tự</p>
 
                             {error && (
                                 <Alert variant="destructive">
@@ -563,21 +631,95 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                     )}
 
                     {/* ═══════════════════════════════════════════════════════ */}
-                    {/* SUCCESS */}
+                    {/* VERIFY EMAIL (after signup) */}
+                    {/* ═══════════════════════════════════════════════════════ */}
+                    {mode === "verify-email" && (
+                        <form onSubmit={handleVerifyRegistrationOtp} className="space-y-5 mt-4">
+                            <div className="space-y-3">
+                                <Label className="block text-center text-sm">Nhập mã xác nhận gồm 6 chữ số</Label>
+                                <div className="flex justify-center gap-2">
+                                    {otpCode.map((digit, i) => (
+                                        <input
+                                            key={i}
+                                            ref={el => { otpRefs.current[i] = el }}
+                                            type="text"
+                                            inputMode="numeric"
+                                            maxLength={1}
+                                            value={digit}
+                                            onChange={e => handleOtpChange(i, e.target.value)}
+                                            onKeyDown={e => handleOtpKeyDown(i, e)}
+                                            onPaste={handleOtpPaste}
+                                            disabled={isLoading}
+                                            className={`
+                                                w-10 h-12 text-center text-lg font-semibold rounded-md border
+                                                bg-background text-foreground
+                                                focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
+                                                transition-all duration-150
+                                                ${digit ? "border-primary bg-primary/5" : "border-input"}
+                                                disabled:opacity-50
+                                            `}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+
+                            {error && (
+                                <Alert variant="destructive">
+                                    <AlertCircle className="h-4 w-4" />
+                                    <AlertDescription>{error}</AlertDescription>
+                                </Alert>
+                            )}
+
+                            <div className="flex flex-col gap-2">
+                                <Button type="submit" disabled={isLoading || otpCode.join("").length < OTP_LENGTH} className="w-full">
+                                    {isLoading ? "Đang xác nhận..." : "Xác nhận"}
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    className="w-full text-xs text-muted-foreground"
+                                    onClick={() => transitionTo("login")}
+                                >
+                                    Quay lại đăng nhập
+                                </Button>
+                            </div>
+
+                            {/* Resend */}
+                            <p className="text-center text-xs text-muted-foreground">
+                                Không nhận được mã?{" "}
+                                {countdown > 0 ? (
+                                    <span className="text-primary font-medium">Gửi lại sau {countdown}s</span>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={handleResendOtp}
+                                        disabled={isLoading}
+                                        className="text-primary hover:underline underline-offset-2 font-medium disabled:opacity-50"
+                                    >
+                                        Gửi lại
+                                    </button>
+                                )}
+                            </p>
+                        </form>
+                    )}
+
+                    {/* ═══════════════════════════════════════════════════════ */}
+                    {/* SUCCESS STATE */}
                     {/* ═══════════════════════════════════════════════════════ */}
                     {mode === "success" && (
-                        <div className="mt-4 space-y-4 text-center">
-                            <p className="text-sm text-muted-foreground">
-                                Mật khẩu của bạn đã được cập nhật. Bạn có thể đăng nhập bằng mật khẩu mới ngay bây giờ.
-                            </p>
+                        <div className="mt-6 space-y-4 text-center">
                             <Button
                                 className="w-full"
-                                onClick={() => transitionTo("login")}
+                                onClick={() => {
+                                    onOpenChange(false)
+                                    transitionTo("login")
+                                }}
                             >
                                 Đăng nhập ngay
                             </Button>
                         </div>
                     )}
+
                 </div>
             </DialogContent>
         </Dialog>

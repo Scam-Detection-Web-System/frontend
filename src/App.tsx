@@ -11,10 +11,11 @@ import { AuthProvider, useAuth } from "@/contexts/auth-context"
 import { Toaster } from "@/components/ui/sonner"
 import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
-import { PhoneChecker } from "@/components/sections/phone-checker"
+import { ScamChecker } from "@/components/sections/scam-checker"
 import { ReportForm } from "@/components/sections/report-form"
 import { NewsSection } from "@/components/sections/news-section"
 import { GuidesSection } from "@/components/sections/guides-section"
+import { LogoutOverlay } from "@/components/shared/LogoutOverlay"
 import NewsDetailPage from "./pages/user/NewsDetailPage"
 
 // Protected route component for admin pages
@@ -65,7 +66,7 @@ function AppRoutes() {
                                     path="/kiemtra"
                                     element={
                                         <div className="flex flex-1 items-center justify-center p-4">
-                                            <PhoneChecker />
+                                            <ScamChecker />
                                         </div>
                                     }
                                 />
@@ -90,6 +91,7 @@ function App() {
                 <Router>
                     <ScrollToTop />
                     <AppRoutes />
+                    <LogoutOverlay />
                     <Toaster />
                 </Router>
             </ThemeProvider>

@@ -2,11 +2,11 @@
 
 import { Shield, AlertTriangle, Phone } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { PhoneChecker } from "@/components/sections/phone-checker"
+import { ScamChecker } from "@/components/sections/scam-checker"
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-primary py-20 sm:py-28 lg:py-32">
+    <section className="relative overflow-hidden bg-primary pt-8 pb-20 sm:pt-12 sm:pb-28 lg:pt-16 lg:pb-32">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:4rem_4rem]" />
       <div className="absolute right-0 top-0 -translate-y-1/4 translate-x-1/4 opacity-20">
         <Shield className="h-96 w-96 text-primary-foreground" />
@@ -30,8 +30,8 @@ export function HeroSection() {
             Kiểm tra số điện thoại đáng ngờ, báo cáo các vụ lừa đảo, và nhận thông tin cảnh báo mới nhất để bảo vệ bạn và người thân.
           </p>
 
-          {/* Phone search bar */}
-          <PhoneChecker variant="hero" />
+          {/* Scam search tabs */}
+          <ScamChecker hideHeader />
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Button
