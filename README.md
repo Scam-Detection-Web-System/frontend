@@ -1,6 +1,8 @@
 # Anti-Scam Web System - Frontend
 
 Welcome to the frontend repository of the **Anti-Scam Web System**. This application provides a comprehensive platform to help users identify potential scams, specifically targeted at phone numbers, while providing educational resources and community-driven reporting mechanisms.
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/1e3d0e54-70d5-42d8-857a-79deac02078b" />
+
 
 ## 🚀 Key Features
 
