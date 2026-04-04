@@ -29,7 +29,7 @@ const OTP_LENGTH = 6
 const RESEND_COUNTDOWN = 60
 
 export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
-    const { login, register } = useAuth()
+    const { login, register, isAdmin } = useAuth()
     const navigate = useNavigate()
 
     // ── Auth modes ──────────────────────────────────────────────
@@ -54,6 +54,16 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
 
     // ── Transition animation ─────────────────────────────────────
     const [animating, setAnimating] = useState(false)
+    // Flag to trigger admin redirect after state updates
+    const [shouldRedirectAdmin, setShouldRedirectAdmin] = useState(false)
+
+    // Redirect admin after login state updates
+    useEffect(() => {
+        if (shouldRedirectAdmin && isAdmin) {
+            setShouldRedirectAdmin(false)
+            navigate('/admin')
+        }
+    }, [isAdmin, shouldRedirectAdmin, navigate])
 
     // Reset everything when dialog closes
     useEffect(() => {
@@ -105,6 +115,8 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                 await login(email, password)
                 onOpenChange(false)
                 setEmail(""); setPassword("")
+                // Set flag — useEffect above will redirect if isAdmin becomes true
+                setShouldRedirectAdmin(true)
             } else if (mode === "register") {
                 if (!registerUsername.trim()) throw new Error("Vui lòng nhập tên đăng nhập")
                 if (!gender) throw new Error("Vui lòng chọn giới tính")

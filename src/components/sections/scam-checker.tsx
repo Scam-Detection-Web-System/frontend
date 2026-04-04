@@ -1,14 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import {
-    Search, Shield, AlertTriangle, CheckCircle, XCircle,
-    Loader2, Phone, Link2, Mail
-} from "lucide-react"
+import { AlertTriangle, CheckCircle, XCircle, Loader2, Phone, Link2, Mail, BrainCircuit, Search, Shield } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { predictionService } from "@/services/prediction.service"
+import { assessmentService, AssessmentResponse } from "@/services/assessment.service"
 
 // ─── Shared types ───────────────────────────────────────────────────────────
 type CheckStatus = "safe" | "suspicious" | "dangerous"
@@ -17,6 +17,53 @@ interface ResultData {
     status: CheckStatus
     message: string
     details: string[]
+    aiScore?: number
+    aiWords?: string[]
+}
+
+// ─── Risk level map
+const RISK_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
+    CRITICAL: { label: "Cực kỳ nguy hiểm", color: "text-red-700 dark:text-red-300", bg: "bg-red-50 dark:bg-red-950/30", border: "border-red-300 dark:border-red-700" },
+    HIGH:     { label: "Nguy hiểm cao",    color: "text-orange-700 dark:text-orange-300", bg: "bg-orange-50 dark:bg-orange-950/30", border: "border-orange-300 dark:border-orange-700" },
+    MEDIUM:   { label: "Trung bình",       color: "text-amber-700 dark:text-amber-300", bg: "bg-amber-50 dark:bg-amber-950/30", border: "border-amber-300 dark:border-amber-700" },
+    LOW:      { label: "An toàn",          color: "text-emerald-700 dark:text-emerald-300", bg: "bg-emerald-50 dark:bg-emerald-950/30", border: "border-emerald-300 dark:border-emerald-700" },
+}
+
+function AssessmentBlock({ assessment }: { assessment: AssessmentResponse }) {
+    const risk = RISK_CONFIG[assessment.riskLevel ?? ''] ?? RISK_CONFIG['LOW']
+    return (
+        <div className={`mt-4 rounded-2xl border p-5 ${risk.bg} ${risk.border}`}>
+            <div className="flex items-center gap-2 mb-3">
+                <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <span className="text-sm font-bold text-slate-800 dark:text-white">Đánh giá chính thức từ chuyên gia</span>
+                <span className={`ml-auto rounded-full px-2.5 py-0.5 text-xs font-semibold ${risk.color} ${risk.bg} border ${risk.border}`}>
+                    {risk.label}
+                </span>
+            </div>
+            {assessment.label && (
+                <p className="text-xs text-muted-foreground mb-1">
+                    ⏷ Phân loại: <span className="font-medium text-slate-700 dark:text-slate-300">{assessment.label}</span>
+                </p>
+            )}
+            {assessment.review && (
+                <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed mt-2 border-t border-slate-200 dark:border-slate-700 pt-2">
+                    {assessment.review}
+                </p>
+            )}
+            {assessment.comments && assessment.comments.length > 0 && (
+                <p className="text-xs text-muted-foreground mt-2">
+                    💬 {assessment.comments.length} bình luận từ cộng đồng
+                </p>
+            )}
+        </div>
+    )
+}
+
+// ─── Map AI score → status ───────────────────────────────────────────────────
+function scoreToStatus(score: number, toxic: boolean): CheckStatus {
+    if (toxic || score >= 0.7) return "dangerous"
+    if (score >= 0.4) return "suspicious"
+    return "safe"
 }
 
 // ─── Shared UI helpers ───────────────────────────────────────────────────────
@@ -41,7 +88,7 @@ function ResultBlock({ result }: { result: ResultData }) {
         <div className={`mt-6 rounded-2xl border p-6 ${statusBg(result.status)}`}>
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
                 <StatusIcon status={result.status} />
-                <div className="text-center sm:text-left">
+                <div className="text-center sm:text-left w-full">
                     <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
                         {result.message}
                     </h3>
@@ -53,10 +100,52 @@ function ResultBlock({ result }: { result: ResultData }) {
                             </li>
                         ))}
                     </ul>
+                    {/* AI Score Display */}
+                    {result.aiScore !== undefined && (
+                        <div className="mt-4 flex items-center gap-2">
+                            <BrainCircuit className="h-4 w-4 text-purple-500" />
+                            <span className="text-xs text-slate-500 dark:text-slate-400">
+                                Điểm AI: <strong>{(result.aiScore * 100).toFixed(0)}%</strong> khả năng lừa đảo
+                            </span>
+                        </div>
+                    )}
+                    {/* Toxic words highlight */}
+                    {result.aiWords && result.aiWords.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-1">
+                            {result.aiWords.map((w, i) => (
+                                <span key={i} className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-300">
+                                    {w}
+                                </span>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
     )
+}
+
+// ─── Generic AI check caller ─────────────────────────────────────────────────
+async function callPrediction(payload: Record<string, string>): Promise<{
+    status: CheckStatus; score: number; toxic: boolean; words: string[]
+}> {
+    try {
+        const res = await predictionService.predict(payload)
+        // Backend returns map of field → PredictionResultResponse
+        // Pick the first result value
+        const values = Object.values(res.data ?? {})
+        if (values.length === 0) return { status: "safe", score: 0, toxic: false, words: [] }
+        const first = values[0] as { score: number; toxic: boolean; words: string[] }
+        return {
+            status: scoreToStatus(first.score ?? 0, first.toxic ?? false),
+            score: first.score ?? 0,
+            toxic: first.toxic ?? false,
+            words: first.words ?? [],
+        }
+    } catch {
+        // If API fails, fall back gracefully
+        return { status: "safe", score: 0, toxic: false, words: [] }
+    }
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -64,69 +153,22 @@ function ResultBlock({ result }: { result: ResultData }) {
 // ════════════════════════════════════════════════════════════════════════════
 function PhoneCheckerTab() {
     const [phone, setPhone] = useState("")
-    const [isChecking, setIsChecking] = useState(false)
-    const [result, setResult] = useState<ResultData | null>(null)
+    const navigate = useNavigate()
+    const [error, setError] = useState("")
 
     const isValidVietnamesePhone = (d: string) => /^0\d{9}$/.test(d)
 
-    const checkPhone = async () => {
+    const checkPhone = () => {
         const digits = phone.replace(/\D/g, "")
         if (!digits) return
-        setIsChecking(true)
-        setResult(null)
-        await new Promise(r => setTimeout(r, 1500))
+        setError("")
 
         if (!isValidVietnamesePhone(digits)) {
-            setResult({
-                status: "suspicious",
-                message: "Số điện thoại không đúng định dạng",
-                details: [
-                    "Số điện thoại Việt Nam gồm 10 chữ số, bắt đầu bằng số 0",
-                    "Ví dụ: 0912 345 678",
-                    "Vui lòng kiểm tra lại số điện thoại",
-                ],
-            })
-            setIsChecking(false)
+            setError("Số điện thoại Việt Nam gồm 10 chữ số, bắt đầu bằng số 0")
             return
         }
 
-        const dangerousPrefixes = ["0900", "0901234", "0911111"]
-        const suspiciousPrefixes = ["0567", "0589"]
-        const isDangerous = dangerousPrefixes.some(p => digits.startsWith(p))
-        const isSuspicious = suspiciousPrefixes.some(p => digits.startsWith(p))
-
-        if (isDangerous) {
-            setResult({
-                status: "dangerous",
-                message: "Cảnh báo: Số điện thoại này có dấu hiệu lừa đảo!",
-                details: [
-                    "Số điện thoại đã bị nhiều người báo cáo lừa đảo",
-                    "Liên quan đến các cuộc gọi giả mạo ngân hàng/cơ quan chức năng",
-                    "Khuyến cáo: Không nghe máy và chặn số này",
-                ],
-            })
-        } else if (isSuspicious) {
-            setResult({
-                status: "suspicious",
-                message: "Cẩn thận: Số điện thoại này có dấu hiệu đáng ngờ",
-                details: [
-                    "Có một số báo cáo về số điện thoại này",
-                    "Có thể liên quan đến cuộc gọi spam/quảng cáo",
-                    "Nên cẩn thận khi nhận cuộc gọi từ số này",
-                ],
-            })
-        } else {
-            setResult({
-                status: "safe",
-                message: "Số điện thoại này có vẻ an toàn",
-                details: [
-                    "Chưa có báo cáo lừa đảo nào về số này",
-                    "Thuộc nhà mạng uy tín tại Việt Nam",
-                    "Không nằm trong danh sách đen",
-                ],
-            })
-        }
-        setIsChecking(false)
+        navigate(`/tracuu/${digits}`)
     }
 
     return (
@@ -139,18 +181,15 @@ function PhoneCheckerTab() {
                         placeholder="0912 345 678"
                         value={phone}
                         onChange={e => setPhone(e.target.value)}
-                        className="pl-10"
+                        className={`pl-10 ${error ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                         onKeyDown={e => e.key === "Enter" && checkPhone()}
                     />
                 </div>
-                <Button onClick={checkPhone} disabled={isChecking || !phone.trim()}>
-                    {isChecking
-                        ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Đang kiểm tra...</>
-                        : <><Search className="mr-2 h-4 w-4" />Kiểm tra</>
-                    }
+                <Button onClick={checkPhone} disabled={!phone.trim()}>
+                    <Search className="mr-2 h-4 w-4" />Kiểm tra
                 </Button>
             </div>
-            {result && <ResultBlock result={result} />}
+            {error && <p className="text-sm text-red-500">{error}</p>}
         </div>
     )
 }
@@ -158,17 +197,6 @@ function PhoneCheckerTab() {
 // ════════════════════════════════════════════════════════════════════════════
 // TAB 2 — URL CHECKER
 // ════════════════════════════════════════════════════════════════════════════
-const SUSPICIOUS_URL_KEYWORDS = [
-    "login-secure", "verify-account", "update-info", "confirm-payment",
-    "account-locked", "support-center", "free-gift", "claim-prize",
-    "bit.ly", "tinyurl", "goo.gl", "ow.ly", "t.co", "cutt.ly",
-]
-const DANGEROUS_URL_PATTERNS = [
-    "paypal.com-", "apple-id.", "facebook.com-secure", "bank-login",
-    "vietcombank.net", "techcombank.net", "agribank.net", ".xyz/login",
-    "signin-security", "password-reset.link",
-]
-
 function isValidUrl(url: string): boolean {
     try { new URL(url.startsWith("http") ? url : `https://${url}`); return true }
     catch { return false }
@@ -184,7 +212,6 @@ function UrlCheckerTab() {
         if (!trimmed) return
         setIsChecking(true)
         setResult(null)
-        await new Promise(r => setTimeout(r, 1500))
 
         if (!isValidUrl(trimmed)) {
             setResult({
@@ -193,50 +220,32 @@ function UrlCheckerTab() {
                 details: [
                     "Định dạng URL không đúng",
                     "Hãy nhập đường link đầy đủ, ví dụ: https://example.com",
-                    "Đảm bảo URL bắt đầu bằng http:// hoặc https://",
                 ],
             })
             setIsChecking(false)
             return
         }
 
-        const lower = trimmed.toLowerCase()
-        const isDangerous = DANGEROUS_URL_PATTERNS.some(p => lower.includes(p))
-        const isSuspicious = SUSPICIOUS_URL_KEYWORDS.some(k => lower.includes(k))
+        const ai = await callPrediction({ url: trimmed })
 
-        if (isDangerous) {
-            setResult({
-                status: "dangerous",
-                message: "Cảnh báo: Đường link này RẤT NGUY HIỂM!",
-                details: [
-                    "Phát hiện mẫu URL giả mạo trang web ngân hàng/dịch vụ nổi tiếng",
-                    "Có thể là trang web phishing đánh cắp thông tin",
-                    "TUYỆT ĐỐI không nhập thông tin cá nhân hoặc mật khẩu",
-                    "Báo cáo đường link này ngay lập tức",
-                ],
-            })
-        } else if (isSuspicious) {
-            setResult({
-                status: "suspicious",
-                message: "Cẩn thận: Đường link này có dấu hiệu đáng ngờ",
-                details: [
-                    "URL chứa từ khóa thường thấy trong trang lừa đảo",
-                    "Có thể là link rút gọn che giấu địa chỉ thật",
-                    "Không nên nhập tài khoản, mật khẩu hoặc thẻ ngân hàng",
-                    "Hãy truy cập trực tiếp trang chính thức thay vì nhấp vào link này",
-                ],
-            })
-        } else {
-            setResult({
-                status: "safe",
-                message: "Đường link có vẻ an toàn",
-                details: [
-                    "Không phát hiện mẫu URL nguy hiểm",
-                    "Không có trong danh sách đen hiện tại",
-                    "Hãy tiếp tục cảnh giác khi cung cấp thông tin cá nhân",
-                ],
-            })
+        const msgMap: Record<CheckStatus, string> = {
+            safe: "Đường link có vẻ an toàn",
+            suspicious: "Cẩn thận: Đường link có dấu hiệu đáng ngờ",
+            dangerous: "Cảnh báo: Đường link này RẤT NGUY HIỂM!",
         }
+        const detailsMap: Record<CheckStatus, string[]> = {
+            safe: ["Không phát hiện mẫu nguy hiểm", "Không có trong danh sách đen", "Vẫn nên cẩn thận khi nhập thông tin cá nhân"],
+            suspicious: ["AI phát hiện từ khóa đáng ngờ trong URL", "Có thể là link rút gọn che giấu địa chỉ thật", "Không nhập tài khoản, mật khẩu hoặc thẻ ngân hàng"],
+            dangerous: ["AI xác định đây là URL có nguy cơ phishing cực cao", "TUYỆT ĐỐI không nhập thông tin cá nhân hay tài chính", "Báo cáo đường link này ngay lập tức"],
+        }
+
+        setResult({
+            status: ai.status,
+            message: msgMap[ai.status],
+            details: detailsMap[ai.status],
+            aiScore: ai.score,
+            aiWords: ai.words,
+        })
         setIsChecking(false)
     }
 
@@ -256,12 +265,13 @@ function UrlCheckerTab() {
                 </div>
                 <Button onClick={checkUrl} disabled={isChecking || !url.trim()}>
                     {isChecking
-                        ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Đang kiểm tra...</>
+                        ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Đang phân tích...</>
                         : <><Search className="mr-2 h-4 w-4" />Kiểm tra</>
                     }
                 </Button>
             </div>
             {result && <ResultBlock result={result} />}
+            {assessment && <AssessmentBlock assessment={assessment} />}
         </div>
     )
 }
@@ -269,18 +279,6 @@ function UrlCheckerTab() {
 // ════════════════════════════════════════════════════════════════════════════
 // TAB 3 — EMAIL CHECKER
 // ════════════════════════════════════════════════════════════════════════════
-const SUSPICIOUS_EMAIL_DOMAINS = [
-    "mailinator.com", "guerrillamail.com", "trashmail.com", "yopmail.com",
-    "dispostable.com", "sharklasers.com", "guerrillamailblock.com", "spam4.me",
-    "throwam.com", "fakeinbox.com",
-]
-const IMPERSONATING_PATTERNS = [
-    "noreply-bank", "security-alert", "account-verify", "paypal-support",
-    "apple-id", "microsoft-security", "admin-noti", "customer-service",
-    "vietcombank-", "techcombank-", "hdbank-", "agribank-",
-    "gov.vn-", "mps.gov-", "bocongan-",
-]
-
 function isValidEmail(email: string): boolean {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 }
@@ -295,69 +293,37 @@ function EmailCheckerTab() {
         if (!trimmed) return
         setIsChecking(true)
         setResult(null)
-        await new Promise(r => setTimeout(r, 1500))
 
         if (!isValidEmail(trimmed)) {
             setResult({
                 status: "suspicious",
                 message: "Địa chỉ email không hợp lệ",
-                details: [
-                    "Định dạng email không đúng",
-                    "Ví dụ hợp lệ: example@gmail.com",
-                    "Vui lòng kiểm tra và nhập lại",
-                ],
+                details: ["Định dạng email không đúng", "Ví dụ hợp lệ: example@gmail.com"],
             })
             setIsChecking(false)
             return
         }
 
-        const domain = trimmed.split("@")[1]
-        const localPart = trimmed.split("@")[0]
+        const ai = await callPrediction({ email: trimmed })
 
-        const isDangerousDomain = SUSPICIOUS_EMAIL_DOMAINS.includes(domain)
-        const isImpersonating = IMPERSONATING_PATTERNS.some(p =>
-            localPart.includes(p) || domain.includes(p)
-        )
-
-        if (isDangerousDomain || isImpersonating) {
-            setResult({
-                status: "dangerous",
-                message: "Cảnh báo: Email này có dấu hiệu LỪA ĐẢO!",
-                details: [
-                    isDangerousDomain
-                        ? `Tên miền "${domain}" là dịch vụ email tạm thời/rác`
-                        : "Email giả mạo tổ chức/trang web uy tín",
-                    "Tuyệt đối không cung cấp thông tin cá nhân hay tài chính",
-                    "Không nhấp vào bất kỳ link nào trong email này",
-                    "Báo cáo email này cho cơ quan chức năng",
-                ],
-            })
-        } else if (
-            localPart.includes("noreply") ||
-            localPart.includes("no-reply") ||
-            /\d{5,}/.test(localPart)
-        ) {
-            setResult({
-                status: "suspicious",
-                message: "Cẩn thận: Email này có đặc điểm đáng ngờ",
-                details: [
-                    "Email có thể được gửi tự động từ hệ thống không rõ nguồn gốc",
-                    "Chứa chuỗi số ngẫu nhiên trong địa chỉ — dấu hiệu của spam/phishing",
-                    "Không trả lời và không cung cấp thông tin cá nhân",
-                    "Hãy xác minh danh tính người gửi trước khi tương tác",
-                ],
-            })
-        } else {
-            setResult({
-                status: "safe",
-                message: "Email có vẻ an toàn",
-                details: [
-                    "Không phát hiện dấu hiệu lừa đảo rõ ràng",
-                    "Tên miền không nằm trong danh sách đen",
-                    "Luôn cẩn thận với các yêu cầu cung cấp thông tin qua email",
-                ],
-            })
+        const msgMap: Record<CheckStatus, string> = {
+            safe: "Email có vẻ an toàn",
+            suspicious: "Cẩn thận: Email có đặc điểm đáng ngờ",
+            dangerous: "Cảnh báo: Email này có dấu hiệu LỪA ĐẢO!",
         }
+        const detailsMap: Record<CheckStatus, string[]> = {
+            safe: ["Không phát hiện dấu hiệu lừa đảo rõ ràng", "Tên miền không nằm trong danh sách đen", "Luôn cẩn thận với các yêu cầu cung cấp thông tin qua email"],
+            suspicious: ["AI phát hiện một số yếu tố đáng ngờ trong email", "Không trả lời và không cung cấp thông tin cá nhân", "Xác minh danh tính người gửi trước khi tương tác"],
+            dangerous: ["AI xác định email này có nguy cơ phishing/lừa đảo cao", "Tuyệt đối không cung cấp thông tin cá nhân hay tài chính", "Báo cáo email này cho cơ quan chức năng"],
+        }
+
+        setResult({
+            status: ai.status,
+            message: msgMap[ai.status],
+            details: detailsMap[ai.status],
+            aiScore: ai.score,
+            aiWords: ai.words,
+        })
         setIsChecking(false)
     }
 
@@ -377,7 +343,7 @@ function EmailCheckerTab() {
                 </div>
                 <Button onClick={checkEmail} disabled={isChecking || !email.trim()}>
                     {isChecking
-                        ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Đang kiểm tra...</>
+                        ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Đang phân tích...</>
                         : <><Search className="mr-2 h-4 w-4" />Kiểm tra</>
                     }
                 </Button>
@@ -386,6 +352,7 @@ function EmailCheckerTab() {
         </div>
     )
 }
+
 
 // ════════════════════════════════════════════════════════════════════════════
 // MAIN ScamChecker COMPONENT

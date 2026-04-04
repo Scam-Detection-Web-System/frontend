@@ -7,6 +7,7 @@ export interface User {
     email: string
     name: string
     isAdmin: boolean
+    role: string
     avatar?: string // base64 data URL
     gender?: string
 }
@@ -96,7 +97,8 @@ function mapUser(u: UserResponse, existingUser?: User | null): User {
         id: u.userId,
         email: u.email,
         name: u.username,
-        isAdmin: u.role === 'ADMIN' || u.role === 'MANAGER',
+        isAdmin: u.role === 'ADMIN' || u.role === 'MANAGER' || u.role === 'MODERATOR',
+        role: u.role,
         gender: u.gender,
         avatar: existingUser?.avatar ?? localStorage.getItem(`auth_avatar_${u.userId}`) ?? undefined,
     }
@@ -113,6 +115,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (storedUser) {
             setUser(JSON.parse(storedUser))
         }
+    }, [])
+
+    // Listen for session expiry from apiFetch (token refresh failed)
+    useEffect(() => {
+        const handleExpired = () => {
+            setUser(null)
+            localStorage.removeItem('auth_user')
+            localStorage.removeItem('auth_token')
+            localStorage.removeItem('auth_refresh_token')
+        }
+        window.addEventListener('auth:session-expired', handleExpired)
+        return () => window.removeEventListener('auth:session-expired', handleExpired)
     }, [])
 
     const login = async (email: string, password: string) => {

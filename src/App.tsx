@@ -17,6 +17,9 @@ import { NewsSection } from "@/components/sections/news-section"
 import { GuidesSection } from "@/components/sections/guides-section"
 import { LogoutOverlay } from "@/components/shared/LogoutOverlay"
 import NewsDetailPage from "./pages/user/NewsDetailPage"
+import QuizPage from "./pages/user/QuizPage"
+import PhoneAssessmentPage from "./pages/user/PhoneAssessmentPage"
+import { ChatbotButton } from "@/components/shared/chatbot-button"
 
 // Protected route component for admin pages
 function AdminRoute({ children }: { children: React.ReactNode }) {
@@ -24,6 +27,17 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 
     if (!isAuthenticated || !isAdmin) {
         return <Navigate to="/" replace />
+    }
+
+    return <>{children}</>
+}
+
+// User-only route: redirect admin to /admin
+function UserRoute({ children }: { children: React.ReactNode }) {
+    const { isAdmin, isAuthenticated } = useAuth()
+
+    if (isAuthenticated && isAdmin) {
+        return <Navigate to="/admin" replace />
     }
 
     return <>{children}</>
@@ -59,9 +73,9 @@ function AppRoutes() {
                         <main className="flex flex-1 flex-col">
                             <Routes>
                                 <Route path="/" element={<Home />} />
-                                <Route path="/taikhoan" element={<PersonalPage />} />
-                                <Route path="/taikhoan/chinhsua" element={<EditProfilePage />} />
-                                <Route path="/baomat" element={<SecurityPage />} />
+                                <Route path="/taikhoan" element={<UserRoute><PersonalPage /></UserRoute>} />
+                                <Route path="/taikhoan/chinhsua" element={<UserRoute><EditProfilePage /></UserRoute>} />
+                                <Route path="/baomat" element={<UserRoute><SecurityPage /></UserRoute>} />
                                 <Route
                                     path="/kiemtra"
                                     element={
@@ -74,9 +88,12 @@ function AppRoutes() {
                                 <Route path="/tintuc" element={<NewsSection />} />
                                 <Route path="/tintuc/:id" element={<NewsDetailPage />} />
                                 <Route path="/huongdan" element={<GuidesSection />} />
+                                <Route path="/quiz" element={<QuizPage />} />
+                                <Route path="/tracuu/:phone" element={<PhoneAssessmentPage />} />
                             </Routes>
                         </main>
                         <Footer />
+                        <ChatbotButton />
                     </div>
                 }
             />

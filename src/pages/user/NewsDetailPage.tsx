@@ -6,286 +6,114 @@ import { Button } from "@/components/ui/button"
 export const newsArticles = [
   {
     id: 1,
-    title: "Cách nhận biết và phòng chống các chiêu thức lừa đảo tài chính phổ biến",
-    excerpt:
-      "Tìm hiểu về các hình thức lừa đảo tài chính phổ biến và cách bảo vệ bản thân khỏi những kẻ lừa đảo chiếm đoạt tiền bạc.",
-    date: "17/03/2026",
-    category: "Cảnh báo mới",
-    isUrgent: true,
-    source: "trangtrang.com",
-    content: [
-      {
-        heading: "Các hình thức lừa đảo tài chính phổ biến hiện nay",
-        paragraphs: [
-          "Lừa đảo liên quan đến vay nợ và đáo hạn ngân hàng là một trong những hình thức phổ biến nhất. Những đối tượng xấu thường lợi dụng tình cảnh khó khăn về tài chính của những người xung quanh, sau đó vay tiền với lý do cần đáo hạn nợ ngân hàng. Chúng tạo ra những cái cớ chính đáng để lấy được sự tin tưởng từ nạn nhân.",
-          "Một đặc điểm chung của các vụ lừa đảo này là:",
-        ],
-        bullets: [
-          "Tạo ra các thông tin gian dối về nhu cầu tài chính, như nhu cầu đáo hạn ngân hàng hoặc cần vốn kinh doanh",
-          "Chiếm đoạt số tiền lớn từ nhiều người khác nhau trong thời gian dài",
-          "Sử dụng tiền chiếm đoạt để trả cho các khoản nợ cũ hoặc chi tiêu cá nhân thay vì mục đích ban đầu",
-          "Né tránh trách nhiệm khi bị đòi tiền bằng cách thái độ xấu hoặc vô trách nhiệm",
-        ],
-      },
-      {
-        heading: "Dấu hiệu cảnh báo để nhận biết kẻ lừa đảo",
-        paragraphs: ["Để bảo vệ bản thân, bạn cần chú ý đến những dấu hiệu cảnh báo sau:"],
-        bullets: [
-          "Yêu cầu vay tiền với lý do mơ hồ — nếu ai đó liên tục yêu cầu vay tiền với những lý do chung chung hoặc hay thay đổi lý do, đây là tín hiệu đáng nghi",
-          "Cam kết hoàn trả mơ hồ — các đối tượng lừa đảo thường không cam kết rõ ràng về thời gian và cách thức hoàn trả tiền",
-          "Sử dụng mối quan hệ thân thiết để lợi dụng tình bạn, tình cảm gia đình lấy tiền",
-          "Tránh né khi được đòi tiền — sau khi nhận tiền, chúng sẽ tìm cách tránh né hoặc thái độ thay đổi hoàn toàn",
-          "Không có tài sản hoặc nguồn thu nhập rõ ràng",
-        ],
-      },
-      {
-        heading: "Cách bảo vệ tài sản và tránh trở thành nạn nhân",
-        paragraphs: ["Để tránh bị lừa đảo chiếm đoạt tài sản, bạn nên áp dụng những biện pháp phòng chống sau:"],
-        bullets: [
-          "Xác minh thông tin trước khi cho vay — luôn yêu cầu bằng chứng cụ thể về nhu cầu tài chính, như giấy tờ từ ngân hàng hoặc hóa đơn",
-          "Sử dụng các kênh giao dịch tài chính chính thức như ngân hàng hoặc tổ chức tài chính uy tín",
-          "Giữ hồ sơ ghi chép rõ ràng — luôn lập biên bản, hợp đồng hoặc ghi chú chi tiết về các khoản vay nợ",
-          "Không cho vay tiền lớn cho người lạ hoặc mới quen",
-          "Tham khảo ý kiến gia đình hoặc bạn bè trước khi cho vay số tiền lớn",
-        ],
-      },
-      {
-        heading: "Biện pháp pháp lý khi bị lừa đảo",
-        paragraphs: ["Nếu bạn hoặc người thân phát hiện bị lừa đảo chiếm đoạt tài sản, hãy:"],
-        bullets: [
-          "Tố giác ngay tới cơ quan công an với đầy đủ chứng cứ như: tin nhắn, cuộc gọi, biên bản ghi nợ",
-          "Thu thập bằng chứng — lưu giữ tất cả các giao dịch, tin nhắn, email liên quan đến vụ lừa đảo",
-          "Tìm kiếm hỗ trợ pháp lý — tham khảo ý kiến của luật sư hoặc các tổ chức pháp lý uy tín",
-          "Cảnh báo người khác — chia sẻ thông tin về các đối tượng lừa đảo với cộng đồng để ngăn chặn các nạn nhân khác",
-        ],
-      },
-    ],
+    title: "Combo du lịch giá rẻ: Kỳ nghỉ trong mơ hay Cú lừa tiền triệu",
+    excerpt: "Mùa du lịch đang đến gần, nhu cầu \"xách ba lô lên và đi\" của mọi người tăng cao. Đánh vào tâm lý muốn săn vé rẻ, combo \"hời\", các đối tượng lừa đảo đã tung ra",
+    date: "03/04/2026",
+    category: "Tin tức",
+    isUrgent: false,
+    source: "Chống Lừa Đảo",
+    imageUrl: "https://chongluadao.vn/blog/wp-content/uploads/2026/03/Gemini_Generated_Image_ez8m1yez8m1yez8m.png",
+    content: "Mùa du lịch đang đến gần, nhu cầu “xách ba lô lên và đi” của mọi người tăng cao. Đánh vào tâm lý muốn săn vé rẻ, combo “hời”, các đối tượng lừa đảo đã tung ra hàng loạt chiêu trò tinh vi khiến không ít người rơi vào cảnh “tiền mất, tật mang”.\n\nĐể bảo vệ bản thân và gia đình, hãy cùng Chống Lừa Đảo điểm mặt những thủ đoạn “bình cũ rượu mới” đang nở rộ trong năm 2026.\n\nNhững “chiêu bài” lừa đảo phổ biến\n\nKẻ gian hiện nay không chỉ đơn thuần là biến mất sau khi nhận tiền, mà còn dàn dựng kịch bản vô cùng chuyên nghiệp:\n\nMã đặt chỗ (PNR) “thật” nhưng… ảo:\n\nĐây là chiêu cực kỳ tinh vi.\n\nKẻ lừa đảo vào trang web chính thức của hãng hàng không để đặt chỗ (chưa thanh toán) rồi gửi mã PNR cho bạn.\n\nKhi bạn kiểm tra trên hệ thống hãng, thông tin hoàn toàn khớp. Nhưng thực tế, mã này sẽ tự hủy sau 12-24 giờ nếu không thanh toán.\n\nNgay khi bạn tin tưởng chuyển tiền, chúng sẽ không xuất vé và chặn liên lạc.\n\n“Tích xanh” giả, uy tín ảo:\n\nNhiều hội nhóm, fanpage được mua lại hoặc thuê có sẵn tích xanh Facebook, hàng chục nghìn lượt theo dõi và hàng trăm bình luận “seeding” khen ngợi.\n\nChúng mạo danh các resort lớn, công ty lữ hành uy tín để chạy quảng cáo combo giảm giá 30-50%.\n\nSuất “ngoại giao”, vé “giờ chót”:\n\nChúng đánh vào tâm lý gấp gáp bằng cách rao bán các suất hủy phòng đột xuất, vé nội bộ giá siêu rẻ và yêu cầu chuyển tiền ngay để “giữ chỗ” vì có người khác đang chờ.\n\nWebsite giả mạo tinh vi:\n\nCác tên miền như\n\nvietnamairlines-giare[.]com\n\nhay\n\nbooking-uudai[.]xyz\n\nđược thiết kế giao diện giống hệt trang chủ chính thống để lừa người dùng nhập thông tin thanh toán.\n\nCách nhận biết và phòng tránh\n\nĐừng để những hình ảnh lung linh và mức giá “không tưởng” làm mờ mắt. Hãy nằm lòng bảng quy tắc sau:\n\nBảng đối chiếu nhanh để nhận diện rủi ro\n\nDấu hiệu\n\nMức độ\n\nnguy hiểm\n\nHành động khuyên dùng\n\nGiá rẻ hơn thị trường >30%\n\n⚠️ Cao\n\nSo sánh giá trực tiếp trên web hãng hoặc các nền tảng trung gian uy tín như Agoda/Booking.\n\nYêu cầu chuyển khoản vào tài khoản cá nhân\n\n⚠️ Cao\n\nƯu tiên thanh toán qua cổng chính thức hoặc tài khoản công ty.\n\nGiục giễu, hối thúc chuyển tiền ngay\n\n⚠️⚠️ Rất cao\n\nBình tĩnh xác minh, không chuyển tiền dưới áp lực tâm lý.\n\nWebsite có đuôi lạ (.xyz, .cc, .tk)\n\n❌ Tuyệt đối tránh\n\nChỉ giao dịch trên các tên miền .vn hoặc .com chính thức.\n\nCách xác minh độ uy tín\n\nXác thực mã code:\n\nKhi nhận mã PNR vé máy bay hoặc mã đặt phòng, hãy gọi trực tiếp số Hotline của hãng hàng không/khách sạn đó để hỏi:\n\n“Mã này đã được thanh toán (Issued) chưa hay chỉ mới là giữ chỗ (Booking)?”\n\nKiểm tra uy tín fanpage:\n\nVào phần “Tính minh bạch của trang” để xem ngày thành lập và lịch sử đổi tên. Nếu một trang du lịch lớn mà mới lập được vài tháng hoặc đổi tên từ “Bán quần áo” sang “Du lịch giá rẻ” thì 99% là lừa đảo.\n\nTra cứu thông tin tại ChongLuaDao.vn:\n\nTrước khi click vào bất kỳ đường link nào hoặc giao dịch với tài khoản lạ, hãy sử dụng công cụ AI của Chống Lừa Đảo để kiểm tra mức độ an toàn.\n\nBạn phải làm gì khi đã lỡ “sập bẫy”?\n\nNếu chẳng may trở thành nạn nhân, đừng giữ im lặng vì điều đó sẽ tiếp tay cho kẻ xấu:\n\nLiên hệ ngân hàng ngay lập tức: Gọi hotline ngân hàng hoặc đến chi nhánh gần nhất để yêu cầu tạm dừng giao dịch hoặc phong tỏa tài khoản/thẻ. Cung cấp số tài khoản thụ hưởng của kẻ lừa đảo để ngân hàng đưa vào danh sách cảnh báo.\n\nLưu trữ bằng chứng: Hãy lưu lại tất cả thông tin liên quan bao gồm:\n\nThông tin liên lạc: Số điện thoại, tài khoản mạng xã hội, ID Telegram hay bất cứ kênh thông tin liên lạc nào của kẻ lừa đảo.\n\nNội dung trao đổi: Ảnh chụp màn hình tin nhắn, ghi âm cuộc gọi lừa dẫn dụ.\n\nBằng chứng tài chính: Biên lai chuyển tiền, sao kê tài khoản ngân hàng, các mã giao dịch (TransID).\n\nTrình báo cơ quan chức năng:\n\nĐến cơ quan Công an địa phương (xã/phường) gần nhất hoặc Phòng An ninh mạng và phòng, chống tội phạm sử dụng công nghệ cao (PA05) tại Công an tỉnh/thành phố để tố giác tội phạm.\n\nBáo cáo ngay:\n\nGửi thông tin về cho Chống Lừa Đảo để chúng tôi cảnh báo cộng đồng và ngăn chặn website độc hại.\n\nMột kỳ nghỉ hạnh phúc bắt đầu từ sự tỉnh táo.\n\nĐừng để cái bẫy “giá rẻ” phá hỏng kế hoạch du lịch của bạn."
   },
   {
     id: 2,
-    title: "Cảnh báo lừa đảo giả danh cán bộ: Cách nhận biết và bảo vệ bản thân",
-    excerpt:
-      "Trang Trắng cảnh báo về các chiêu lừa đảo giả danh cán bộ nhà nước. Tìm hiểu cách nhận biết những cuộc gọi, tin nhắn lừa đảo và bảo vệ tài sản của bạn.",
-    date: "15/03/2026",
-    category: "Cảnh báo mới",
-    isUrgent: true,
-    source: "trangtrang.com",
-    content: [
-      {
-        heading: "Thủ đoạn lừa đảo giả danh cán bộ nhà nước",
-        paragraphs: [
-          "Kẻ lừa đảo thường sử dụng những thủ đoạn rất tinh vi để đánh lừa người dân. Trong vụ lừa đảo gần đây, đối tượng đã tiếp cận một nạn nhân vào dịp Tết Nguyên đán, khi nhu cầu mua bán hàng hóa tăng cao. Kẻ lừa đảo tự giới thiệu mình là cán bộ đang công tác tại một cơ quan chức năng của Bộ Công an, để tạo lòng tin với nạn nhân.",
-          "Sau đó, đối tượng \"nổ\" rằng đang có một lô hàng cần thanh lý tại một cảng lớn và cần người mua. Bằng những lời lẽ thuyết phục, kẻ lừa đảo đã thuyết phục nạn nhân chuyển khoản và đưa tiền mặt nhiều lần. Tổng cộng, nạn nhân đã mất hơn 131 triệu đồng trước khi nhận ra bị lừa.",
-          "Những chiêu trò này rất phổ biến bởi vì:",
-        ],
-        bullets: [
-          "Lợi dụng lòng tin của người dân đối với cơ quan chức năng",
-          "Tạo ra các câu chuyện hấp dẫn về cơ hội kinh doanh",
-          "Tấn công vào tâm lý tham lợi của nạn nhân",
-          "Sử dụng công nghệ để giả mạo số điện thoại hoặc thông tin cá nhân",
-          "Lợi dụng các mùa cao điểm như Tết, lễ hội khi người dân bận rộn",
-        ],
-      },
-      {
-        heading: "Cách nhận biết các cuộc gọi, tin nhắn lừa đảo",
-        paragraphs: [
-          "Kiểm tra thông tin người gọi: Cán bộ nhà nước thực sự sẽ cung cấp số điện thoại chính thức của cơ quan mình. Nếu nghi ngờ, hãy tìm số điện thoại chính thức của cơ quan đó qua trang web chính thức hoặc danh bạ công khai và gọi lại để xác nhận.",
-          "Cảnh báo đỏ từ những yêu cầu tài chính: Nếu ai đó xưng là cán bộ nhà nước mà yêu cầu bạn chuyển tiền, đưa tiền mặt, hoặc cung cấp thông tin tài khoản ngân hàng, đây là tín hiệu lừa đảo rõ ràng. Các cơ quan chính phủ hợp pháp không bao giờ yêu cầu công dân chuyển tiền qua điện thoại.",
-          "Hứa hẹn lợi nhuận quá lớn: Những lời hứa về cơ hội kinh doanh với lợi nhuận cao, lô hàng cần thanh lý giá rẻ, hoặc bất kỳ cơ hội \"làm giàu nhanh\" nào đều là dấu hiệu của lừa đảo.",
-          "Tạo cấp độ khẩn cấp: Kẻ lừa đảo thường tạo ra tâm lý khẩn cấp, bắt buộc bạn phải quyết định nhanh mà không có thời gian suy nghĩ.",
-        ],
-        bullets: [],
-      },
-      {
-        heading: "Cách bảo vệ bản thân khỏi lừa đảo",
-        paragraphs: ["Để giảm thiểu rủi ro trở thành nạn nhân của lừa đảo, bạn nên thực hiện những biện pháp sau:"],
-        bullets: [
-          "Xác minh thông tin trước khi tin tưởng — luôn xác minh danh tính của người gọi bằng cách gọi lại đến số điện thoại chính thức của cơ quan đó",
-          "Tìm hiểu thêm trước khi quyết định — nếu ai đó cung cấp thông tin về cơ hội kinh doanh hoặc yêu cầu chuyển tiền, hãy dành thời gian tìm hiểu kỹ lưỡng",
-          "Không chia sẻ thông tin cá nhân — tránh cung cấp thông tin tài khoản ngân hàng, số căn cước công dân qua điện thoại",
-          "Sử dụng dịch vụ tra cứu đáng tin cậy để kiểm tra số điện thoại đáng ngờ",
-          "Báo cáo ngay cho cơ quan công an địa phương nếu phát hiện mình đã bị lừa",
-        ],
-      },
-    ],
+    title: "Lừa đảo tình cảm dẫn dụ đầu tư – Khi AI trở thành cỗ máy thao túng tâm lý",
+    excerpt: "Kịch bản lừa đảo tình cảm dẫn dụ đầu tư (Pig Butchering) đã trở nên nguy hiểm hơn bao giờ hết nhờ khả năng tự động hóa của AI:",
+    date: "03/04/2026",
+    category: "Tin tức",
+    isUrgent: false,
+    source: "Chống Lừa Đảo",
+    imageUrl: "https://chongluadao.vn/blog/wp-content/uploads/2026/01/Hinh-7-Tu-dong-hoa-lua-dao-quy-mo-lon-bang-AI.png",
+    content: "Tội phạm mạng hiện nay đã nâng cấp các chiêu trò lừa đảo từ “thủ công” sang quy mô “công nghiệp” nhờ sự hỗ trợ của trí tuệ nhân tạo (AI). Thay vì chỉ có thể trò chuyện với 5-10 người, một hacker giờ đây có thể cùng lúc “tán tỉnh” hàng nghìn nạn nhân thông qua mạng lưới Chatbot AI trên các nền tảng như Telegram, Tinder hay Facebook Dating.\n\nKịch bản Pig Butchering (mổ heo) thời AI\n\nKịch bản lừa đảo tình cảm dẫn dụ đầu tư (Pig Butchering) đã trở nên nguy hiểm hơn bao giờ hết nhờ khả năng tự động hóa của AI:\n\nThu thập thông tin: AI tiến hành dò quét dữ liệu công khai trên LinkedIn, Facebook để lập hồ sơ sở thích, công việc của bạn.\n\nCá nhân hóa nội dung: Thay vì gửi 1 email chung chung cho 1000 người, AI soạn 1000 email khác nhau. Ví dụ: “Chào A, mình thấy bạn mới tham gia hội thảo X ở Hà Nội…”.\n\nKiên nhẫn tuyệt đối: Chatbot AI sẵn sàng tâm sự, chúc ngủ ngon và duy trì hội thoại 24/7 với bạn để xây dựng lòng tin.\n\nChốt đơn bằng người thật: Chỉ khi bạn đã hoàn toàn “cắn câu” và có ý định nạp tiền, AI mới chuyển quyền cho kẻ lừa đảo thật để thực hiện bước cuối cùng: gửi link độc hại cho bạn hoặc mời gọi bạn tham gia vào các sàn đầu tư ảo.\n\nCách nhận diện “người tình ảo” AI\n\nĐể không rơi vào ma trận tâm lý của AI, bạn cần chú ý các dấu hiệu sau:\n\nPhản hồi quá hoàn hảo: Tin nhắn luôn đúng ngữ pháp tuyệt đối, văn phong đôi khi hơi “sách vở” và được gửi ngay lập tức bất kể ngày đêm.\n\nMất trí nhớ ngữ cảnh: Đôi khi AI lặp lại các câu chuyện theo khuôn mẫu hoặc quên mất những chi tiết quan trọng đã trao đổi trước đó.\n\nLuôn từ chối gặp mặt: Đối tượng luôn tìm lý do để không gọi video hoặc gặp mặt trực tiếp ngoài đời.\n\nQuy tắc 3 Không để tự bảo vệ bản thân\n\nTrong kỷ nguyên AI, niềm tin trên mạng cần được đặt dưới sự kiểm chứng khắt khe:\n\nKHÔNG tin tưởng tuyệt đối người lạ: Luôn nghi ngờ những tài khoản quá hiểu rõ về sở thích và đời tư của bạn thông qua dữ liệu công khai trên mạng xã hội.\n\nKHÔNG đầu tư qua lời mời chào trực tuyến: Áp dụng quy tắc “Zero Trust” – Không tin bất kỳ ai trên mạng đề cập đến tài chính nếu chưa gặp mặt trực tiếp ngoài đời.\n\nKHÔNG chia sẻ thông tin nhạy cảm: Hạn chế công khai quá nhiều chi tiết cá nhân trên LinkedIn hay Facebook để tránh bị AI lập hồ sơ tấn công.\n\nHãy tỉnh táo trước những sự quan tâm “hoàn hảo” trên mạng xã hội. Một kịch bản được cá nhân hóa bởi AI có thể khiến bạn mất trắng tài sản trong nháy mắt."
   },
   {
     id: 3,
-    title: "Lừa đảo trực tuyến Đông Nam Á: Cảnh báo về sử dụng AI tinh vi",
-    excerpt:
-      "Các tổ chức lừa đảo ở Đông Nam Á đang lợi dụng công nghệ AI để nâng cao hiệu quả, mở rộng quy mô toàn cầu và gây thiệt hại hàng chục tỷ USD.",
-    date: "12/03/2026",
-    category: "Quốc tế",
+    title: "Lừa đảo trực tuyến 2025-2026: Khi tội phạm mạng tiến hóa nhờ AI",
+    excerpt: "Lừa đảo trực tuyến đang đứng trước một sự chuyển dịch ngoặt lớn: Nếu năm 2025 là năm của các vụ tấn công dựa trên dữ liệu, thì 2026 sẽ là năm của sự \"AI hóa\" toàn diện và tấn công đa phương thức.",
+    date: "03/04/2026",
+    category: "Tin tức",
     isUrgent: false,
-    source: "trangtrang.com",
-    content: [
-      {
-        heading: "Cách AI giúp các tội phạm nâng cao hiệu quả lừa đảo",
-        paragraphs: [
-          "Trước đây, các chiêu trò lừa đảo thường dễ dàng bị nhận diện nhờ vào các dấu hiệu bề ngoài như lỗi chính tả, chất lượng hình ảnh kém hoặc ngôn ngữ không tự nhiên. Tuy nhiên, tình hình đã thay đổi hoàn toàn khi công nghệ AI trở nên phổ biến và dễ tiếp cận.",
-          "Các mô hình ngôn ngữ lớn (LLM) và công nghệ deepfake hiện nay cho phép các tội phạm:",
-        ],
-        bullets: [
-          "Tạo nội dung giả mạo chất lượng cao — AI có thể tạo ra các bức ảnh, video và tin nhắn trông hoàn toàn chân thực",
-          "Sao chép giọng nói — công nghệ deepfake voice cho phép tội phạm mạo danh các nhân vật nổi tiếng hoặc người thân quen",
-          "Xác định nhóm nạn nhân tiềm năng — AI giúp phân tích dữ liệu và xác định những người có khả năng cao sẽ trở thành nạn nhân",
-          "Tối ưu hóa chiến lược tấn công, nhanh chóng chuyển hướng sang các nhóm mục tiêu mới",
-        ],
-      },
-      {
-        heading: "Thiệt hại toàn cầu và nguy hiểm gia tăng",
-        paragraphs: [
-          "Theo các báo cáo từ các tổ chức quốc tế, tổn thất kinh tế từ các hoạt động lừa đảo trực tuyến là vô cùng lớn. Ước tính tính đến cuối năm 2023, các mạng tội phạm xuyên quốc gia đã đánh cắp tổng cộng ít nhất khoảng 64 tỷ USD thông qua các hoạt động cờ bạc trực tuyến và lừa đảo.",
-          "Các nước trong khu vực Đông Nam Á đã bắt đầu hành động quyết liệt. Những chiến dịch liên quốc gia đã triệt phá hàng nghìn nghi phạm và phá bỏ hàng trăm khu phức hợp lừa đảo. Tuy nhiên, các chuyên gia cảnh báo rằng thay vì biến mất, các tổ chức tội phạm đang thích ứng bằng cách sử dụng AI nhiều hơn.",
-          "Mối đe dọa không chỉ giới hạn ở Đông Nam Á. Các hoạt động lừa đảo đang lan rộng đến các khu vực khác như châu Mỹ, châu Phi và Trung Đông.",
-        ],
-        bullets: [],
-      },
-      {
-        heading: "Cuộc chiến giữa công nghệ và pháp luật",
-        paragraphs: [
-          "Các cơ quan thực thi pháp luật cũng đang cố gắng sử dụng AI để truy bắt tội phạm. Tuy nhiên, họ gặp phải thách thức lớn trong việc theo kịp tốc độ phát triển công nghệ của các tội phạm.",
-          "Vấn đề cốt lõi là: khi tội phạm có quyền truy cập vào các công cụ AI mạnh mẽ và giá rẻ, họ có thể nhanh chóng thích ứng và phát triển. Các quốc gia cần phải hợp tác chặt chẽ hơn, chia sẻ thông tin tình báo và phát triển các chiến lược chung để chống lại hiện tượng này.",
-          "Người dùng internet cần nâng cao cảnh giác khi nhận được các thông tin đến từ những nguồn không xác minh. Hãy luôn kiểm tra kỹ lưỡng trước khi tin tưởng hoặc cung cấp thông tin cá nhân cho bất kỳ ai.",
-        ],
-        bullets: [],
-      },
-    ],
+    source: "Chống Lừa Đảo",
+    imageUrl: "https://chongluadao.vn/blog/wp-content/uploads/2026/01/lua-dao-2025-2026.png",
+    content: "Nếu năm 2025 được đánh dấu bởi những vụ rò rỉ dữ liệu quy mô lớn và các chiêu trò lừa đảo truyền thống được “tinh chỉnh”, thì 2026 chính là năm mà tội phạm mạng thực sự bước vào kỷ nguyên “AI hóa”. Từ việc mạo danh qua tin nhắn và email đơn giản, giờ đây chúng ta đối mặt với những “nhân vật ảo” có thể nói chuyện, xuất hiện trên video và thậm chí dẫn dắt nạn nhân qua cả một hành trình lừa đảo phức tạp trên nhiều nền tảng khác nhau.\n\nCó thể thấy rằng, cuộc chiến chống lừa đảo trực tuyến đang chuyển từ “phát hiện công nghệ giả mạo” sang “nhận diện hành vi và quy trình bất thường”. Hãy cùng\n\nChống Lừa Đảo\n\ntìm hiểu về sự dịch chuyển trong xu hướng lừa đảo trực tuyến trong năm 2025-2026.\n\nBức tranh lừa đảo trực tuyến năm 2025\n\nRò rỉ dữ liệu: Mỏ vàng của tội phạm mạng\n\nNăm 2025 chứng kiến hàng loạt vụ rò rỉ dữ liệu nghiêm trọng tại Việt Nam và khu vực Đông Nam Á. Thông tin cá nhân từ ngân hàng, sàn thương mại điện tử, ứng dụng giao hàng, và thậm chí cả cơ quan nhà nước bị đánh cắp với quy mô chưa từng có.\n\nTại sao điều này nguy hiểm?\n\nDữ liệu rò rỉ không chỉ là danh sách tên và số điện thoại. Chúng bao gồm lịch sử giao dịch, thói quen tiêu dùng, mối quan hệ gia đình, thậm chí cả dữ liệu sinh trắc học. Tội phạm sử dụng những thông tin này để:\n\nXây dựng hồ sơ chi tiết về từng nạn nhân tiềm năng\n\nTạo kịch bản lừa đảo cá nhân hóa dựa trên hoàn cảnh thực tế\n\nTăng tỷ lệ thành công vì nạn nhân tin rằng “họ biết quá rõ về tôi”\n\nMột ví dụ điển hình: tội phạm biết bạn vừa mua hàng trên một sàn thương mại điện tử, họ gọi điện mạo danh shipper với đúng thông tin đơn hàng, yêu cầu bạn “xác minh” qua một đường link giả mạo.\n\nKỹ thuật tấn công nhưng hiệu quả\n\nTrong năm 2025, các kỹ thuật lừa đảo phổ biến vẫn xoay quanh:\n\nRansomware và Malware:\n\nTấn công vào doanh nghiệp vừa và nhỏ thiếu hệ thống bảo mật\n\nMã hóa dữ liệu và đòi tiền chuộc bằng tiền mã hóa (cryptocurrency)\n\nLợi dụng nhân viên làm việc từ xa với thiết bị cá nhân kém bảo mật\n\nPhishing/Smishing qua Email và SMS\n\nGiả mạo thông báo từ ngân hàng, cơ quan thuế, công ty điện lực\n\nTạo cảm giác cấp bách: “Tài khoản của bạn sẽ bị khóa trong 24 giờ”\n\nLink dẫn đến trang web giả mạo gần như không phân biệt được với trang thật\n\nLừa đảo đầu tư và\n\nmô hình Ponzi trực tuyến\n\nHứa hẹn lợi nhuận cao, rủi ro thấp\n\nSử dụng hình ảnh người nổi tiếng hoặc “chuyên gia tài chính” giả mạo\n\nTạo nhóm cộng đồng kín để tạo hiệu ứng đám đông\n\nScam Center: Nhà máy sản xuất lừa đảo quy mô công nghiệp\n\nMột hiện tượng đáng lo ngại là sự gia tăng của các “scam center” – những trung tâm lừa đảo tổ chức quy mô lớn, hoạt động như doanh nghiệp thực thụ với:\n\nPhân công rõ ràng: người viết kịch bản, người gọi điện, người rửa tiền\n\nCơ sở vật chất hiện đại tại các khu vực biên giới khó kiểm soát\n\nLừa đảo xuyên biên giới, nhắm vào nạn nhân ở nhiều quốc gia\n\nCác trung tâm lừa đảo này đặc biệt tập trung vào lừa đảo tình cảm, đầu tư tài chính, và mạo danh cơ quan chức năng.\n\nNăm 2026: Khi AI trở thành “đồng minh” của tội phạm mạnh\n\nCuộc đổ bộ của Deepfake và Voice Clone\n\nCông nghệ deepfake và voice cloning đã phát triển đến mức có thể tạo ra video và giọng nói giả mạo gần như hoàn hảo với chi phí thấp và thời gian ngắn. Chỉ cần vài giây đoạn ghi âm hoặc video gốc (dễ dàng lấy từ mạng xã hội), tội phạm có thể:\n\nTạo video cuộc gọi giả mạo từ người thân, đồng nghiệp, hoặc lãnh đạo\n\nSao chép giọng nói CEO yêu cầu kế toán chuyển tiền khẩn cấp\n\nGiả danh cán bộ ngân hàng, công an qua video call để tăng độ tin cậy\n\nNguyên nhân khiến chiêu trò này trở nên nguy hiểm:\n\nCon người có xu hướng tin vào những gì nhìn thấy trực tiếp\n\nÁp lực thời gian khiến nạn nhân bỏ qua các bước xác minh\n\nCông nghệ phát triển nhanh hơn khả năng nhận biết của người dùng thông thường\n\nTấn công đa kênh: Kịch bản lừa đảo bao vây nạn nhân\n\nNăm 2026 đánh dấu sự chuyển dịch từ lừa đảo đơn kênh sang lừa đảo đa kênh – một chiến dịch phối hợp qua nhiều nền tảng:\n\nVí dụ về một kịch bản hoàn chỉnh:\n\nGiai đoạn 1 – Tiếp cận qua SMS:\n\nNạn nhân nhận tin nhắn từ “ngân hàng” về giao dịch bất thường\n\nGiai đoạn 2 – Tạo áp lực qua Email:\n\nEmail xác nhận với logo và định dạng chính xác\n\nGiai đoạn 3 – Chatbot AI trên Facebook:\n\nBot tự động trả lời hướng dẫn “cách bảo vệ tài khoản”\n\nGiai đoạn 4 – Video call giả mạo:\n\n“Nhân viên ngân hàng” gọi video xác nhận, yêu cầu cung cấp OTP\n\nGiai đoạn 5 – Telegram/Zalo để “hỗ trợ khẩn cấp”:\n\nDẫn dắt nạn nhân thực hiện các bước cuối cùng\n\nMỗi kênh củng cố độ tin cậy cho kênh khác, tạo ra một “hệ sinh thái lừa đảo” khép kín.\n\nAI tối ưu hóa vòng đời tấn công\n\nHiện nay, tội phạm mạng sử dụng AI để mở rộng quy mô lừa đảo từ “thủ công” sang “công nghiệp”. Các Chatbot AI đã được lợi dụng để trở thành những “kẻ tư vấn lừa đảo không bao giờ ngủ” có khả năng:\n\nTrả lời tự động 24/7 với độ tự nhiên cao\n\nHọc từ cuộc trò chuyện để điều chỉnh chiến thuật\n\nCó thể xử lý hàng nghìn nạn nhân đồng thời\n\nGiả vờ cảm thông, tạo kết nối cảm xúc với nạn nhân\n\nKhông chỉ dừng lại ở việc tiếp cận nạn nhân, AI còn được dùng để:\n\nQuét và phân tích hàng triệu hồ sơ mạng xã hội để tìm nạn nhân tiềm năng\n\nViết mã tự động để tạo trang web giả mạo trong vài phút\n\nTối ưu hóa thời điểm tấn công dựa trên hành vi trực tuyến của nạn nhân\n\nCá nhân hóa nội dung: Viết những “mồi nhử” phù hợp hoàn hảo với tâm lý và hoàn cảnh của từng đối tượng dựa trên dữ liệu đã thu thập.\n\nTại sao “danh tính” trở thành điểm yếu số 1?\n\nTrong năm 2026, thiết bị di động trở thành bề mặt rủi ro lớn nhất vì nó chứa đựng toàn bộ định danh cá nhân (e-KYC), ví điện tử và ngân hàng số. Khi video và giọng nói không còn đủ tin cậy, việc xác thực danh tính trở thành một thách thức lớn. Đối với các doanh nghiệp, việc bảo vệ dữ liệu không còn là lựa chọn mà là vấn đề sống còn. Áp lực tuân thủ pháp lý tăng mạnh, vì chỉ một vụ lộ lọt dữ liệu cũng có thể dẫn đến làn sóng lừa đảo hàng loạt và khủng hoảng uy tín trầm trọng.\n\nSự dịch chuyển trong lừa đảo trực tuyến\n\nNếu năm 2025 là giai đoạn tích lũy “nhiên liệu” từ dữ liệu, thì năm 2026 chính là thời điểm tội phạm mạng kích hoạt bộ máy tấn công tự động hóa trên diện rộng. Dưới đây là bảng phân tích chi tiết sự chuyển dịch này:\n\nKhía cạnh /Mảng\n\nĐặc điểm nổi bật năm 2025\n\nDịch chuyển/Leo thang năm 2026\n\nCông nghệ liên quan\n\nMức độ rủi ro (Suy luận)\n\nLừa đảo nhắm người dùng cá nhân\n\nTỷ lệ nạn nhân giảm nhưng thiệt hại kinh tế lớn. Phổ biến kịch bản mạo danh ngân hàng, cơ quan chức năng, shipper, đầu tư.\n\nLừa đảo được “AI hoá”. Sử dụng Deepfake, voice clone và nhân vật ảo để mạo danh thuyết phục hơn qua video giả, giả cán bộ hoặc người thân.\n\nDeepfake, Voice clone, Nhân vật ảo\n\nRất cao do khả năng thao túng tâm lý tinh vi, khó phân biệt thật giả đối với người dùng thông thường.\n\nBề mặt tấn công\n\nMobile và web là bề mặt chính cho người dùng cá nhân và tổ chức.\n\nMobile trở thành bề mặt rủi ro lớn nhất do gắn liền với các hoạt động ngân hàng, định danh số, chăm sóc khách hàng và ví điện tử.\n\nMobile Banking, Định danh số (E-KYC), Ví điện tử\n\nRất cao vì điện thoại di động chứa toàn bộ thông tin nhạy cảm nhất của cá nhân.\n\nMalware / Ransomware\n\nĐánh cắp dữ liệu để tống tiền là xu hướng chính trong bối cảnh số hoá mạnh mẽ.\n\nAI được dùng để tối ưu hoá vòng đời tấn công: từ trinh sát, viết mã độc đến tự động hoá khai thác, khiến việc phát hiện trở nên khó khăn hơn.\n\nRansomware, AI tự động hoá mã độc\n\nCực kỳ nghiêm trọng đối với các doanh nghiệp và hạ tầng trọng yếu do tốc độ tấn công nhanh.\n\nKỹ thuật “dẫn dụ”\n\nChủ yếu sử dụng các kịch bản lừa đảo quen thuộc, thực hiện qua hình thức đơn kênh hoặc hai kênh.\n\nTấn công đa kênh (multi-channel) trở thành tiêu chuẩn: kéo nạn nhân từ SMS/mạng xã hội sang app chat, trang thanh toán giả. Hội thoại do AI vận hành 24/7.\n\nĐa kênh (Multi-channel), Chatbot AI\n\nCao vì tạo ra hệ sinh thái lừa đảo khép kín, bủa vây nạn nhân trên nhiều nền tảng cùng lúc.\n\n“Ngành công nghiệp” scam\n\nCác trung tâm lừa đảo hoạt động mạnh ở Đông Nam Á, gắn với lừa đảo, rửa tiền và tổ chức xuyên biên giới.\n\nMô hình tội phạm tiếp tục mở rộng sang nhiều khu vực, áp lực lừa đảo khó có thể giảm trong ngắn hạn.\n\nMạng lưới tội phạm xuyên biên giới, Hệ thống rửa tiền số\n\nCao, gây bất ổn an ninh mạng khu vực và gây khó khăn lớn trong việc thực thi pháp luật.\n\nDữ liệu cá nhân & rò rỉ\n\nTiếp tục là “nhiên liệu” cho các cuộc lừa đảo. Dữ liệu bị mua bán, khai thác nhằm mục tiêu tấn công chính xác hơn.\n\nTội phạm lợi dụng chủ đề “cập nhật dữ liệu/định danh” để mạo danh lừa đảo khi các khung pháp lý bắt đầu siết chặt.\n\nKhai thác dữ liệu (Data mining), Kỹ thuật xã hội (Social Engineering)\n\nTrung bình đến Cao, đe dọa trực tiếp đến quyền riêng tư và an toàn tài chính của cá nhân.\n\nLá chắn bảo vệ: 6 nguyên tắc vàng chống lừa đảo\n\nĐể đối phó với sự tinh vi của tội phạm AI, hãy tuân thủ các nguyên tắc sau:\n\nCảnh giác với hình ảnh/giọng nói:\n\nLuôn tắt máy và gọi lại vào số chính chủ để xác minh khi có yêu cầu chuyển tiền.\n\nChặn đường dẫn dụ đa kênh:\n\nKhông truy cập vào liên kết lạ; hãy tự gõ tên website hoặc sử dụng ứng dụng chính thức.\n\nXác minh trước khi chuyển tiền:\n\nLuôn kiểm tra chéo qua nhiều kênh liên lạc khác nhau trước khi thực hiện giao dịch.\n\nBảo vệ thiết bị di động:\n\nCoi điện thoại như ví tiền; cập nhật hệ điều hành thường xuyên và không cài ứng dụng không rõ nguồn gốc.\n\nQuản lý dữ liệu cá nhân:\n\nHạn chế chia sẻ thông tin nhạy cảm (giấy tờ tùy thân, vé máy bay) lên mạng xã hội; sử dụng bảo mật 2 lớp (2FA).\n\nQuy trình Dừng – Lưu – Báo:\n\nKhi có nghi ngờ, hãy ngừng tương tác, lưu lại bằng chứng và báo ngay cho ngân hàng hoặc cơ quan chức năng.\n\nTrong kỷ nguyên AI, sự cảnh giác không chỉ nằm ở việc kiểm tra thông tin mà còn nằm ở việc tuân thủ các quy trình xác thực chặt chẽ. Đừng để cảm xúc lấn át sự an toàn của bạn."
   },
   {
     id: 4,
-    title: "Cảnh báo: Thủ đoạn lừa đảo giả danh ngân hàng qua điện thoại ảo",
-    excerpt:
-      "Nhóm tội phạm sử dụng VOIP giả danh ngân hàng, lừa hơn 1.200 người chiếm đoạt 100 tỷ đồng. Trang Trắng cảnh báo các dấu hiệu nhận biết để bảo vệ tài chính của bạn.",
-    date: "10/03/2026",
-    category: "Ngân hàng",
-    isUrgent: true,
-    source: "trangtrang.com",
-    content: [
-      {
-        heading: "Cách thức hoạt động của nhóm lừa đảo",
-        paragraphs: [
-          "Nhóm tội phạm này có tổ chức rất chặt chẽ, chia thành nhiều bộ phận khác nhau để thực hiện các giai đoạn lừa đảo. Đầu tiên, họ tạo lập các trang giả mạo trên mạng xã hội, sử dụng tên gọi giống với các ngân hàng thật để thu hút sự chú ý của những người có nhu cầu mở thẻ tín dụng.",
-          "Bộ phận \"sale\" của nhóm này quản lý các trang giả mạo, tiếp cận những khách hàng tiềm năng và hướng dẫn họ cung cấp thông tin cá nhân, số thẻ ngân hàng và mã CVV. Sau khi thu thập được thông tin, họ chuyển sang bước tiếp theo là \"thẩm định\".",
-          "Ở bước thẩm định, những người trong nhóm sử dụng tổng đài ảo được tạo từ công nghệ VOIP để gọi điện đến nạn nhân. Họ giả danh là nhân viên ngân hàng, thông báo rằng nạn nhân cần phải chứng minh \"năng lực tài chính\" bằng cách nộp một khoản tiền nhất định vào tài khoản. Tiền lợi nhuận được chuyển ra nước ngoài thông qua tiền điện tử nhằm tránh sự phát hiện.",
-        ],
-        bullets: [],
-      },
-      {
-        heading: "Những dấu hiệu cảnh báo của lừa đảo",
-        paragraphs: ["Để bảo vệ bản thân khỏi những kẻ lừa đảo, bạn cần nhận biết các dấu hiệu đáng ngờ sau:"],
-        bullets: [
-          "Cuộc gọi bất ngờ từ \"ngân hàng\" — các ngân hàng thực sự sẽ không bao giờ gọi điện yêu cầu bạn cung cấp thông tin cá nhân, mã CVV hay mã OTP qua điện thoại",
-          "Yêu cầu chứng minh tài chính — không có ngân hàng nào yêu cầu bạn nộp tiền để chứng minh khả năng tài chính trước khi cấp thẻ tín dụng",
-          "Áp lực và khẩn cấp — những kẻ lừa đảo thường tạo áp lực, thông báo rằng hạn chế hoặc cơ hội sắp hết để buộc bạn đưa ra quyết định nhanh chóng",
-          "Yêu cầu cung cấp mã OTP — không bao giờ cung cấp mã OTP cho bất kỳ ai, kể cả những người tự xưng là nhân viên ngân hàng",
-          "Liên kết từ những nguồn không rõ — hãy cẩn thận với những liên kết được gửi qua tin nhắn hoặc email",
-        ],
-      },
-      {
-        heading: "Cách bảo vệ chính mình khỏi lừa đảo",
-        paragraphs: ["Để tránh trở thành nạn nhân của các thủ đoạn lừa đảo này, bạn nên tuân thủ các biện pháp an toàn sau:"],
-        bullets: [
-          "Xác minh thông tin trực tiếp — nếu nhận được cuộc gọi từ ngân hàng, hãy cắt máy và gọi lại số chính thức của ngân hàng mà bạn biết",
-          "Không cung cấp thông tin cá nhân qua điện thoại — ngân hàng không bao giờ yêu cầu mã CVV, mã OTP hay PIN qua điện thoại",
-          "Kiểm tra tài khoản ngân hàng thường xuyên để phát hiện sớm nếu có hoạt động bất thường",
-          "Sử dụng ứng dụng chính thức — tải ứng dụng ngân hàng từ các kho ứng dụng chính thức",
-          "Cẩn thận với mọi yêu cầu liên quan đến tiền bạc hay thông tin cá nhân từ những người không rõ danh tính",
-        ],
-      },
-    ],
+    title: "Bảo vệ người cao tuổi khỏi lừa đảo: Vai trò của gia đình và cộng đồng",
+    excerpt: "Các nghiên cứu quốc tế và thực tiễn phòng chống tội phạm đều chỉ ra rằng: Công nghệ chặn lọc chỉ giải quyết được phần ngọn, chính sự quan tâm của gia đình và",
+    date: "03/04/2026",
+    category: "Tin tức",
+    isUrgent: false,
+    source: "Chống Lừa Đảo",
+    imageUrl: "https://chongluadao.vn/blog/wp-content/uploads/2026/01/Hinh-8-Tuyen-phong-thu-kep.png",
+    content: "Các nghiên cứu quốc tế và thực tiễn phòng chống tội phạm đều chỉ ra rằng: Công nghệ chặn lọc chỉ giải quyết được phần ngọn, chính sự quan tâm của gia đình và sự bao bọc của cộng đồng mới là “hàng rào miễn dịch” hiệu quả nhất giúp người cao tuổi chống lại các thủ đoạn lừa đảo tinh vi.\n\nTrong bối cảnh các đối tượng lừa đảo đang lợi dụng\n\nnhiều chiêu trò lừa đảo nhắm vào người lớn tuổi, hãy cùng Chống Lừa Đảo tìm hiểu tầm quan trọng của “lá chắn kép” được tạo bởi gia đình và cộng đồng nhằm bảo vệ người lớn tuổi khỏi những chiêu trò ngày càng tinh vi.\n\nVai trò của gia đình: “Tuyến phòng thủ” đầu tiên\n\nCon cháu không chỉ là người hỗ trợ tài chính mà phải trở thành “Cố vấn kỹ thuật” và “Chuyên gia tâm lý” cho ông bà, cha mẹ.\n\nThiết lập “hàng rào kỹ thuật”\n\nNgười cao tuổi thường gặp khó khăn trong thao tác cài đặt, vì vậy con cháu cần chủ động thực hiện các biện pháp bảo vệ thụ động trên thiết bị của họ:\n\nDọn dẹp thiết bị: Cài đặt phần mềm diệt virus, các ứng dụng chặn cuộc gọi rác/tin nhắn rác uy tín (Ví dụ: TrueCaller, Whoscall…).\n\nBảo mật tài khoản:\n\nThiết lập bảo mật 2 lớp (2FA) cho Zalo, Facebook, Email.\n\nĐổi mật khẩu định kỳ và sử dụng mật khẩu mạnh (tránh dùng ngày sinh, số điện thoại dễ đoán).\n\nQuan trọng\n\n: Cài đặt hạn mức chuyển khoản thấp trên ứng dụng ngân hàng (ví dụ: tối đa 5-10 triệu/ngày) để giảm thiểu thiệt hại nếu lỡ bị tấn công.\n\nGiám sát thụ động\n\n: Đăng ký dịch vụ thông báo biến động số dư qua số điện thoại của con cái (nếu được sự đồng thuận) để kịp thời phát hiện giao dịch bất thường.\n\nLiệu pháp “vắc-xin tinh thần”\n\nThường xuyên cập nhật\n\n(“Tiêm nhắc lại”): Trong các bữa cơm hoặc cuộc gọi, hãy kể lại các vụ lừa đảo mới xuất hiện trên báo đài. Phân tích rõ: “Tại sao nạn nhân lại tin?”, “Kẻ gian đã nói câu gì?”. Cách kể chuyện này giúp người cao tuổi ghi nhớ lâu hơn là những lời dặn dò khô khan.\n\nTạo môi trường không phán xét\n\n: Khuyến khích ông bà chia sẻ mọi cuộc gọi lạ. Quan trọng nhất là cam kết: “Nếu lỡ có bị lừa, con cháu sẽ cùng giải quyết chứ không trách mắng”. Điều này giúp xóa bỏ tâm lý sợ hãi, giấu giếm khi sự việc xảy ra.\n\nVai trò của cộng đồng: Mạng lưới an sinh và giáo dục trực quan\n\nTổ dân phố, Hội Người cao tuổi, Hội Phụ nữ và các tổ chức đoàn thể cần thay đổi phương thức tuyên truyền từ “đọc văn bản” sang các hình thức trực quan, sinh động và gần gũi hơn.\n\nTổ chức truyền thông tương tác\n\nMô hình “Sân khấu hóa”: Thay vì các buổi họp khô cứng, hãy tổ chức các buổi diễn tiểu phẩm ngắn (30-60 phút).\n\nNội dung: Dựng lại các tình huống lừa đảo điển hình (giả danh công an, bán thuốc thần dược…).\n\nDiễn viên: Chính là các hội viên người cao tuổi hoặc đoàn thanh niên.\n\nHiệu quả: Việc nhìn thấy tận mắt kịch bản lừa đảo giúp NCT dễ dàng hình dung và nhận diện khi gặp tình huống thực tế.\n\nBuổi chia sẻ kinh nghiệm: Mời những người đã từng nhận được cuộc gọi lừa đảo (và đã cảnh giác thoát được) lên chia sẻ câu chuyện của họ. “Người thật việc thật” luôn có sức thuyết phục cao nhất.\n\nXây dựng “điểm tiếp cận” thông tin\n\nPhân bổ tài liệu tuyên truyền tại các điểm nóng mà người cao tuổi thường xuyên lui tới:\n\nTờ rơi cầm tay: In bộ quy tắc “\n\n5 KHÔNG – 3 NÊN\n\n” chữ to, màu sắc rõ ràng để phát tại các buổi họp tổ dân phố.\n\nPoster/Áp phích: Dán tại Nhà văn hóa, Trạm y tế phường, Bảng tin khu dân cư, Chợ truyền thống và đặc biệt là tại Quầy giao dịch ngân hàng/Bưu điện.\n\nQuy tắc 5 Không – 3 Nên cần nhớ\n\nMạng lưới “hàng xóm trông nhau”\n\nPhát huy văn hóa “tình làng nghĩa xóm”. Các tổ dân phố cần quan tâm đặc biệt đến các hộ người cao tuổi sống một mình/neo đơn.\n\nKhuyến khích hàng xóm để mắt khi thấy có người lạ thường xuyên lui tới nhà người cao tuổi hoặc thấy người cao tuổi có biểu hiện lo lắng, hay ra ngân hàng rút tiền bất thường."
   },
   {
     id: 5,
-    title: "Hơn 1.500 nghi phạm lừa đảo trực tuyến bị dẫn độ: Bài học bảo vệ bản thân",
-    excerpt:
-      "Hành động dẫn độ hơn 1.500 nghi phạm lừa đảo cho thấy mối nguy hiểm của các hoạt động lừa đảo trực tuyến. Tìm hiểu cách bảo vệ bản thân khỏi những thủ đoạn này.",
-    date: "08/03/2026",
-    category: "Thời sự",
+    title: "Hướng dẫn nhận biết tin giả, thông tin xấu độc, lệch chuẩn",
+    excerpt: "Trên mạng Internet, bên cạnh thông tin hữu ích là vô số tin giả (Fake news), tin đồn thất thiệt và nội dung độc hại. Để giữ cho mình một cái đầu lạnh, hãy áp",
+    date: "03/04/2026",
+    category: "Tin tức",
     isUrgent: false,
-    source: "trangtrang.com",
-    content: [
-      {
-        heading: "Quy mô của tệ nạn lừa đảo trực tuyến hiện nay",
-        paragraphs: [
-          "Các hoạt động lừa đảo viễn thông và lừa đảo trực tuyến đã từ lâu tồn tại ở các khu vực biên giới, đặc biệt là những nơi có sự kết hợp của công nghệ cao, quản lý lỏng lẻo và lực lượng nhân sự lớn. Những băng nhóm tội phạm này hoạt động quy mô lớn, với hàng trăm tòa nhà được sử dụng làm căn cứ để thực hiện các hoạt động lừa đảo.",
-          "Những con số công bố gần đây cho thấy:",
-        ],
-        bullets: [
-          "Hơn 7.600 công dân bị nghi ngờ liên quan đến các hoạt động lừa đảo trực tuyến tại những khu vực cụ thể",
-          "Hơn 630 tòa nhà được phá hủy sau khi xác định chúng là nơi tiến hành các hoạt động lừa đảo",
-          "1.500 nghi phạm bị bắt giữ và dẫn độ trong một chiến dịch phối hợp quốc tế",
-        ],
-      },
-      {
-        heading: "Những thủ đoạn lừa đảo phổ biến mà bạn cần biết",
-        paragraphs: ["Các tội phạm lừa đảo trực tuyến sử dụng nhiều phương pháp khác nhau để lừa gạt người dùng. Hiểu rõ các thủ đoạn này là bước đầu tiên để bảo vệ bản thân:"],
-        bullets: [
-          "Giả mạo danh tính — tội phạm giả danh các công ty, ngân hàng hoặc cơ quan chính phủ để yêu cầu thông tin cá nhân hoặc tiền",
-          "Lừa đảo tình cảm — xây dựng mối quan hệ giả tạo để chiếm đoạt tiền bạc và thông tin",
-          "Đánh bạc trực tuyến giả — hứa hẹn những khoản lợi nhuận cao từ các trò chơi hoặc đầu tư",
-          "Lừa đảo hóa đơn — gửi các hóa đơn giả mạo yêu cầu thanh toán ngay lập tức",
-          "Phishing qua email — gửi email lừa đảo để đánh cắp thông tin đăng nhập",
-        ],
-      },
-      {
-        heading: "Cách bảo vệ bản thân khỏi lừa đảo trực tuyến",
-        paragraphs: ["Mặc dù tội phạm lừa đảo trực tuyến rất thông minh, nhưng bạn vẫn có thể bảo vệ bản thân bằng cách tuân theo một số biện pháp phòng ngừa cơ bản:"],
-        bullets: [
-          "Xác minh danh tính — luôn kiểm tra kỹ danh tính của người hoặc tổ chức liên hệ với bạn",
-          "Không chia sẻ thông tin cá nhân như mật khẩu, mã PIN, số tài khoản ngân hàng qua bất kỳ kênh nào",
-          "Cẩn thận với các liên kết và tệp đính kèm từ những người hoặc tổ chức không quen biết",
-          "Sử dụng mật khẩu mạnh và bật xác thực hai yếu tố trên các tài khoản quan trọng",
-          "Cập nhật phần mềm thường xuyên để vá các lỗ hổng bảo mật",
-          "Cài đặt và sử dụng phần mềm chống virus và tường lửa",
-        ],
-      },
-    ],
+    source: "Chống Lừa Đảo",
+    imageUrl: "https://chongluadao.vn/blog/wp-content/uploads/2026/01/Hinh-14-Bo-6-cau-hoi.png",
+    content: "Trên mạng Internet, bên cạnh thông tin hữu ích là vô số tin giả (Fake news), tin đồn thất thiệt và nội dung độc hại. Để giữ cho mình một cái đầu lạnh, hãy áp dụng “Bộ 6 câu hỏi thần thánh” trước khi quyết định TIN hoặc CHIA SẺ bất cứ điều gì.\n\nBộ 6 câu hỏi “kiểm chứng”\n\n1️⃣\n\nTin này từ đâu ra?\n\nLà báo chính thống (VTV, Thanh Niên, Tuổi Trẻ, Nhân Dân…) hay là một trang lạ hoắc?\n\nCảnh giác\n\n: Các trang có tên nghe rất “kêu” nhưng thiếu uy tín như: “Sự thật chấn động”, “Tin nóng 247”, “Bí mật bật mí”…\n\n2️⃣\n\nTác giả là ai, nguồn ở đâu?\n\nBài viết có tên phóng viên, tác giả cụ thể không? Hay chỉ là “Sưu tầm”, “Nguồn: Internet”, “Nghe nói”?\n\nNguyên tắc\n\n: Thông tin không rõ người chịu trách nhiệm thường là tin bịa đặt.\n\n3️⃣\n\nTiêu đề có cố tình làm mình “Sốc” hoặc “Sợ” không?\n\nTin giả thường dùng từ ngữ mạnh để kích động cảm xúc: “Rùng mình”, “Phẫn nộ”, “Cấp báo”, “Không xem sẽ hối hận”.\n\nLời khuyên\n\n: Thấy tiêu đề giật gân, hãy bình tĩnh gấp đôi. Đừng để nỗi sợ điều khiển ngón tay mình.\n\n4️⃣ Hình ảnh/Video có hợp lý không?\n\nHãy nhìn kỹ\n\n: Tin nói “Hà Nội rét đậm” mà trong ảnh người ta mặc áo cộc tay? Tin nói “vừa xảy ra hôm nay” mà video nhìn mờ nhòe, cũ kỹ?\n\nChiêu trò\n\n: Kẻ xấu thường lấy video tai nạn ở nước ngoài hoặc từ 10 năm trước rồi gắn chú thích mới để câu like.\n\n5️⃣\n\nCó ai khác nói về việc này không?\n\nHãy thử tìm kiếm trên Google hoặc vào các trang báo lớn. Nếu chuyện động trời như vậy mà không có tờ báo lớn nào đăng, thì 99% là tin vịt.\n\n6️⃣\n\nNgười đăng bài này là ai?\n\nBấm vào xem trang cá nhân của người đăng. Nếu là tài khoản mới lập, không có ảnh thật, ít bạn bè, nhưng toàn chia sẻ tin tiêu cực, chửi bới → Đây là tài khoản ảo (Clone) chuyên đi phá hoại.\n\nNhận diện “Nội dung xấu độc” cần tránh xa\n\nĐôi khi ranh giới giữa tin tức và nội dung độc hại rất mong manh. Hãy giải thích cho người lớn các dạng bài viết tuyệt đối không nên tiếp cận:\n\nXuyên tạc, chống phá: Bài viết nói xấu Đảng, Nhà nước, bôi nhọ lãnh đạo, hoặc chia rẽ tôn giáo, vùng miền.\n\nKích động bạo lực: Video đánh nhau, tai nạn máu me không che, cổ vũ hành vi trả thù, ghét bỏ.\n\nTệ nạn & Mê tín: Quảng cáo cờ bạc, lô đề, cá độ online; hoặc các bài viết tuyên truyền mê tín dị đoan, dọa dẫm về tâm linh để trục lợi (bán bùa chú).\n\nHội nhóm lừa đảo: Kêu gọi tham gia “Hội kín”, “Nhóm đầu tư mật”, yêu cầu đóng phí thành viên hoặc chuyển tiền để nhận “bí kíp làm giàu”.\n\nQuy trình “3 BƯỚC XỬ LÝ” khi gặp tin xấu\n\nNhiều người vì bức xúc mà vào bình luận chửi mắng kẻ đăng tin giả. Thực tế, việc đó đôi khi là phản tác dụng.\n\nQuy trình chuẩn:\n\nKHÔNG TƯƠNG TÁC (Tuyệt đối không):\n\nKhông bấm Like, không bấm Share.\n\nĐặc biệt\n\n: Không vào bình luận tranh cãi.\n\nLý do\n\n: Facebook/YouTube thấy có người bình luận (dù là chửi) sẽ nghĩ bài đó “hot” và càng phân phối cho nhiều người xem hơn. Cách tốt nhất để diệt tin xấu là Lờ đi.\n\nBÁO CÁO (Report):\n\nHãy coi đây là hành động “quét rác” cho cộng đồng.\n\nBấm vào dấu 3 chấm (…) ở góc bài viết/video → Chọn Báo cáo (Report) → Chọn lý do (Tin giả, Bạo lực, Lừa đảo…).\n\nCHẶN (Block):\n\nNếu trang đó liên tục đăng tin rác, hãy bấm Chặn (Block) để vĩnh viễn không nhìn thấy họ nữa.\n\nCẩm nang xử lý tin xấu độc"
   },
   {
     id: 6,
-    title: "Cảnh báo lừa đảo công nghệ cao dịp Tết: Những chiêu trò tinh vi bạn cần biết",
-    excerpt:
-      "Dịp Tết, các hoạt động lừa đảo tài chính gia tăng mạnh với nhiều thủ đoạn tinh vi. Trang Trắng cảnh báo những chiêu trò phổ biến và cách phòng ngừa hiệu quả.",
-    date: "05/03/2026",
-    category: "Cảnh báo mới",
-    isUrgent: true,
-    source: "trangtrang.com",
-    content: [
-      {
-        heading: "Những chiêu trò lừa đảo phổ biến dịp cận Tết",
-        paragraphs: ["Các hoạt động lừa đảo dịp Tết có nhiều hình thức khác nhau, từ những trường hợp cũ lão được \"nâng cấp\" bằng công nghệ mới:"],
-        bullets: [
-          "Lừa đảo qua hỗ trợ Tết — người dân nhận được cuộc gọi từ những người tự xưng là cán bộ phường, thông báo được hỗ trợ tiền Tết theo chính sách Nhà nước, sau đó yêu cầu mã OTP để chiếm quyền kiểm soát tài khoản ngân hàng",
-          "Vay nhanh trên mạng xã hội — các fanpage quảng cáo dịch vụ vay tiền \"trong 30 phút, không cần thế chấp\", sau khi người vay chuyển tiền phí hồ sơ thì bị chặn liên lạc ngay",
-          "Bán vé máy bay, xe khách và tour du lịch giá rẻ giả — lập website và fanpage giả mạo hãng vận chuyển, sau khi nhận đặt cọc thì cắt liên lạc",
-          "Đổi tiền mới trái phép — quảng cáo dịch vụ đổi tiền nhanh, giao tận nơi, sau khi nhận chuyển tiền trước thì biến mất",
-          "Lừa đảo qua mua sắm online — giả danh shipper hoặc thực hiện thủ đoạn chuyển tiền nhầm để chiếm đoạt tiền",
-          "Việc nhẹ lương cao — giả danh sàn thương mại điện tử tuyển cộng tác viên, ban đầu trả tiền nhỏ để tạo lòng tin rồi yêu cầu chuyển tiền với lý do mở khóa nhiệm vụ",
-        ],
-      },
-      {
-        heading: "Công nghệ cao giúp lừa đảo trở nên tinh vi hơn",
-        paragraphs: [
-          "Những thủ đoạn quen thuộc được \"nâng cấp\" bằng công nghệ cao. Các đối tượng gửi tin nhắn, gọi điện kèm đường link giả mạo để yêu cầu người dân cung cấp thông tin cá nhân, mã OTP hoặc tải ứng dụng giả, từ đó chiếm quyền kiểm soát tài khoản ngân hàng.",
-          "Việc sử dụng trí tuệ nhân tạo và deepfake giọng nói, hình ảnh giúp các đối tượng dễ dàng giả danh cán bộ, nhân viên ngân hàng, thậm chí giả giọng người thân, khiến nhiều nạn nhân mất cảnh giác. Các website giả mạo chỉ khác trang thật vài ký tự tên miền, đi kèm hàng trăm bình luận và đánh giá giả, tạo cảm giác uy tín để lôi kéo khách hàng.",
-        ],
-        bullets: [],
-      },
-      {
-        heading: "Cách phòng chống lừa đảo hiệu quả — nguyên tắc \"2 phải — 4 không\"",
-        paragraphs: [],
-        bullets: [
-          "PHẢI: Luôn nâng cao cảnh giác và chủ động bảo mật thông tin cá nhân như căn cước công dân, tài khoản ngân hàng, mã OTP",
-          "PHẢI: Kịp thời liên hệ cơ quan công an khi phát hiện dấu hiệu nghi vấn hoặc bị lừa đảo",
-          "KHÔNG: Hoảng sợ trước cuộc gọi, tin nhắn từ người lạ",
-          "KHÔNG: Nhẹ dạ trước tiền, quà tặng hay lợi nhuận bất thường",
-          "KHÔNG: Tùy tiện kết bạn, tham gia hội nhóm chưa được kiểm chứng",
-          "KHÔNG: Cung cấp thông tin cá nhân, không truy cập link lạ, không tải ứng dụng không rõ nguồn gốc",
-        ],
-      },
-    ],
+    title: "Cẩm nang 3 bước vàng để không bị mắc bẫy lừa đảo qua mạng",
+    excerpt: "Ngày nay, kẻ lừa đảo có trăm phương ngàn kế để nhắm vào túi tiền của chúng ta. Chúng có thể đóng giả công an, nhân viên ngân hàng, hay thậm chí là người thân",
+    date: "03/04/2026",
+    category: "Tin tức",
+    isUrgent: false,
+    source: "Chống Lừa Đảo",
+    imageUrl: "https://chongluadao.vn/blog/wp-content/uploads/2026/02/unnamed-94.png",
+    content: "Ngày nay, kẻ lừa đảo có trăm phương ngàn kế để nhắm vào túi tiền của chúng ta. Chúng có thể đóng giả công an, nhân viên ngân hàng, hay thậm chí là người thân đang gặp nạn. Để có thể giữ vững “hàng rào bảo mật” cho bản thân, hãy cùng Chống Lừa Đảo tìm hiểu quy tắc\n\n3 Bước: Dừng lại – Kiểm tra – Bảo vệ\n\n.\n\nDỪNG LẠI: Đừng vội tin, đừng vội làm theo\n\nKẻ lừa đảo thường tạo ra tâm lý cấp bách (như giả danh Công an đe dọa lệnh bắt, hay thông báo người thân gặp nạn) để ép nạn nhân hành động ngay lập tức.\n\nKhi nhận được một cuộc gọi lạ thông báo nợ cước điện thoại, vi phạm giao thông, hay một tin nhắn trúng thưởng lớn, phản ứng đầu tiên của chúng ta thường là lo lắng hoặc phấn khởi. Đó chính là lúc kẻ xấu lợi dụng.\n\nNguyên tắc:\n\nTuyệt đối không cung cấp thông tin cá nhân (số CCCD, tài khoản ngân hàng) hay chuyển bất kỳ khoản tiền nào nếu chưa xác thực rõ ràng.\n\nGhi nhớ:\n\nCác cơ quan chức năng và ngân hàng tại Việt Nam\n\nkhông bao giờ\n\nyêu cầu người dân chuyển tiền qua điện thoại để “phục vụ điều tra” hay xác minh tài chính.\n\nKIỂM TRA: Đâu là thật, đâu là giả?\n\nKẻ lừa đảo hiện nay có thể giả danh rất tinh vi. Trước khi quyết định làm bất cứ điều gì, hãy tự đặt câu hỏi:\n\n“Liệu đây có phải là thật không?”\n\nMọi tin nhắn trúng thưởng, cuộc gọi cảnh báo hay đường link lạ đều có nguy cơ là giả mạo. Hãy chủ động trở thành người kiểm soát thông tin:\n\nKhông bấm vào link lạ:\n\nTuyệt đối không nhấp vào các liên kết đính kèm trong tin nhắn (SMS, Zalo, Messenger) để tránh bị cài đặt mã độc hoặc đánh cắp tài khoản.\n\nXác minh độc lập:\n\nNếu nhận được cuộc gọi tự xưng là từ ngân hàng hoặc doanh nghiệp, hãy chủ động cúp máy và gọi lại vào số hotline chính thức được công bố trên trang web của đơn vị đó để hỏi lại cho rõ.\n\nMẹo nhỏ:\n\nNếu thấy nghi ngờ, hãy nói “Không” và cúp máy hoặc xóa tin nhắn ngay lập tức. Đừng sợ bị coi là bất lịch sự với kẻ lạ!\n\nSử dụng công cụ hỗ trợ:\n\nBạn có thể kiểm tra độ tín nhiệm của trang web tại ai.chongluadao.vn hoặc sử dụng chatbot AI của CLD trên Zalo để được tư vấn khi nhận thấy có dấu hiệu lừa đảo.\n\nBẢO VỆ: Hành động ngay khi thấy nghi ngờ\n\nPhòng bệnh hơn chữa bệnh, nhưng nếu chẳng may đã tiếp xúc với kẻ lừa đảo, hành động kịp thời sẽ giúp giảm thiểu thiệt hại đáng kể. Nếu chẳng may đã lỡ cung cấp thông tin hoặc chuyển tiền, hãy bình tĩnh và thực hiện các bước sau càng nhanh càng tốt:\n\nLiên hệ ngân hàng:\n\nGọi ngay cho hotline ngân hàng bạn đang sử dụng để yêu cầu khóa tài khoản, khóa thẻ hoặc tạm dừng mọi giao dịch khẩn cấp nếu đã lỡ cung cấp mã OTP hoặc chuyển tiền cho kẻ lạ.\n\nTrình báo cơ quan chức năng:\n\nHãy đến ngay cơ quan\n\nCông an địa phương gần nhất\n\n(Công an xã, phường, thị trấn) hoặc gửi đơn tố giác đến cơ quan Điều tra để được hỗ trợ can thiệp kịp thời theo quy định của pháp luật Việt Nam. Đây là bước quan trọng nhất để cơ quan chức năng có cơ sở truy vết và xử lý tội phạm.\n\nBáo cáo cho Chống Lừa Đảo:\n\nSong song đó, hãy gửi thông tin (số điện thoại lừa đảo, số tài khoản kẻ gian, link trang web giả mạo) về cho chúng tôi tại địa chỉ chongluadao.vn/report. Mỗi báo cáo của bạn là một viên gạch góp phần xây dựng hệ thống cảnh báo sớm, giúp hàng triệu người dùng khác không rơi vào cái bẫy tương tự.\n\nLan tỏa:\n\nViệc bạn kể lại câu chuyện sẽ giúp bạn bè, hàng xóm xung quanh biết đường mà tránh, khiến kẻ xấu không còn đất diễn."
   },
+  {
+    id: 7,
+    title: "Hướng dẫn sử dụng Chatbot AI của Chống Lừa Đảo trên Zalo",
+    excerpt: "Trong bối cảnh tội phạm mạng ngày càng tinh vi với hàng ngàn chiêu trò lừa đảo mới xuất hiện mỗi ngày, việc có một công cụ bảo vệ luôn sẵn sàng trong tầm tay",
+    date: "03/04/2026",
+    category: "Tin tức",
+    isUrgent: false,
+    source: "Chống Lừa Đảo",
+    imageUrl: "https://chongluadao.vn/blog/wp-content/uploads/2026/01/gioi-thieu-chatbot-ai-zalo.png",
+    content: "Trong bối cảnh tội phạm mạng ngày càng tinh vi với hàng ngàn chiêu trò lừa đảo mới xuất hiện mỗi ngày, việc có một công cụ bảo vệ luôn sẵn sàng trong tầm tay trở nên vô cùng cần thiết. Hiểu được nhu cầu đó, Chống Lừa Đảo đã chính thức ra mắt Chatbot AI ngay trên nền tảng Zalo – ứng dụng nhắn tin quen thuộc của người Việt.\n\nVậy làm thế nào để khai thác tối đa sức mạnh của “trợ lý an ninh mạng” này? Hãy cùng\n\nChống Lừa Đảo\n\nkhám phá chi tiết trong bài viết dưới đây!\n\nCách truy cập Chatbot AI Chống Lừa Đảo\n\nTrước tiên, bạn cần kết nối với Chatbot. Có 3 cách đơn giản để làm điều này:\n\nCách 1: Tìm kiếm trực tiếp trên Zalo\n\nMở ứng dụng Zalo trên điện thoại\n\nNhấn vào thanh tìm kiếm phía trên\n\nGõ từ khóa “Chống Lừa Đảo”\n\nChọn tài khoản Official Account (OA) có dấu tích xanh\n\nKết quả tìm kiếm Chống Lừa Đảo trên Zalo\n\nCách 2: Truy cập qua link\n\nNhấn vào link:\n\nhttps://zalo.me/chongluadao\n\nHệ thống sẽ tự động mở ứng dụng Zalo và đưa bạn đến trang Chatbot\n\nCách 3: Quét mã QR\n\nMở Zalo, chọn biểu tượng quét mã QR\n\nQuét mã QR dưới đây\n\nQR code truy cập chatbot AI của Chống Lừa Đảo\n\nSau khi kết nối thành công, bạn đã có thể trò chuyện với Chatbot AI như đang nhắn tin với một người bạn!\n\nCác tính năng chính của Chatbot\n\nKiểm tra trang web và số điện thoại lừa đảo\n\nNgười dùng có thể gửi bất kỳ đường link (URL) hoặc số điện thoại nghi ngờ vào Chatbot. Hệ thống sẽ lập tức đối soát với cơ sở dữ liệu khổng lồ của Chống Lừa Đảo cùng các đối tác an ninh mạng uy tín (bao gồm ScamAdviser, Hudson Rock, Google Web Risk, APWG, iCallme) và trả về kết quả ngay lập tức.\n\nĐây là tính năng được sử dụng nhiều nhất, giúp bạn xác minh độ tin cậy của một website hoặc số điện thoại chỉ trong vài giây.\n\nCách sử dụng:\n\nCopy đường link website (ví dụ: shopee-khuyenmai[.]vip) hoặc số điện thoại cần kiểm tra\n\nGửi link trực tiếp vào khung chat với Chatbot\n\nChatbot sẽ trả về kết quả website/sđt này có trong danh sách lừa đảo hay không\n\nLưu ý:\n\nNếu trang web chưa có trong “danh sách đen”, Chatbot sẽ tự động gợi ý bạn sử dụng công cụ AI chuyên sâu để quét mã nguồn và cấu trúc trang web, phát hiện các rủi ro tiềm ẩn mà mắt thường khó nhận ra.\n\nChatbot đưa ra khuyến nghị khi đường link không có trong danh sách đen\n\nPhân tích hình ảnh để phát hiện lừa đảo\n\nBạn nhận được tin nhắn ngân hàng lạ? Email thông báo trúng thưởng? Đây là lúc tính năng phân tích hình ảnh phát huy sức mạnh.\n\nCách sử dụng:\n\nChụp màn hình tin nhắn, email hoặc thông báo bạn nghi ngờ\n\nGửi hình ảnh trực tiếp vào chat với Chatbot\n\nAI sẽ phân tích các yếu tố như:\n\nFont chữ bất thường\n\nBố cục không chuyên nghiệp\n\nLogo giả mạo hoặc chất lượng kém\n\nNội dung phi logic hoặc có lỗi chính tả\n\nDấu hiệu photoshop\n\nKhông chỉ nhanh chóng đưa ra kết luận với độ chính xác cao, Chatbot của Chống Lừa Đảo còn đưa các khuyến cáo cũng như lời khuyên cho người dùng tùy thuộc vào từng trường hợp lừa đảo khác nhau.\n\nVí dụ\n\n: Người dùng nhận được một tin nhắn phishing nhắm vào tài khoản Telegram. Chatbot AI của Chống Lừa Đảo đã nhanh chóng nhận diện được nguy cơ lừa đảo, đồng thời đưa ra:\n\nKhuyến cáo: Không nhấp vào đường link và không cung cấp thông tin cá nhân\n\nLời khuyên: Nếu đã lỡ nhập thông tin và tài khoản, hãy nhanh chóng đổi mật khẩu tài khoản Telegram và bật xác thực hai bước (2FA) cho tài khoản\n\nAI tiến hành phân tích bức ảnh chụp tin nhắn Telegram do người dùng gửi đến\n\nAI tiến hành phân tích bức ảnh chụp email do người dùng gửi đến\n\nTrong trường hợp người dùng gửi đến một email phishing, Chatbot cũng nhanh chóng đưa ra nhận định và khuyến cáo đến người dùng không nên cung cấp bất kỳ thông tin nào theo yêu cầu của email.\n\nBáo cáo trang web lừa đảo\n\nKhi phát hiện một trang web lừa đảo, bạn có thể giúp bảo vệ cộng đồng bằng cách báo cáo ngay trong khung chat.\n\nCách thực hiện:\n\nCung cấp các thông tin:\n\nĐường link website lừa đảo\n\nMô tả ngắn gọn hành vi lừa đảo (ví dụ: “Giả mạo Shopee, lừa chuyển tiền”)\n\nĐịa chỉ email của bạn (để nhận phản hồi)\n\nGửi báo cáo\n\nNgười dùng được hướng dẫn để báo cáo website lừa đảo ngay tại khung trò chuyện\n\nSau khi báo cáo:\n\nĐội ngũ kỹ thuật của Chống Lừa Đảo sẽ xác minh thông tin\n\nNếu xác thực là lừa đảo, trang web sẽ được cập nhật vào hệ thống cảnh báo\n\nEmail của bạn sẽ được ghi nhận vào chương trình\n\nScam Fighter. Chương trình Scam Fighter:\n\nTop người dùng có lượng báo cáo được thông qua cao nhất sẽ nhận thưởng hằng tháng và hằng năm. Đây là cách để bạn không chỉ tự bảo vệ mình mà còn đóng góp vào công cuộc bảo vệ cộng đồng!\n\nTư vấn kiến thức về lừa đảo\n\nChatbot AI không chỉ là công cụ kiểm tra, mà còn là “người thầy” am hiểu về mọi chiêu trò lừa đảo.\n\nBạn có thể hỏi Chatbot:\n\nVề các tình huống cụ thể:\n\n“Tôi nhận được tin nhắn này, có phải lừa đảo không?” (kèm mô tả hoặc hình ảnh)\n\n“Công ty X mời tôi đầu tư, có đáng tin không?”\n\n“Làm sao biết một trang bán hàng trên Facebook là thật?”\n\nVề các hình thức lừa đảo:\n\n“Phishing là gì?”\n\n“Các hình thức lừa đảo phổ biến hiện nay”\n\n“Lừa đảo qua Zalo có những dấu hiệu gì?”\n\n“Deepfake là gì và nguy hiểm ra sao?”\n\nVề cách xử lý khi bị lừa:\n\n“Tôi đã chuyển tiền cho kẻ lừa đảo, phải làm gì?”\n\n“Làm sao để khôi phục tài khoản Facebook bị hack?”\n\n“Tôi bị tống tiền bằng hình ảnh nhạy cảm, cần xử lý như thế nào?”\n\nChatbot sẽ trả lời với:\n\nNhận định chuyên môn dựa trên cơ sở dữ liệu được huấn luyện bởi các chuyên gia an ninh mạng\n\nHướng dẫn từng bước chi tiết, dễ hiểu\n\nKhuyến cáo về các bước cần thực hiện ngay\n\nGợi ý liên hệ cơ quan chức năng nếu cần thiết\n\nHướng dẫn xử lý khi trở thành nạn nhân của lừa đảo\n\nTư vấn trường hợp trẻ em là nạn nhân tống tiền\n\nTư vấn cách xử lý khi trở thành nạn nhân tống tiền\n\nAI trả lời câu hỏi về các chiêu trò lừa đảo\n\nAI đưa ra nhận định về dấu hiệu lừa đảo\n\nTìm hiểu về Chống Lừa Đảo và xác minh thông tin\n\nChatbot còn hỗ trợ bạn tìm hiểu về các dịch vụ của Chống Lừa Đảo và xác minh thông tin liên quan.\n\nCác câu hỏi bạn có thể đặt:\n\n“Chống Lừa Đảo cung cấp những dịch vụ gì?”\n\n“Làm sao để cài đặt tiện ích Chống Lừa Đảo?”\n\n“Chống Lừa Đảo có ứng dụng mobile không?”\n\n“Scam Fighter là chương trình gì?”\n\nTính năng xác minh quan trọng:\n\nNếu có người tự xưng là thành viên Chống Lừa Đảo liên hệ với bạn, bạn có thể hỏi Chatbot:\n\n“Số điện thoại 0XXX XXX XXX có phải của Chống Lừa Đảo không?”\n\n“Email\n\nabc@xyz.com\n\ncó phải email chính thức không?”\n\nChatbot sẽ xác nhận thông tin và đưa ra cảnh báo nếu phát hiện giả mạo. Đây là tính năng cực kỳ hữu ích vì kẻ lừa đảo thường mạo danh các tổ chức uy tín!"
+  },
+  {
+    id: 8,
+    title: "Các thủ đoạn lừa đảo nhắm vào người cao tuổi",
+    excerpt: "Hiện nay, kẻ gian đang lợi dụng tâm lý lo lắng bệnh tật, mong muốn có thêm thu nhập và lòng tốt của người cao tuổi để thực hiện nhiều chiêu trò lừa đảo tinh",
+    date: "03/04/2026",
+    category: "Tin tức",
+    isUrgent: false,
+    source: "Chống Lừa Đảo",
+    imageUrl: "https://chongluadao.vn/blog/wp-content/uploads/2026/01/Hinh-16-Tong-quan.png",
+    content: "Hiện nay, kẻ gian đang lợi dụng tâm lý lo lắng bệnh tật, mong muốn có thêm thu nhập và lòng tốt của người cao tuổi để thực hiện nhiều chiêu trò lừa đảo tinh vi. Bên cạnh những chiêu trò lừa đảo online, lừa đảo trực tiếp ngay tại nhà bằng cách giả danh nhân viên công ích, cán bộ cũng là một trong những chiêu trò lừa đảo nguy hiểm nhất đối với người cao tuổi.\n\nNguyên nhân khiến người cao tuổi trở thành đích ngắm của lừa đảo\n\nTheo ghi nhận từ các cơ quan chức năng và tổ chức an ninh mạng quốc tế, người cao tuổi đang trở thành nhóm đối tượng thường bị nhắm đến của tội phạm lừa đảo công nghệ cao. Hiện tượng này không xuất phát từ sự suy giảm nhận thức, mà là hệ quả của sự chênh lệch về tiếp cận thông tin và các đặc điểm tâm lý xã hội đặc thù.\n\nDưới đây là phân tích chi tiết các nhóm nguyên nhân chính:\n\nĐặc điểm về tài chính và lối sống\n\nKhả năng thanh khoản cao\n\n: Người cao tuổi thường sở hữu các khoản tiền nhàn rỗi (lương hưu, tiền tiết kiệm dưỡng già, tiền con cháu biếu tặng) dưới dạng tiền mặt hoặc gửi ngân hàng. Đây là nguồn tài sản có tính thanh khoản cao, dễ dàng chuyển đổi hoặc chuyển khoản, khiến họ trở thành “con mồi” hấp dẫn về mặt kinh tế đối với tội phạm.\n\nSự cô lập xã hội\n\n: Một bộ phận lớn người cao tuổi sống một mình hoặc thiếu sự tương tác thường xuyên với con cháu do nhịp sống hiện đại. Sự cô đơn tạo ra nhu cầu tâm lý muốn được trò chuyện, chia sẻ. Tội phạm lợi dụng điểm yếu này để tiếp cận, xây dựng lòng tin giả tạo (social engineering) trước khi thực hiện hành vi lừa đảo.\n\nRào cản công nghệ\n\nThiếu hụt kỹ năng số\n\n: Người cao tuổi thường gặp khó khăn trong việc tiếp cận và hiểu các khái niệm mới như: Smart Banking, mã OTP, sinh trắc học, hoặc các dấu hiệu nhận biết website/ứng dụng giả mạo.\n\nKhả năng kiểm chứng thông tin hạn chế\n\n: Khác với thế hệ trẻ có thói quen kiểm tra chéo thông tin, người cao tuổi có xu hướng tin tưởng mặc định vào các thông tin xuất hiện trên thiết bị điện tử hoặc từ những người tự xưng là “cơ quan chức năng”.\n\nRào cản hành vi và tâm lý\n\nTâm lý “Sợ phiền hà” và “Sợ bị đánh giá”\n\n:\n\nTrước khi bị lừa: Nạn nhân thường tự giải quyết các vấn đề phát sinh trên không gian mạng thay vì hỏi ý kiến con cháu, do tâm lý sợ bị coi là lạc hậu, lẩm cẩm hoặc làm phiền người thân.\n\nSau khi bị lừa: Tâm lý mặc cảm, xấu hổ khiến nạn nhân giấu giếm sự việc, không trình báo cơ quan công an. Điều này dẫn đến tình trạng “vùng tối của tội phạm” – nơi tội phạm tiếp tục hoành hành mà không bị phát hiện.\n\nTâm lý tuân thủ quyền lực\n\n: Thế hệ người cao tuổi thường có sự tôn trọng và sợ hãi cao độ đối với các cơ quan pháp luật (Công an, Tòa án, Viện kiểm sát). Kịch bản giả danh cơ quan chức năng đe dọa bắt bớ đánh trúng vào điểm yếu tâm lý này, gây ra sự hoảng loạn và mất khả năng phán đoán tức thời.\n\nThực tế cho thấy, sự tổn thương của người cao tuổi trước các thủ đoạn lừa đảo không phải là một định mệnh không thể thay đổi. Quan điểm cho rằng người cao tuổi “không thể tiếp cận công nghệ” hay “mất khả năng phòng vệ” là những định kiến cần được xóa bỏ trong công tác tuyên truyền.\n\nNgười cao tuổi sở hữu vốn sống và sự cẩn trọng vốn có. Nếu được trang bị kiến thức đúng cách, họ hoàn toàn có năng lực tự bảo vệ tài sản và thông tin cá nhân của mình.\n\nCác thủ đoạn lừa đảo phổ biến nhắm vào người cao tuổi\n\n1. Lừa đảo qua điện thoại (Voice Phishing / Vishing)\n\nĐây là hình thức tấn công tâm lý trực diện và phổ biến nhất. Các đối tượng lừa đảo sử dụng dịch vụ VoIP (gọi điện qua Internet) để giả mạo số điện thoại, kết hợp với các kỹ thuật thao túng tâm lý (social engineering) để tạo ra các “cuộc gọi sốc” khiến nạn nhân hoảng loạn và mất khả năng kiểm soát lý trí.\n\n2. Lừa đảo qua tin nhắn, mạng xã hội, đường dẫn độc hại\n\nĐây là chiêu trò lừa đảo lợi dụng sự thiếu hiểu biết về an ninh mạng và thói quen sử dụng Internet đơn giản của người cao tuổi. Kẻ gian tấn công thông qua các kênh giao tiếp hàng ngày như SMS, Zalo, Facebook Messenger.\n\n3. Lừa đảo trực tiếp tại nơi cư trú (Giả danh nhân viên công ích/Cán bộ)\n\nKhác với lừa đảo qua mạng, hình thức này mang lại rủi ro kép: vừa mất tài sản, vừa đe dọa trực tiếp đến an ninh, an toàn thân thể của người cao tuổi tại nhà riêng.\n\n4. Lừa đảo tài chính, đầu tư và sức khỏe (Đa cấp biến tướng)\n\nĐây là nhóm thủ đoạn đánh vào hai tử huyệt tâm lý lớn nhất của người cao tuổi: Nỗi lo bệnh tật và mong muốn có thêm thu nhập để không phụ thuộc con cháu.\n\n5. Lừa đảo dưới danh nghĩa từ thiện, tôn giáo và an sinh xã hội\n\nThủ đoạn này đặc biệt nham hiểm vì nó khai thác tâm lý hướng thiện, mong muốn tích đức và sự cảm thông của người cao tuổi. Kẻ gian biến lòng tốt của nạn nhân thành công cụ để trục lợi.\n\nPhòng chống lừa đảo cho người già\n\nĐể xây dựng một “tường lửa” tâm lý vững chắc cho người cao tuổi, các chuyên gia an ninh mạng và ngân hàng quốc tế đã đúc kết bộ quy tắc hành động đơn giản nhưng hiệu quả:\n\nBộ quy tắc “5 Không – 3 Nên”\n\n. Đây là kim chỉ nam giúp người cao tuổi định thần và xử lý đúng đắn trong mọi tình huống nghi ngờ.\n\nQuy tắc “5 Không”: Nguyên tắc cấm kỵ để bảo vệ an toàn thông tin và tài sản.\n\nKHÔNG CUNG CẤP thông tin bảo mật\n\nKHÔNG CHUYỂN TIỀN vì một cuộc gọi\n\nKHÔNG BẤM vào đường link lạ\n\nKHÔNG KÝ giấy tờ khi chưa hiểu rõ\n\nKHÔNG GIẤU GIẾM (Không im lặng)\n\nQuy tắc “3 Nên”: Nguyên tắc hành động để xác minh và kiểm soát tình huống.\n\nNÊN áp dụng “Quy tắc 10 phút”\n\nNÊN lưu “Danh bạ khẩn cấp”\n\nNÊN kiểm tra tài chính định kỳ\n\nQuan trọng nhất, câu “thần chú” cốt lõi để phá giải mọi chiêu trò:\n\nMọi sự việc khẩn cấp liên quan đến pháp luật và tiền bạc đều không bao giờ được giải quyết chỉ bằng điện thoại."
+  },
+  {
+    id: 9,
+    title: "Giải mã chiêu trò sử dụng deepfake để tống tiền",
+    excerpt: "Bên cạnh việc ứng dụng AI để lừa đảo nạn nhân qua các cuộc gọi video giả mạo, tội phạm mạng còn sử dụng AI để biến những bức ảnh bình thường bị biến thành",
+    date: "03/04/2026",
+    category: "Tin tức",
+    isUrgent: false,
+    source: "Chống Lừa Đảo",
+    imageUrl: "https://chongluadao.vn/blog/wp-content/uploads/2025/12/Hinh-4-Tong-tien-bang-deepfake.png",
+    content: "Bên cạnh việc ứng dụng AI để lừa đảo nạn nhân qua các cuộc gọi video giả mạo, tội phạm mạng còn sử dụng AI để biến những bức ảnh bình thường bị biến thành công cụ tống tiền.\n\nHacker lợi dụng những bức ảnh đời thường (đi biển, đi chơi, mặc đồ kín đáo) được nạn nhân (thường là phụ nữ hoặc trẻ vị thành niên) đăng tải lên Facebook/Instagram ở chế độ công khai, sử dụng công cụ AI để “lột đồ” hoặc ghép mặt nạn nhân vào thân hình người mẫu phim khiêu dâm.\n\nSau đó, hacker gửi ảnh giả này cho nạn nhân kèm lời đe dọa yêu cầu chuyển tiền hoặc sẽ gửi những hình ảnh, video nhạy cảm này cho người nhà, đồng nghiệp hoặc tung lên MXH.\n\nCông nghệ được sử dụng\n\n“Undress” AI Apps (Ứng dụng lột đồ): Các công cụ web/bot Telegram sử dụng mô hình Generative AI (như Stable Diffusion in-painting) để đoán và vẽ lại phần cơ thể trần trụi dựa trên cấu trúc cơ thể trong ảnh gốc.\n\nFace Swapping (Ghép mặt): Ghép khuôn mặt nạn nhân vào video/ảnh nóng có sẵn với độ chân thực cao, đồng bộ cả biểu cảm (DeepFaceLab, ReFace).\n\nQuy trình tấn công tống tiền bằng ảnh giả tạo bởi AI\n\nBước 1: Săn mồi\n\nHacker dùng tool quét các tài khoản Instagram/TikTok mở công khai, tìm các ảnh rõ mặt, ảnh toàn thân.\n\nBước 2: Chế tác\n\nDùng AI “bóc” quần áo khỏi ảnh gốc\n\nHoặc tìm video khiêu dâm có diễn viên dáng người tương tự và dùng Deepfake ghép mặt nạn nhân vào.\n\nBước 3: Tấn công tâm lý\n\nGửi ảnh giả (đã làm mờ một phần hoặc rõ nét) cho nạn nhân.\n\nGửi kèm danh sách bạn bè của nạn nhân để chứng minh hắn có khả năng phát tán thật.\n\nBước 4: Yêu cầu chuyển tiền qua Crypto hoặc tài khoản rác\n\nPhương pháp nhận diện\n\nChi tiết giải phẫu bất thường: Ảnh do AI tạo ra thường bị lỗi ở ngón tay (thừa/thiếu ngón), rốn, hàm răng hoặc các vùng da tiếp giáp với tóc/quần áo trông bị nhòe.\n\nÁnh sáng và Bóng đổ: Hướng ánh sáng trên khuôn mặt (ảnh gốc) không khớp với hướng ánh sáng trên cơ thể (ảnh ghép).\n\nNguồn gốc ảnh: Nạn nhân có thể nhận ra bối cảnh, tư thế đầu giống hệt một bức ảnh bình thường mình từng đăng.\n\nGiải pháp phòng tránh và xử lý\n\nPhòng tránh\n\n: Hạn chế đăng ảnh cá nhân ở chế độ “Công khai” (Public). Cân nhắc dùng sticker che các phần nhạy cảm hoặc dùng watermark tên mình chèn lên ảnh khi đăng.\n\nXử lý khi bị tống tiền\n\n:\n\nKhông chuyển tiền: Chuyển tiền không giải quyết được vấn đề, hacker sẽ tiếp tục đòi thêm.Bình tĩnh và Chặn: Chặn liên lạc, khóa tạm thời tài khoản mạng xã hội.\n\nTố cáo: Báo cáo lên nền tảng (Facebook/Telegram) và cơ quan chức năng."
+  },
+  {
+    id: 10,
+    title: "Bảo mật iCloud tối đa: Cài đặt “sống còn” mà người dùng iPhone không nên bỏ qua",
+    excerpt: "Thông thường, đối với hầu hết các dịch vụ trực tuyến (bao gồm cả Google và mặc định của iCloud), dữ liệu đồng bộ lên đám mây sẽ được mã hóa, nhưng nhà cung",
+    date: "03/04/2026",
+    category: "Tin tức",
+    isUrgent: false,
+    source: "Chống Lừa Đảo",
+    imageUrl: "https://chongluadao.vn/blog/wp-content/uploads/2026/02/Gemini_Generated_Image_oju4choju4choju4.png",
+    content: "Trong kỷ nguyên số, dữ liệu cá nhân là tài sản quý giá nhất nhưng cũng là mục tiêu hàng đầu của tội phạm mạng. Đối với người dùng hệ sinh thái Apple, có một tính năng bảo mật mạnh mẽ giúp bảo vệ dữ liệu khỏi sự xâm nhập của bên thứ ba, kể cả chính Apple, đó là:\n\nBảo vệ dữ liệu nâng cao (Advanced Data Protection).\n\nTại sao tính năng này lại quan trọng đến vậy?\n\nThông thường, đối với hầu hết các dịch vụ trực tuyến (bao gồm cả Google và mặc định của iCloud), dữ liệu đồng bộ lên đám mây sẽ được mã hóa, nhưng nhà cung cấp dịch vụ vẫn nắm giữ các khóa giải mã\n\n.\n\nĐiều này đồng nghĩa với việc:\n\nCác công ty có quyền kỹ thuật để giải mã và xem dữ liệu của bạn dựa trên Điều khoản dịch vụ (ToS).\n\nGoogle có thể truy cập dữ liệu để ngăn chặn các mối đe dọa bảo mật, lạm dụng hoặc phục vụ các yêu cầu pháp lý từ chính phủ. Apple cũng có những điều khoản tương tự.\n\nDữ liệu của bạn có thể bị lạm dụng bởi chính nhân viên nội bộ của các công ty này. Minh chứng là từ năm 2018 đến 2020, Google đã phải sa thải 80 nhân viên vì hành vi lạm dụng dữ liệu người dùng.\n\nSức mạnh của Mã hóa đầu cuối (E2E)\n\nKhi bạn bật\n\nBảo vệ dữ liệu nâng cao\n\n, Apple sẽ áp dụng mã hóa đầu cuối cho nội dung iCloud của bạn\n\n.\n\nChỉ duy nhất bạn\n\nlà người nắm giữ khóa giải mã.\n\nApple (hoặc bất kỳ nhân viên nào của Apple) không thể xem nội dung dữ liệu của bạn.\n\nApple không thể bàn giao dữ liệu đã được giải mã cho bất kỳ bên thứ ba nào.\n\nĐây chính là lý do cốt yếu khiến việc chọn iOS và Apple mang lại lợi thế về quyền riêng tư so với các sản phẩm của Google, vì hiện tại Google chưa cung cấp khả năng tương tự cho toàn bộ dữ liệu đám mây.\n\nNhững dữ liệu nào sẽ được bảo vệ?\n\nVới tính năng này, có tổng cộng 23 danh mục dữ liệu sẽ được mã hóa đầu cuối. Trong đó, quan trọng nhất bao gồm:\n\nẢnh (Photos)\n\n.\n\nBản sao lưu iCloud\n\n(bao gồm cả bản sao lưu của toàn bộ thiết bị).\n\niCloud Drive\n\n(các tệp tin cá nhân).\n\nGhi chú (Notes)\n\n,\n\nTin nhắn (Messages)\n\n.\n\nDữ liệu Safari, Siri và Home\n\n.\n\nLưu ý:\n\nTính năng này\n\nkhông được bật mặc định\n\n, bạn phải chủ động thực hiện\n\n.\n\nRủi ro và Cách phòng ngừa\n\nQuyền lực đi đôi với trách nhiệm. Vì Apple không giữ khóa giải mã, họ sẽ không thể giúp bạn khôi phục dữ liệu nếu bạn mất quyền truy cập vào tài khoản\n\n.\n\nĐể đảm bảo an toàn, Apple sẽ yêu cầu bạn thiết lập ít nhất một phương thức khôi phục thay thế:\n\nLiên hệ khôi phục:\n\nMột người bạn hoặc người thân tin cậy dùng thiết bị Apple.\n\nKhóa khôi phục:\n\nMột dãy mã riêng biệt. Bạn nên lưu trữ mã này trong các trình quản lý mật khẩu như\n\nEnpass\n\nhoặc\n\n1Password\n\nđể tránh thất lạc.\n\nHướng dẫn kích hoạt\n\nBạn cần iPhone/iPad chạy iOS 16.2 hoặc Mac chạy macOS 13.1 trở lên\n\n. Việc bật trên một thiết bị sẽ có hiệu lực cho toàn bộ tài khoản\n\n.\n\nTrên iPhone/iPad:\n\nMở\n\nCài đặt\n\n> Nhấp vào\n\nTên của bạn\n\n>\n\niCloud\n\n> Cuộn xuống chọn\n\nBảo vệ dữ liệu nâng cao\n\n> Chọn\n\nBật\n\n.\n\nTrên máy Mac:\n\nVào\n\nMenu Apple \n\n>\n\nCài đặt hệ thống\n\n>\n\nTên của bạn\n\n>\n\niCloud\n\n>\n\nBảo vệ dữ liệu nâng cao\n\n> Chọn\n\nBật\n\n.\n\nLời kết từ Chống Lừa Đảo\n\nNếu bạn đang sở hữu thiết bị Apple, hãy bật tính năng này ngay để tự bảo vệ mình trước rủi ro bị bên thứ ba hoặc các nhân viên biến chất truy cập dữ liệu\n\n. Nếu bạn chưa sử dụng Apple, hãy cân nhắc kỹ việc chuyển dịch các dữ liệu nhạy cảm ra khỏi các dịch vụ không hỗ trợ mã hóa đầu cuối toàn diện\n\n."
+  }
 ]
 
 export default function NewsDetailPage() {
@@ -340,11 +168,11 @@ export default function NewsDetailPage() {
             </div>
           </div>
 
-          <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl leading-snug">
+          <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl leading-tight">
             {article.title}
           </h1>
 
-          <p className="mt-4 text-lg text-muted-foreground border-l-4 border-primary pl-4 italic">
+          <p className="mt-6 text-xl font-semibold text-foreground/90 border-l-4 border-primary pl-5 italic leading-relaxed">
             {article.excerpt}
           </p>
         </header>
@@ -352,27 +180,24 @@ export default function NewsDetailPage() {
         <hr className="border-border mb-8" />
 
         {/* Structured body */}
-        <div className="space-y-8">
-          {article.content.map((section, sIdx) => (
-            <div key={sIdx}>
-              <h2 className="text-xl font-bold text-foreground mb-3">{section.heading}</h2>
-              {section.paragraphs.map((para, pIdx) => (
-                <p key={pIdx} className="text-muted-foreground leading-relaxed mb-3">
-                  {para}
+        <div className="space-y-5">
+          {article.imageUrl && (
+            <img src={article.imageUrl} alt={article.title} className="w-full h-auto rounded-lg mb-8 object-cover max-h-[400px]" />
+          )}
+          {typeof article.content === 'string' && (
+            <div className="text-foreground/90 font-medium leading-relaxed text-[1.05rem] sm:text-[1.1rem]">
+              {article.content.split('\n\n').filter(p => p.trim() !== '').map((para, idx) => (
+                <p key={idx} className="mb-4">
+                  {para.split('\n').map((line, i) => (
+                    <span key={i}>
+                      {line}
+                      {i < para.split('\n').length - 1 && <br />}
+                    </span>
+                  ))}
                 </p>
               ))}
-              {section.bullets.length > 0 && (
-                <ul className="space-y-2 mt-2">
-                  {section.bullets.map((bullet, bIdx) => (
-                    <li key={bIdx} className="flex gap-2 text-muted-foreground">
-                      <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary" />
-                      <span className="leading-relaxed">{bullet}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </div>
-          ))}
+          )}
         </div>
 
         {/* Footer */}
@@ -381,17 +206,7 @@ export default function NewsDetailPage() {
             <p className="text-sm text-muted-foreground">
               Nguồn: Ban biên tập An toàn mạng • {article.date}
             </p>
-            {article.source && (
-              <a
-                href="https://www.trangtrang.com/bai-viet"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-              >
-                <ExternalLink className="h-3 w-3" />
-                Xem bài gốc trên {article.source}
-              </a>
-            )}
+             {/* Removed source link per request */}
           </div>
           <Button variant="outline" onClick={() => navigate("/tintuc")}>
             <ArrowLeft className="mr-2 h-4 w-4" />

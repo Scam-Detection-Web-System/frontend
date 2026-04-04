@@ -1,37 +1,62 @@
 import { Link, useLocation } from "react-router-dom"
 import {
-    LayoutDashboard,
     FileWarning,
-    Users,
     Newspaper,
     Settings,
+    ShieldCheck,
     LogOut,
     ChevronLeft,
     ChevronRight,
-    BrainCircuit,
-    ShieldCheck,
-    ClipboardList,
+    Clock,
 } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/auth-context"
 import { cn } from "@/lib/utils"
+import { reportService } from "@/services/report.service"
 
 const navItems = [
-    { href: "/admin", label: "Bảng điều khiển", icon: LayoutDashboard, allowedRoles: ['ADMIN', 'MANAGER'] },
-    { href: "/admin/reports", label: "Báo cáo", icon: FileWarning, allowedRoles: ['ADMIN', 'MANAGER'] },
-    { href: "/admin/assessments", label: "Đánh giá SĐT", icon: ClipboardList, allowedRoles: ['MANAGER'] },
-    { href: "/admin/moderator-reports", label: "Duyệt báo cáo", icon: ShieldCheck, allowedRoles: ['MODERATOR'] },
-    { href: "/admin/users", label: "Người dùng", icon: Users, allowedRoles: ['ADMIN', 'MANAGER'] },
-    { href: "/admin/quiz", label: "Quiz & Câu hỏi", icon: BrainCircuit, allowedRoles: ['ADMIN', 'MANAGER'] },
-    { href: "/admin/news", label: "Tin tức", icon: Newspaper, allowedRoles: ['ADMIN', 'MANAGER', 'MODERATOR'] },
-    { href: "/admin/settings", label: "Cài đặt", icon: Settings, allowedRoles: ['ADMIN', 'MANAGER', 'MODERATOR'] },
+    {
+        href: "/admin/moderator-reports",
+        label: "Báo cáo chờ duyệt",
+        icon: FileWarning,
+        showBadge: true,
+    },
+    {
+        href: "/admin/news",
+        label: "Tin tức",
+        icon: Newspaper,
+        showBadge: false,
+    },
+    {
+        href: "/admin/settings",
+        label: "Cài đặt",
+        icon: Settings,
+        showBadge: false,
+    },
 ]
 
-export function AdminSidebar() {
+export function ModeratorSidebar() {
     const location = useLocation()
     const { logout, user } = useAuth()
     const [collapsed, setCollapsed] = useState(false)
+    const [pendingCount, setPendingCount] = useState(0)
+
+    const loadPendingCount = useCallback(async () => {
+        try {
+            const res = await reportService.getModeratorPendingReports({ page: 0, size: 1 })
+            setPendingCount(res.data?.totalElements ?? 0)
+        } catch {
+            // silence – badge count is non-critical
+        }
+    }, [])
+
+    useEffect(() => {
+        loadPendingCount()
+        // Refresh count every 60 seconds
+        const interval = setInterval(loadPendingCount, 60_000)
+        return () => clearInterval(interval)
+    }, [loadPendingCount])
 
     return (
         <aside
@@ -48,16 +73,23 @@ export function AdminSidebar() {
                     className="h-8 w-8 shrink-0 dark:invert"
                 />
                 {!collapsed && (
-                    <span className="text-lg font-bold text-slate-900 dark:text-white">
-                        AnTiScaQ
-                    </span>
+                    <div>
+                        <span className="text-lg font-bold text-slate-900 dark:text-white">
+                            AnTiScaQ
+                        </span>
+                        <p className="text-[10px] text-violet-600 font-semibold leading-tight">
+                            Kiểm duyệt viên
+                        </p>
+                    </div>
                 )}
             </div>
 
             {/* Navigation */}
             <nav className="flex-1 space-y-1 px-3 py-4">
-                {navItems.filter(item => !item.allowedRoles || item.allowedRoles.includes(user?.role ?? '')).map((item) => {
-                    const isActive = location.pathname === item.href
+                {navItems.map((item) => {
+                    const isActive =
+                        location.pathname === item.href ||
+                        (item.href !== "/admin" && location.pathname.startsWith(item.href))
                     return (
                         <Link
                             key={item.href}
@@ -65,18 +97,49 @@ export function AdminSidebar() {
                             className={cn(
                                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                                 isActive
-                                    ? "bg-primary/10 text-primary dark:bg-primary/20"
+                                    ? "bg-violet-50 text-violet-700 dark:bg-violet-950/30 dark:text-violet-300"
                                     : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white",
                                 collapsed && "justify-center px-2"
                             )}
                             title={collapsed ? item.label : undefined}
                         >
                             <item.icon className="h-5 w-5 shrink-0" />
-                            {!collapsed && <span>{item.label}</span>}
+                            {!collapsed && <span className="flex-1">{item.label}</span>}
+                            {/* Badge số lượng PENDING */}
+                            {item.showBadge && pendingCount > 0 && (
+                                <span
+                                    className={cn(
+                                        "flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold",
+                                        isActive
+                                            ? "bg-violet-600 text-white"
+                                            : "bg-amber-500 text-white",
+                                        collapsed && "absolute translate-x-3 -translate-y-2 text-[9px] h-4 min-w-4"
+                                    )}
+                                >
+                                    {pendingCount > 99 ? "99+" : pendingCount}
+                                </span>
+                            )}
                         </Link>
                     )
                 })}
             </nav>
+
+            {/* Pending info card */}
+            {!collapsed && pendingCount > 0 && (
+                <div className="mx-3 mb-3 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800/40 dark:bg-amber-950/20">
+                    <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                        <div>
+                            <p className="text-xs font-semibold text-amber-800 dark:text-amber-300">
+                                {pendingCount} báo cáo chờ duyệt
+                            </p>
+                            <p className="text-[10px] text-amber-600 dark:text-amber-400">
+                                Cần xử lý sớm
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Bottom section */}
             <div className="border-t border-slate-200 p-3 dark:border-slate-700/50">
@@ -87,6 +150,9 @@ export function AdminSidebar() {
                         <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
                             {user?.name}
                         </p>
+                        <span className="inline-block rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
+                            Moderator
+                        </span>
                     </div>
                 )}
 

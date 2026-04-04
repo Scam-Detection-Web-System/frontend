@@ -18,22 +18,27 @@ import {
     Loader2,
     UserCheck,
     UserX,
+    ShieldOff,
+    ShieldCheck,
 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useAuth } from "@/contexts/auth-context"
 
 // ─── Create / Edit Modal Component ────────────────────────────────────
 interface UserModalProps {
     mode: "create" | "edit"
     user?: UserResponse
+    currentUserRole?: string
     onClose: () => void
     onSuccess: () => void
 }
 
-function UserModal({ mode, user, onClose, onSuccess }: UserModalProps) {
+function UserModal({ mode, user, currentUserRole, onClose, onSuccess }: UserModalProps) {
     const [username, setUsername] = useState(user?.username ?? "")
     const [email, setEmail] = useState(user?.email ?? "")
     const [password, setPassword] = useState("")
     const [gender, setGender] = useState(user?.gender ?? "")
+    const [role, setRole] = useState(currentUserRole === "MANAGER" ? "MODERATOR" : "USER")
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
 
@@ -43,7 +48,13 @@ function UserModal({ mode, user, onClose, onSuccess }: UserModalProps) {
         setLoading(true)
         try {
             if (mode === "create") {
-                await userService.createUser({ username, email, password, gender })
+                if (role === "MANAGER") {
+                    await userService.createManager({ username, email, password, gender })
+                } else if (role === "MODERATOR") {
+                    await userService.createModerator({ username, email, password, gender })
+                } else {
+                    await userService.createUser({ username, email, password, gender })
+                }
             } else if (mode === "edit" && user) {
                 await userService.updateUser(user.userId, { username, gender })
             }
@@ -130,6 +141,24 @@ function UserModal({ mode, user, onClose, onSuccess }: UserModalProps) {
                         </select>
                     </div>
 
+                    {/* Role Selection (Chỉ khi tạo mới & là ADMIN mới được chọn) */}
+                    {mode === "create" && (
+                        <div className="space-y-1.5">
+                            <Label htmlFor="modal-role">Vai trò</Label>
+                            <select
+                                id="modal-role"
+                                value={role}
+                                onChange={e => setRole(e.target.value)}
+                                disabled={loading || currentUserRole === "MANAGER"}
+                                className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+                            >
+                                <option value="USER">User (Người dùng thường)</option>
+                                <option value="MODERATOR">Moderator (Kiểm duyệt viên)</option>
+                                {currentUserRole === "ADMIN" && <option value="MANAGER">Manager (Quản lý)</option>}
+                            </select>
+                        </div>
+                    )}
+
                     {error && (
                         <Alert variant="destructive">
                             <AlertDescription>{error}</AlertDescription>
@@ -152,10 +181,12 @@ function UserModal({ mode, user, onClose, onSuccess }: UserModalProps) {
 
 // ─── Main Page ────────────────────────────────────────────────────────
 export default function AdminUsers() {
+    const { user: currentUser } = useAuth()
     const [users, setUsers] = useState<UserResponse[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
     const [search, setSearch] = useState("")
+    const [blockingId, setBlockingId] = useState<string | null>(null)
 
     // Modal state
     const [modalMode, setModalMode] = useState<"create" | "edit">("create")
@@ -165,16 +196,21 @@ export default function AdminUsers() {
     // Fetch users
     const fetchUsers = useCallback(async () => {
         setLoading(true)
-        setError("")
+        setError('')
         try {
-            const res = await userService.getAllUsers()
-            setUsers(res.data ?? [])
+            if (currentUser?.role === 'MANAGER') {
+                const res = await userService.getAllModerators()
+                setUsers(res.data ?? [])
+            } else {
+                const res = await userService.getAllUsers({ page: 0, size: 50 })
+                setUsers(res.data ?? [])
+            }
         } catch (err: any) {
-            setError(err.message ?? "Không thể tải danh sách người dùng")
+            setError(err.message ?? 'Không thể tải danh sách người dùng')
         } finally {
             setLoading(false)
         }
-    }, [])
+    }, [currentUser?.role])
 
     useEffect(() => {
         fetchUsers()
@@ -195,6 +231,24 @@ export default function AdminUsers() {
     const handleModalSuccess = () => {
         setShowModal(false)
         fetchUsers()
+    }
+
+    const handleToggleBlock = async (u: UserResponse) => {
+        setBlockingId(u.userId)
+        setError("")
+        try {
+            const isActive = u.status === "ACTIVE" || u.status === "active"
+            if (isActive) {
+                await userService.blockUser(u.userId)
+            } else {
+                await userService.activateUser(u.userId)
+            }
+            await fetchUsers()
+        } catch (err: any) {
+            setError(err.message ?? "Không thể thay đổi trạng thái người dùng")
+        } finally {
+            setBlockingId(null)
+        }
     }
 
     // Filter by search
@@ -371,16 +425,39 @@ export default function AdminUsers() {
                                                     </span>
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() => openEdit(u)}
-                                                        className="gap-1.5"
-                                                        id={`edit-user-${u.userId}`}
-                                                    >
-                                                        <Edit2 className="h-3.5 w-3.5" />
-                                                        Sửa
-                                                    </Button>
+                                                    <div className="flex items-center gap-1">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => openEdit(u)}
+                                                            className="gap-1.5"
+                                                            id={`edit-user-${u.userId}`}
+                                                        >
+                                                            <Edit2 className="h-3.5 w-3.5" />
+                                                            Sửa
+                                                        </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            disabled={blockingId === u.userId}
+                                                            onClick={() => handleToggleBlock(u)}
+                                                            className={`gap-1.5 ${
+                                                                u.status === "ACTIVE" || u.status === "active"
+                                                                    ? "text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/50"
+                                                                    : "text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/50"
+                                                            }`}
+                                                            id={`block-user-${u.userId}`}
+                                                        >
+                                                            {blockingId === u.userId ? (
+                                                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                            ) : u.status === "ACTIVE" || u.status === "active" ? (
+                                                                <ShieldOff className="h-3.5 w-3.5" />
+                                                            ) : (
+                                                                <ShieldCheck className="h-3.5 w-3.5" />
+                                                            )}
+                                                            {u.status === "ACTIVE" || u.status === "active" ? "Chặn" : "Kích hoạt"}
+                                                        </Button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))
@@ -404,6 +481,7 @@ export default function AdminUsers() {
                 <UserModal
                     mode={modalMode}
                     user={selectedUser}
+                    currentUserRole={currentUser?.role}
                     onClose={() => setShowModal(false)}
                     onSuccess={handleModalSuccess}
                 />

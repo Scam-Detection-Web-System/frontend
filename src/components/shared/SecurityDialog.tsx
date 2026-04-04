@@ -64,7 +64,7 @@ export function SecurityDialog({ open, onOpenChange }: SecurityDialogProps) {
 
         setIsLoading(true)
         try {
-            await updateProfile({ password: newPassword })
+            await updateProfile({ newPassword })
             toast.success("Đổi mật khẩu thành công", {
                 description: "Mật khẩu của bạn đã được cập nhật.",
             })

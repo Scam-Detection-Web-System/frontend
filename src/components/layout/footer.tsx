@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import { Shield, Facebook, Mail, Phone } from "lucide-react"
+import { Facebook, Mail, Phone } from "lucide-react"
 
 export function Footer() {
   return (
@@ -7,10 +7,12 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div className="sm:col-span-2 lg:col-span-1">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-foreground/10">
-                <Shield className="h-6 w-6 text-white" />
-              </div>
+            <Link to="/" className="flex items-center gap-2.5">
+              <img
+                src="/logo.svg"
+                alt="AnTiScaQ logo"
+                className="h-9 w-9 invert"
+              />
               <span className="text-xl font-bold text-primary-foreground">AnTiScaQ</span>
             </Link>
             <p className="mt-4 text-sm text-primary-foreground/70">

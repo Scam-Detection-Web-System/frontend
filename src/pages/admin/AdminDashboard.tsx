@@ -6,6 +6,7 @@ import {
     Activity,
 } from "lucide-react"
 import { Routes, Route } from "react-router-dom"
+import { useState, useEffect } from "react"
 import { AdminSidebar } from "@/components/admin/AdminSidebar"
 import { AdminStatsCard } from "@/components/admin/AdminStatsCard"
 import { AdminReportsTable } from "@/components/admin/AdminReportsTable"
@@ -15,10 +16,80 @@ import { DashboardProviderStats } from "@/components/admin/DashboardProviderStat
 import { ModeToggle } from "@/components/shared/mode-toggle"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { useAuth } from "@/contexts/auth-context"
+import { Navigate } from "react-router-dom"
 import AdminUsers from "./AdminUsers"
 import AdminBlogs from "./AdminBlogs"
+import AdminReports from "./AdminReports"
+import AdminQuiz from "./AdminQuiz"
+import ModeratorReports from "./ModeratorReports"
+import ManagerAssessments from "./ManagerAssessments"
+import { userService } from "@/services/user.service"
+import { reportService } from "@/services/report.service"
+
+interface DashboardStats {
+    totalUsers: number
+    totalReports: number
+    pendingReports: number
+    blockedUsers: number
+}
 
 function DashboardHome() {
+    const { user } = useAuth()
+    
+    // MODERATOR có trang riêng, redirect về moderator-reports
+    if (user?.role === 'MODERATOR') {
+        return <Navigate to="/admin/moderator-reports" replace />
+    }
+    // Roles khác ngoài ADMIN/MANAGER redirect về news
+    if (user?.role !== 'ADMIN' && user?.role !== 'MANAGER') {
+        return <Navigate to="/admin/news" replace />
+    }
+
+    const [stats, setStats] = useState<DashboardStats>({
+        totalUsers: 0,
+        totalReports: 0,
+        pendingReports: 0,
+        blockedUsers: 0,
+    })
+    const [statsLoading, setStatsLoading] = useState(true)
+
+    useEffect(() => {
+        async function loadStats() {
+            setStatsLoading(true)
+            try {
+                const [usersRes, allReportsRes, pendingReportsRes] = await Promise.allSettled([
+                    userService.getAllUsers({ page: 0, size: 200 }),
+                    reportService.getGroupedReports({ page: 0, size: 1 }),
+                    reportService.getGroupedReports({ status: "PENDING", page: 0, size: 1 }),
+                ])
+
+                const userList = usersRes.status === "fulfilled" ? (usersRes.value.data ?? []) : []
+                const totalReports =
+                    allReportsRes.status === "fulfilled" ? allReportsRes.value.data.totalElements : 0
+                const pendingReports =
+                    pendingReportsRes.status === "fulfilled" ? pendingReportsRes.value.data.totalElements : 0
+                const blockedUsers = userList.filter(
+                    (u) => u.status !== "ACTIVE" && u.status !== "active"
+                ).length
+
+                setStats({
+                    totalUsers: userList.length,
+                    totalReports,
+                    pendingReports,
+                    blockedUsers,
+                })
+            } catch {
+                // Silently keep zeros on complete failure
+            } finally {
+                setStatsLoading(false)
+            }
+        }
+        loadStats()
+    }, [])
+
+    const fmt = (n: number) => n.toLocaleString("vi-VN")
+
     return (
         <div className="flex h-screen bg-slate-50 dark:bg-slate-950">
             <AdminSidebar />
@@ -50,35 +121,35 @@ function DashboardHome() {
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                         <AdminStatsCard
                             title="Tổng báo cáo"
-                            value="1,284"
-                            description="so với tháng trước"
+                            value={statsLoading ? "..." : fmt(stats.totalReports)}
+                            description="số điện thoại bị báo cáo"
                             icon={<FileWarning className="h-6 w-6" />}
                             trend="up"
-                            trendValue="+12.5%"
+                            trendValue=""
                         />
                         <AdminStatsCard
                             title="Người dùng"
-                            value="8,432"
-                            description="so với tháng trước"
+                            value={statsLoading ? "..." : fmt(stats.totalUsers)}
+                            description="tài khoản đã đăng ký"
                             icon={<Users className="h-6 w-6" />}
                             trend="up"
-                            trendValue="+8.2%"
+                            trendValue=""
                         />
                         <AdminStatsCard
-                            title="SĐT bị chặn"
-                            value="3,156"
-                            description="so với tháng trước"
+                            title="Tài khoản bị chặn"
+                            value={statsLoading ? "..." : fmt(stats.blockedUsers)}
+                            description="trên trang hiện tại"
                             icon={<PhoneOff className="h-6 w-6" />}
                             trend="up"
-                            trendValue="+23.1%"
+                            trendValue=""
                         />
                         <AdminStatsCard
                             title="Chờ duyệt"
-                            value="47"
+                            value={statsLoading ? "..." : fmt(stats.pendingReports)}
                             description="báo cáo cần xử lý"
                             icon={<Clock className="h-6 w-6" />}
-                            trend="down"
-                            trendValue="-5.4%"
+                            trend={stats.pendingReports > 0 ? "up" : "down"}
+                            trendValue=""
                         />
                     </div>
 
@@ -170,12 +241,56 @@ function DashboardHome() {
     )
 }
 
+
 export default function AdminDashboard() {
+    const { user } = useAuth()
+
     return (
         <Routes>
             <Route index element={<DashboardHome />} />
-            <Route path="users" element={<AdminUsers />} />
             <Route path="news" element={<AdminBlogs />} />
+            
+            {/* Mọi vai trò có thẩm quyền (ADMIN, MANAGER) đều được vào Users */}
+            {(user?.role === "ADMIN" || user?.role === "MANAGER") && (
+                <Route path="users" element={<AdminUsers />} />
+            )}
+
+            {/* Reports — accessible to ADMIN and MANAGER */}
+            {(user?.role === 'ADMIN' || user?.role === 'MANAGER') && (
+                <Route path="reports" element={<AdminReports />} />
+            )}
+
+            {/* Quiz — accessible to ADMIN and MANAGER */}
+            {(user?.role === "ADMIN" || user?.role === "MANAGER") && (
+                <Route path="quiz" element={<AdminQuiz />} />
+            )}
+
+            {/* Moderator Reports — accessible to MODERATOR only */}
+            {user?.role === "MODERATOR" && (
+                <Route path="moderator-reports" element={<ModeratorReports />} />
+            )}
+
+            {/* Assessments — accessible to MANAGER only */}
+            {user?.role === "MANAGER" && (
+                <Route path="assessments" element={<ManagerAssessments />} />
+            )}
+
+            {/* Fallback cho các URL không hợp lệ hoặc bị cấm */}
+            <Route
+                path="*"
+                element={
+                    <Navigate
+                        to={
+                            user?.role === "ADMIN" || user?.role === "MANAGER"
+                                ? "/admin"
+                                : user?.role === "MODERATOR"
+                                ? "/admin/moderator-reports"
+                                : "/admin/news"
+                        }
+                        replace
+                    />
+                }
+            />
         </Routes>
     )
 }

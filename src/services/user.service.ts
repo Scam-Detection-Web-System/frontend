@@ -28,6 +28,7 @@ export interface UserCreationRequest {
 export interface UserUpdateRequest {
     username?: string
     gender?: string
+    status?: string
 }
 
 export interface GetUsersParams {
@@ -67,6 +68,18 @@ export const userService = {
     },
 
     /**
+     * GET /users/moderator
+     * Lấy danh sách moderator (Admin).
+     */
+    getAllModerators: () => apiFetch<ApiResponse<UserResponse[]>>('/users/moderator'),
+
+    /**
+     * GET /users/manager
+     * Lấy danh sách manager (Admin only).
+     */
+    getAllManagers: () => apiFetch<ApiResponse<UserResponse[]>>('/users/manager'),
+
+    /**
      * POST /users
      * Tạo người dùng mới (Admin/Manager).
      */
@@ -78,11 +91,45 @@ export const userService = {
 
     /**
      * POST /users/manager
-     * Tạo tài khoản Manager mới.
+     * Tạo tài khoản Manager mới (Admin).
      */
     createManager: (data: UserCreationRequest) =>
         apiFetch<ApiResponse<UserResponse>>('/users/manager', {
             method: 'POST',
             body: JSON.stringify(data),
+        }),
+
+    /**
+     * POST /users/moderator
+     * Tạo tài khoản Moderator mới (Admin/Manager).
+     */
+    createModerator: (data: UserCreationRequest) =>
+        apiFetch<ApiResponse<UserResponse>>('/users/moderator', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        }),
+
+    /**
+     * PUT /users/{userId}
+     * Thay đổi trạng thái người dùng: ACTIVE | BLOCKED | ...
+     */
+    changeStatus: (userId: string, status: string) =>
+        apiFetch<ApiResponse<UserResponse>>(`/users/${userId}`, {
+            method: 'PUT',
+            body: JSON.stringify({ status }),
+        }),
+
+    /** Chặn người dùng */
+    blockUser: (userId: string) =>
+        apiFetch<ApiResponse<UserResponse>>(`/users/${userId}`, {
+            method: 'PUT',
+            body: JSON.stringify({ status: 'BLOCKED' }),
+        }),
+
+    /** Kích hoạt lại người dùng */
+    activateUser: (userId: string) =>
+        apiFetch<ApiResponse<UserResponse>>(`/users/${userId}`, {
+            method: 'PUT',
+            body: JSON.stringify({ status: 'ACTIVE' }),
         }),
 }

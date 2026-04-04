@@ -1,3 +1,5 @@
+import { translateError } from './error-messages'
+
 export const BASE_URL = '/api'
 
 /**
@@ -8,7 +10,7 @@ export async function apiFetch<T>(
     options: RequestInit = {}
 ): Promise<T> {
     const token = localStorage.getItem('auth_token')
-    
+
     const headers = new Headers(options.headers || {})
     // Set default content type
     if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
@@ -28,14 +30,26 @@ export async function apiFetch<T>(
         let errorMsg = 'Lỗi kết nối đến máy chủ'
         try {
             const errorData = await res.json()
-            errorMsg = errorData.message || errorMsg
+            // Backend có thể dùng 'message', 'mess', hoặc 'error'
+            const rawMsg = errorData.message || errorData.mess || errorData.error || ''
+            if (rawMsg) {
+                errorMsg = rawMsg
+            } else if (res.status === 401) {
+                errorMsg = 'Unauthorized'
+            } else if (res.status === 403) {
+                errorMsg = 'Forbidden'
+            } else if (res.status === 404) {
+                errorMsg = 'User not found'
+            } else if (res.status === 500) {
+                errorMsg = 'Internal server error'
+            }
         } catch (e) {
             // Fallback to text or status text if not JSON
             const text = await res.text().catch(() => '')
             if (text) errorMsg = text
             else errorMsg = res.statusText || errorMsg
         }
-        throw new Error(errorMsg)
+        throw new Error(translateError(errorMsg))
     }
 
     // Check if the response is empty (e.g. 204 No Content)
@@ -43,6 +57,7 @@ export async function apiFetch<T>(
     if (contentType && contentType.includes('application/json')) {
         return res.json()
     }
-    
+
     return res.text() as unknown as T
 }
+

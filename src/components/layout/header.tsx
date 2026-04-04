@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import { Shield, Menu, X, LogOut, LayoutDashboard, User as UserIcon, ShieldCheck } from "lucide-react"
+import { Menu, X, LogOut, LayoutDashboard, User as UserIcon, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/shared/mode-toggle"
 import { LoginDialog } from "@/components/shared/login-dialog"
@@ -26,6 +26,7 @@ export function Header() {
     { href: "/baocao", label: "Báo cáo Lừa đảo" },
     { href: "/tintuc", label: "Tin tức" },
     { href: "/huongdan", label: "Hướng dẫn" },
+    { href: "/quiz", label: "Trắc nghiệm" },
   ]
 
   const initials = user?.name
@@ -38,10 +39,12 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:border-slate-800 dark:bg-slate-900/95 dark:supports-[backdrop-filter]:bg-slate-900/80">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[oklch(0.205_0_0)] dark:bg-white/10">
-            <Shield className="h-6 w-6 text-white" />
-          </div>
+        <Link to="/" className="flex items-center gap-2.5">
+          <img
+            src="/logo.svg"
+            alt="AnTiScaQ logo"
+            className="h-9 w-9 dark:invert"
+          />
           <span className="text-xl font-bold text-slate-900 dark:text-white">AnTiScaQ</span>
         </Link>
 

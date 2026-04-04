@@ -32,6 +32,12 @@ export function NewsSection() {
               className="group cursor-pointer transition-all hover:shadow-lg hover:shadow-primary/5"
               onClick={() => navigate(`/tintuc/${article.id}`)}
             >
+              
+              {article.imageUrl && (
+                <div className="w-full h-48 overflow-hidden rounded-t-lg">
+                  <img src={article.imageUrl} alt={article.title} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                </div>
+              )}
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <Badge
@@ -46,12 +52,12 @@ export function NewsSection() {
                     {article.date}
                   </div>
                 </div>
-                <CardTitle className="line-clamp-2 text-lg leading-snug transition-colors group-hover:text-primary">
+                <CardTitle className="line-clamp-2 text-xl font-extrabold leading-snug transition-colors group-hover:text-primary">
                   {article.title}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription className="line-clamp-3">
+                <CardDescription className="line-clamp-3 text-foreground/80 font-medium text-[15px] mt-2">
                   {article.excerpt}
                 </CardDescription>
                 <div className="mt-4 flex items-center text-sm font-medium text-primary transition-colors group-hover:text-primary/80">

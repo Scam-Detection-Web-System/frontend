@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 230" fill="none">
+  <!-- Shield shape outline only (navy stroke, transparent fill) -->
+  <path
+    d="M100 8 L172 36 L172 108 C172 152 140 182 100 200 C60 182 28 152 28 108 L28 36 Z"
+    stroke="#0D2157"
+    stroke-width="11"
+    stroke-linejoin="round"
+    fill="white"
+  />
+  <!-- Keyhole: top circle -->
+  <circle cx="100" cy="92" r="18" fill="#0D2157" />
+  <!-- Hollow inside the circle -->
+  <circle cx="100" cy="92" r="9" fill="white" />
+  <!-- Keyhole: bottom slot trapezoid -->
+  <path
+    d="M90 104 L87 148 L113 148 L110 104 Z"
+    fill="#0D2157"
+  />
+  <!-- Sharp bottom tip (completes keyhole going to shield point) -->
+  <path
+    d="M87 148 L100 165 L113 148 Z"
+    fill="#0D2157"
+  />
+</svg>
