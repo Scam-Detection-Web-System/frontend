@@ -206,7 +206,7 @@ function UrlCheckerTab() {
     const [url, setUrl] = useState("")
     const [isChecking, setIsChecking] = useState(false)
     const [result, setResult] = useState<ResultData | null>(null)
-
+    const [assessment, setAssessment] = useState<AssessmentResponse | null>(null)
     const checkUrl = async () => {
         const trimmed = url.trim()
         if (!trimmed) return
@@ -246,6 +246,7 @@ function UrlCheckerTab() {
             aiScore: ai.score,
             aiWords: ai.words,
         })
+        
         setIsChecking(false)
     }
 

@@ -114,6 +114,6 @@ export const authService = {
     logout: (refreshToken: string) =>
         apiFetch<ApiResponse<void>>('/auth/logout', {
             method: 'POST',
-            body: JSON.stringify({ refreshToken }),
+            body: JSON.stringify({ token: refreshToken }),
         }),
 }

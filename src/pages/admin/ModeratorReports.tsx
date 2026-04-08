@@ -405,7 +405,7 @@ export default function ModeratorReports() {
                 }
                 const res = await reportService.getGroupedReports(params)
                 const pageData = res.data
-                setGroups(pageData.content ?? [])
+                setGroups((pageData.content ?? []).map(g => ({ ...g, reports: g.reports ?? [] })))
                 setTotalElements(pageData.totalElements ?? 0)
                 setTotalPages(pageData.totalPages ?? 0)
             } catch (err: any) {

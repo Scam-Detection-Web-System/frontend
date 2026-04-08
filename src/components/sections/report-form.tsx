@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
+import { useSearchParams } from "react-router-dom"
 import { AlertTriangle, Send, CheckCircle, Loader2, LogIn } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -96,13 +97,14 @@ const SCAM_TECHNIQUE_OPTIONS = [
 
 export function ReportForm() {
   const { user, isAuthenticated } = useAuth()
+  const [searchParams] = useSearchParams()
   const [showLoginDialog, setShowLoginDialog] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [submitError, setSubmitError] = useState("")
 
   // Form state
-  const [phoneNumber, setPhoneNumber] = useState("")
+  const [phoneNumber, setPhoneNumber] = useState(searchParams.get("phone") || "")
   const [label, setLabel] = useState("")
   const [contactMethod, setContactMethod] = useState("")
   const [selectedTechniques, setSelectedTechniques] = useState<string[]>([])

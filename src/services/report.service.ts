@@ -28,6 +28,7 @@ export interface PhoneReportGroupResponse {
     carrier: string | null
     area: string | null
     totalReports: number
+    reports?: PhoneReportItem[] 
 }
 
 export interface PageGroupedReports {
