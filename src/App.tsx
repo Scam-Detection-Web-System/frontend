@@ -18,6 +18,7 @@ import { GuidesSection } from "@/components/sections/guides-section"
 import { LogoutOverlay } from "@/components/shared/LogoutOverlay"
 import NewsDetailPage from "./pages/user/NewsDetailPage"
 import QuizPage from "./pages/user/QuizPage"
+import QuizHistoryPage from "./pages/user/QuizHistoryPage"
 import PhoneAssessmentPage from "./pages/user/PhoneAssessmentPage"
 import { ChatbotButton } from "@/components/shared/chatbot-button"
 
@@ -89,6 +90,7 @@ function AppRoutes() {
                                 <Route path="/tintuc/:id" element={<NewsDetailPage />} />
                                 <Route path="/huongdan" element={<GuidesSection />} />
                                 <Route path="/quiz" element={<QuizPage />} />
+                                <Route path="/quiz/history" element={<QuizHistoryPage />} />
                                 <Route path="/tracuu/:phone" element={<PhoneAssessmentPage />} />
                             </Routes>
                         </main>

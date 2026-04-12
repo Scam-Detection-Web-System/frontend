@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react"
+﻿import { useState, useEffect, useCallback } from "react"
 import { ModeratorSidebar } from "@/components/admin/ModeratorSidebar"
 import { ModeToggle } from "@/components/shared/mode-toggle"
 import { Button } from "@/components/ui/button"
@@ -39,23 +39,19 @@ function StatusBadge({ status }: { status: ReportStatus }) {
     const map: Record<ReportStatus, { label: string; className: string }> = {
         PENDING: {
             label: "Chờ duyệt",
-            className:
-                "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
+            className: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
         },
         VALID: {
             label: "Đã duyệt",
-            className:
-                "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
+            className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
         },
         INVALID: {
             label: "Từ chối",
-            className:
-                "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
+            className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
         },
         RESOLVED: {
             label: "Đã xử lý",
-            className:
-                "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+            className: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
         },
     }
     const s = map[status] ?? { label: status, className: "bg-slate-100 text-slate-700" }
@@ -159,11 +155,8 @@ function ReportDetailModal({
                             </div>
                             <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
                                 {new Date(report.createdAt).toLocaleDateString("vi-VN", {
-                                    day: "2-digit",
-                                    month: "2-digit",
-                                    year: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
+                                    day: "2-digit", month: "2-digit", year: "numeric",
+                                    hour: "2-digit", minute: "2-digit",
                                 })}
                             </p>
                         </div>
@@ -189,11 +182,7 @@ function ReportDetailModal({
                             onClick={() => onAction(report.reportId, "INVALID")}
                             id={`modal-reject-${report.reportId}`}
                         >
-                            {updating ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                                <ShieldX className="h-4 w-4" />
-                            )}
+                            {updating ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldX className="h-4 w-4" />}
                             Từ chối
                         </Button>
                         <Button
@@ -202,11 +191,7 @@ function ReportDetailModal({
                             onClick={() => onAction(report.reportId, "VALID")}
                             id={`modal-approve-${report.reportId}`}
                         >
-                            {updating ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                                <ShieldCheck className="h-4 w-4" />
-                            )}
+                            {updating ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
                             Duyệt báo cáo
                         </Button>
                     </div>
@@ -221,28 +206,56 @@ function ReportGroupRow({
     group,
     onUpdateStatus,
     onViewDetail,
+    statusFilter,
 }: {
     group: GroupedPhoneReport
     onUpdateStatus: (reportId: string, status: ReportStatus) => Promise<void>
     onViewDetail: (report: PhoneReportItem) => void
+    statusFilter: ReportStatus | "ALL"
 }) {
     const [expanded, setExpanded] = useState(false)
+    const [loadingDetail, setLoadingDetail] = useState(false)
+    const [reports, setReports] = useState<PhoneReportItem[]>(group.reports || [])
+    const [fetched, setFetched] = useState((group.reports || []).length > 0)
     const [updatingId, setUpdatingId] = useState<string | null>(null)
+
+    const handleExpand = async () => {
+        const next = !expanded
+        setExpanded(next)
+        if (next && !fetched) {
+            setLoadingDetail(true)
+            try {
+                const status = statusFilter === "ALL" ? undefined : statusFilter as ReportStatus
+                const items = await reportService.getReportsByPhone(group.phoneNumber, status)
+                setReports(items)
+                setFetched(true)
+            } catch {
+                // silent
+            } finally {
+                setLoadingDetail(false)
+            }
+        }
+    }
 
     const handleAction = async (reportId: string, status: ReportStatus) => {
         setUpdatingId(reportId)
         await onUpdateStatus(reportId, status)
+        try {
+            const filterStatus = statusFilter === "ALL" ? undefined : statusFilter as ReportStatus
+            const items = await reportService.getReportsByPhone(group.phoneNumber, filterStatus)
+            setReports(items)
+        } catch { /* silent */ }
         setUpdatingId(null)
     }
 
-    const pendingInGroup = (group.reports || []).filter(r => r.status === "PENDING").length
+    const pendingInGroup = reports.filter(r => r.status === "PENDING").length
 
     return (
         <>
             {/* Group header */}
             <tr
                 className="border-b border-slate-100 bg-slate-50/60 hover:bg-slate-100/80 dark:border-slate-800 dark:bg-slate-800/30 dark:hover:bg-slate-800/60 cursor-pointer transition-colors"
-                onClick={() => setExpanded(!expanded)}
+                onClick={handleExpand}
             >
                 <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
@@ -272,94 +285,118 @@ function ReportGroupRow({
                     </div>
                 </td>
                 <td className="px-4 py-3 text-muted-foreground text-sm" colSpan={3}>
-                    Nhấn để xem {(group.reports || []).length} báo cáo chi tiết
+                    {loadingDetail ? (
+                        <span className="flex items-center gap-1.5 text-xs">
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            Đang tải...
+                        </span>
+                    ) : fetched ? (
+                        <span className="text-xs">{reports.length} báo cáo chi tiết</span>
+                    ) : (
+                        <span className="text-xs">Nhấn để tải {group.totalReports} báo cáo chi tiết</span>
+                    )}
                 </td>
             </tr>
 
-            {/* Expanded rows */}
-            {expanded &&
-                (group.reports || []).map((report) => (
-                    <tr
-                        key={report.reportId}
-                        className="border-b border-slate-100 bg-white hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800/40 transition-colors"
-                    >
-                        <td className="px-4 py-3 pl-14">
-                            <p className="text-sm text-slate-700 dark:text-slate-300 line-clamp-2 max-w-xs">
-                                {report.content}
-                            </p>
-                            {report.label && (
-                                <span className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground">
-                                    <Tag className="h-3 w-3" />
-                                    {report.label}
-                                </span>
-                            )}
-                        </td>
-                        <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
-                            {new Date(report.createdAt).toLocaleDateString("vi-VN", {
-                                day: "2-digit",
-                                month: "2-digit",
-                                year: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                            })}
-                        </td>
-                        <td className="px-4 py-3">
-                            <StatusBadge status={report.status} />
-                        </td>
-                        <td className="px-4 py-3">
-                            <span className="text-xs text-muted-foreground font-mono">
-                                {report.userId ? report.userId.slice(0, 8) + "..." : "Ẩn danh"}
+            {/* Loading row */}
+            {expanded && loadingDetail && (
+                <tr>
+                    <td colSpan={5} className="px-4 py-4 text-center text-sm text-muted-foreground">
+                        <Loader2 className="mx-auto h-5 w-5 animate-spin mb-1" />
+                        Đang tải chi tiết...
+                    </td>
+                </tr>
+            )}
+
+            {/* Empty row */}
+            {expanded && !loadingDetail && reports.length === 0 && (
+                <tr>
+                    <td colSpan={5} className="px-4 py-4 text-center text-sm text-muted-foreground bg-slate-50/30 dark:bg-slate-800/20">
+                        Không có báo cáo nào.
+                    </td>
+                </tr>
+            )}
+
+            {/* Expanded detail rows */}
+            {expanded && !loadingDetail && reports.map((report) => (
+                <tr
+                    key={report.reportId}
+                    className="border-b border-slate-100 bg-white hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800/40 transition-colors"
+                >
+                    <td className="px-4 py-3 pl-14">
+                        <p className="text-sm text-slate-700 dark:text-slate-300 line-clamp-2 max-w-xs">
+                            {report.content}
+                        </p>
+                        {report.label && (
+                            <span className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground">
+                                <Tag className="h-3 w-3" />
+                                {report.label}
                             </span>
-                        </td>
-                        <td className="px-4 py-3">
-                            <div className="flex items-center gap-1.5">
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => onViewDetail(report)}
-                                    className="gap-1 text-violet-600 hover:bg-violet-50 hover:text-violet-700 dark:hover:bg-violet-950/30"
-                                    id={`view-${report.reportId}`}
-                                >
-                                    Chi tiết
-                                </Button>
-                                {report.status === "PENDING" && (
-                                    <>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            disabled={updatingId === report.reportId}
-                                            onClick={() => handleAction(report.reportId, "VALID")}
-                                            className="gap-1 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/30"
-                                            id={`approve-${report.reportId}`}
-                                        >
-                                            {updatingId === report.reportId ? (
-                                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                            ) : (
-                                                <CheckCircle2 className="h-3.5 w-3.5" />
-                                            )}
-                                            Duyệt
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            disabled={updatingId === report.reportId}
-                                            onClick={() => handleAction(report.reportId, "INVALID")}
-                                            className="gap-1 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/30"
-                                            id={`reject-${report.reportId}`}
-                                        >
-                                            {updatingId === report.reportId ? (
-                                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                            ) : (
-                                                <XCircle className="h-3.5 w-3.5" />
-                                            )}
-                                            Từ chối
-                                        </Button>
-                                    </>
-                                )}
-                            </div>
-                        </td>
-                    </tr>
-                ))}
+                        )}
+                    </td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
+                        {new Date(report.createdAt).toLocaleDateString("vi-VN", {
+                            day: "2-digit", month: "2-digit", year: "numeric",
+                            hour: "2-digit", minute: "2-digit",
+                        })}
+                    </td>
+                    <td className="px-4 py-3">
+                        <StatusBadge status={report.status} />
+                    </td>
+                    <td className="px-4 py-3">
+                        <span className="text-xs text-muted-foreground font-mono">
+                            {report.userId ? report.userId.slice(0, 8) + "..." : "Ẩn danh"}
+                        </span>
+                    </td>
+                    <td className="px-4 py-3">
+                        <div className="flex items-center gap-1.5">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => onViewDetail(report)}
+                                className="gap-1 text-violet-600 hover:bg-violet-50 hover:text-violet-700 dark:hover:bg-violet-950/30"
+                                id={`view-${report.reportId}`}
+                            >
+                                Chi tiết
+                            </Button>
+                            {report.status === "PENDING" && (
+                                <>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        disabled={updatingId === report.reportId}
+                                        onClick={() => handleAction(report.reportId, "VALID")}
+                                        className="gap-1 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/30"
+                                        id={`approve-${report.reportId}`}
+                                    >
+                                        {updatingId === report.reportId ? (
+                                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                        ) : (
+                                            <CheckCircle2 className="h-3.5 w-3.5" />
+                                        )}
+                                        Duyệt
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        disabled={updatingId === report.reportId}
+                                        onClick={() => handleAction(report.reportId, "INVALID")}
+                                        className="gap-1 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/30"
+                                        id={`reject-${report.reportId}`}
+                                    >
+                                        {updatingId === report.reportId ? (
+                                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                        ) : (
+                                            <XCircle className="h-3.5 w-3.5" />
+                                        )}
+                                        Từ chối
+                                    </Button>
+                                </>
+                            )}
+                        </div>
+                    </td>
+                </tr>
+            ))}
         </>
     )
 }
@@ -497,16 +534,12 @@ export default function ModeratorReports() {
                             onClick={() => { setStatusFilter("PENDING"); setPage(0) }}
                         >
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
-                                <CardTitle className="text-sm font-medium text-muted-foreground">
-                                    Chờ duyệt
-                                </CardTitle>
+                                <CardTitle className="text-sm font-medium text-muted-foreground">Chờ duyệt</CardTitle>
                                 <Clock className="h-4 w-4 text-amber-500" />
                             </CardHeader>
                             <CardContent>
                                 <p className="text-2xl font-bold text-amber-600">{pendingTotal}</p>
-                                <p className="text-xs text-muted-foreground mt-0.5">
-                                    Cần xử lý
-                                </p>
+                                <p className="text-xs text-muted-foreground mt-0.5">Cần xử lý</p>
                             </CardContent>
                         </Card>
                         <Card
@@ -514,16 +547,12 @@ export default function ModeratorReports() {
                             onClick={() => { setStatusFilter("VALID"); setPage(0) }}
                         >
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
-                                <CardTitle className="text-sm font-medium text-muted-foreground">
-                                    Đã duyệt
-                                </CardTitle>
+                                <CardTitle className="text-sm font-medium text-muted-foreground">Đã duyệt</CardTitle>
                                 <ShieldCheck className="h-4 w-4 text-emerald-500" />
                             </CardHeader>
                             <CardContent>
                                 <p className="text-2xl font-bold text-emerald-600">{validTotal}</p>
-                                <p className="text-xs text-muted-foreground mt-0.5">
-                                    Gửi lên Manager
-                                </p>
+                                <p className="text-xs text-muted-foreground mt-0.5">Gửi lên Manager</p>
                             </CardContent>
                         </Card>
                         <Card
@@ -531,16 +560,12 @@ export default function ModeratorReports() {
                             onClick={() => { setStatusFilter("INVALID"); setPage(0) }}
                         >
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
-                                <CardTitle className="text-sm font-medium text-muted-foreground">
-                                    Từ chối
-                                </CardTitle>
+                                <CardTitle className="text-sm font-medium text-muted-foreground">Từ chối</CardTitle>
                                 <ShieldX className="h-4 w-4 text-red-500" />
                             </CardHeader>
                             <CardContent>
                                 <p className="text-2xl font-bold text-red-600">{invalidTotal}</p>
-                                <p className="text-xs text-muted-foreground mt-0.5">
-                                    Không hợp lệ
-                                </p>
+                                <p className="text-xs text-muted-foreground mt-0.5">Không hợp lệ</p>
                             </CardContent>
                         </Card>
                     </div>
@@ -642,20 +667,14 @@ export default function ModeratorReports() {
                                 <tbody>
                                     {loading ? (
                                         <tr>
-                                            <td
-                                                colSpan={5}
-                                                className="px-4 py-12 text-center text-muted-foreground"
-                                            >
+                                            <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
                                                 <Loader2 className="mx-auto h-6 w-6 animate-spin mb-2" />
                                                 Đang tải dữ liệu...
                                             </td>
                                         </tr>
                                     ) : filtered.length === 0 ? (
                                         <tr>
-                                            <td
-                                                colSpan={5}
-                                                className="px-4 py-12 text-center text-muted-foreground"
-                                            >
+                                            <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
                                                 {search
                                                     ? "Không tìm thấy số điện thoại phù hợp."
                                                     : statusFilter === "PENDING"
@@ -670,6 +689,7 @@ export default function ModeratorReports() {
                                                 group={group}
                                                 onUpdateStatus={handleUpdateStatus}
                                                 onViewDetail={setDetailReport}
+                                                statusFilter={statusFilter}
                                             />
                                         ))
                                     )}
@@ -681,9 +701,7 @@ export default function ModeratorReports() {
                     {/* Pagination */}
                     {!loading && totalPages > 1 && (
                         <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
-                            <p>
-                                Trang {page + 1} / {totalPages} · {totalElements} nhóm
-                            </p>
+                            <p>Trang {page + 1} / {totalPages} · {totalElements} nhóm</p>
                             <div className="flex gap-2">
                                 <Button
                                     variant="outline"
@@ -696,9 +714,7 @@ export default function ModeratorReports() {
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() =>
-                                        setPage((p) => Math.min(totalPages - 1, p + 1))
-                                    }
+                                    onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                                     disabled={page >= totalPages - 1}
                                 >
                                     Sau

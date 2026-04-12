@@ -18,6 +18,7 @@ import {
     Loader2,
     Phone,
 } from "lucide-react"
+import { useAuth } from "@/contexts/auth-context"
 
 const STATUS_OPTIONS: { value: ReportStatus | "ALL"; label: string }[] = [
     { value: "ALL", label: "Tất cả" },
@@ -176,6 +177,8 @@ export default function AdminReports() {
     const [statusFilter, setStatusFilter] = useState<ReportStatus | "ALL">("ALL")
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
+
+    const { user } = useAuth()
 
     const fetchReports = useCallback(async (status: ReportStatus | "ALL" = statusFilter, p = page) => {
         setLoading(true)

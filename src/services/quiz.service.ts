@@ -91,6 +91,21 @@ export interface QuizSubmitResponse {
     results: QuestionResultResponse[]
 }
 
+/** Response from GET /quiz/history */
+export interface QuizHistoryItem {
+    historyId?: string
+    id?: string
+    topicId?: string
+    topicName: string
+    score: number
+    totalQuestions: number
+    correctAnswers: number
+    message?: string
+    completedAt?: string
+    createdAt?: string
+    submittedAt?: string
+}
+
 // ===== Quiz Service =====
 export const quizService = {
     /**
@@ -156,4 +171,11 @@ export const quizService = {
             method: 'POST',
             body: JSON.stringify(data),
         }),
+
+    /**
+     * GET /quiz/history
+     * Lấy lịch sử làm quiz của user hiện tại (cần đăng nhập).
+     */
+    getQuizHistory: () =>
+        apiFetch<ApiResponse<QuizHistoryItem[]>>('/quiz/history'),
 }

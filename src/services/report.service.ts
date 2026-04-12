@@ -28,7 +28,7 @@ export interface PhoneReportGroupResponse {
     carrier: string | null
     area: string | null
     totalReports: number
-    reports?: PhoneReportItem[] 
+    reports?: PhoneReportItem[]
 }
 
 export interface PageGroupedReports {
@@ -93,6 +93,37 @@ export const reportService = {
             return res.data.content.find(g => g.phoneNumber === phoneNumber) ?? null
         } catch {
             return null
+        }
+    },
+
+    /**
+     * GET /reports/groups?phoneNumber=xxx&page=0&size=50
+     * Lấy danh sách báo cáo chi tiết theo số điện thoại.
+     */
+    getReportsByPhone: async (phoneNumber: string, status?: ReportStatus): Promise<PhoneReportItem[]> => {
+        try {
+            // Try with phoneNumber query param first
+            const params = new URLSearchParams()
+            params.set('phoneNumber', phoneNumber)
+            params.set('page', '0')
+            params.set('size', '50')
+            if (status) params.set('status', status)
+            try {
+                const res = await apiFetch<ApiResponse<PageGroupedReports>>(`/reports/groups?${params.toString()}`)
+                if (res?.data?.content?.length) {
+                    const group = res.data.content.find(g => g.phoneNumber === phoneNumber)
+                    if (group?.reports?.length) return group.reports
+                }
+            } catch {
+                // fallback: fetch all
+            }
+            // Fallback: fetch all and find by phone
+            const res2 = await apiFetch<ApiResponse<PageGroupedReports>>(`/reports/groups?page=0&size=200${status ? `&status=${status}` : ''}`)
+            if (!res2?.data?.content) return []
+            const group = res2.data.content.find(g => g.phoneNumber === phoneNumber)
+            return group?.reports ?? []
+        } catch {
+            return []
         }
     },
 

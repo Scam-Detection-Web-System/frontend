@@ -10,7 +10,7 @@ import {
     Pencil, Settings,
     Mail, ShieldCheck, Zap,
     Star, Search, FileWarning, Bell, ChevronRight,
-    LogOut, Phone, Newspaper,
+    LogOut, Phone, Newspaper, Brain,
 } from "lucide-react"
 
 export default function PersonalPage() {
@@ -172,6 +172,13 @@ export default function PersonalPage() {
                                         <FileWarning className="h-4 w-4" />
                                     </div>
                                     <span className="flex-1 text-sm font-medium">Báo cáo lừa đảo</span>
+                                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                                </Link>
+                                <Link to="/quiz/history" className="flex items-center gap-3 px-6 py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border-t border-slate-100 dark:border-slate-800">
+                                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-500/10 text-purple-500">
+                                        <Brain className="h-4 w-4" />
+                                    </div>
+                                    <span className="flex-1 text-sm font-medium">Lịch sử Quiz</span>
                                     <ChevronRight className="h-4 w-4 text-muted-foreground" />
                                 </Link>
                                 <Link to="/tintuc" className="flex items-center gap-3 px-6 py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border-t border-slate-100 dark:border-slate-800">

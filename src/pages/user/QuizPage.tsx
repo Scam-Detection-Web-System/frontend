@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { Link } from "react-router-dom"
 import { quizService, QuizTopicResponse, QuizDetailResponse, QuizSubmitResponse, QuizAnswerRequest } from "@/services/quiz.service"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -6,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import {
     Brain, ChevronRight, ChevronLeft, Trophy, RotateCcw,
-    Loader2, CheckCircle, XCircle, BookOpen, Star, LogIn
+    Loader2, CheckCircle, XCircle, BookOpen, Star, LogIn, History
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/contexts/auth-context"
@@ -377,6 +378,14 @@ export default function QuizPage() {
                         <p className="mt-4 text-lg text-slate-500 dark:text-slate-400">
                             Kiểm tra kiến thức của bạn về các hình thức lừa đảo trực tuyến qua các bộ câu hỏi thú vị.
                         </p>
+                        <div className="mt-5">
+                            <Link to="/quiz/history">
+                                <Button variant="outline" size="sm" className="gap-2">
+                                    <History className="h-4 w-4" />
+                                    Xem lịch sử
+                                </Button>
+                            </Link>
+                        </div>
                     </div>
                 )}
 
