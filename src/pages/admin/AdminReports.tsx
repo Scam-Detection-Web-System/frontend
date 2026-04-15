@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from "react"
+import { useNavigate } from "react-router-dom"
 import { AdminSidebar } from "@/components/admin/AdminSidebar"
 import { ModeToggle } from "@/components/shared/mode-toggle"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { reportService, GroupedPhoneReport, PhoneReportItem, ReportStatus } from "@/services/report.service"
+import { reportService, PhoneReportFilterResponse, PhoneReportItem, ReportStatus } from "@/services/report.service"
 import {
     Activity,
     RefreshCw,
@@ -19,8 +20,9 @@ import {
     Phone,
 } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
+import { ReportDetailModal, LABEL_MAP, CONTACT_METHOD_MAP, SCAM_TECHNIQUE_MAP } from "./ModeratorReports"
 
-const STATUS_OPTIONS: { value: ReportStatus | "ALL"; label: string }[] = [
+const ALL_STATUS_OPTIONS: { value: ReportStatus | "ALL"; label: string }[] = [
     { value: "ALL", label: "Tất cả" },
     { value: "PENDING", label: "Chờ duyệt" },
     { value: "VALID", label: "Hợp lệ" },
@@ -40,17 +42,22 @@ function getStatusBadge(status: ReportStatus) {
 }
 
 // ─── Grouped Report Row (Expandable) ──────────────────────────────────────
-function ReportGroupRow({ group, onUpdateStatus }: {
-    group: GroupedPhoneReport
+function ReportGroupRow({ group, onUpdateStatus, statusFilter, onViewDetail }: {
+    group: PhoneReportFilterResponse
     onUpdateStatus: (reportId: string, status: ReportStatus) => Promise<void>
+    statusFilter: ReportStatus | "ALL"
+    onViewDetail: (reportId: string) => void
 }) {
     const [expanded, setExpanded] = useState(false)
-    const [updatingId, setUpdatingId] = useState<string | null>(null)
+    const navigate = useNavigate()
 
-    const handleAction = async (reportId: string, status: ReportStatus) => {
-        setUpdatingId(reportId)
-        await onUpdateStatus(reportId, status)
-        setUpdatingId(null)
+    const handleCreateAssessment = (report: PhoneReportItem) => {
+        const query = new URLSearchParams({
+            newPhone: report.phoneNumber,
+            label: report.label ? (LABEL_MAP[report.label] || report.label) : "",
+            review: report.content || "",
+        })
+        navigate(`/admin/assessments?${query.toString()}`)
     }
 
     return (
@@ -76,93 +83,111 @@ function ReportGroupRow({ group, onUpdateStatus }: {
                     </span>
                 </td>
                 <td className="px-4 py-3 text-muted-foreground text-sm" colSpan={3}>
-                    Click để xem chi tiết
+                    <span className="text-xs">{expanded ? "Thu gọn" : "Mở rộng để xem chi tiết"}</span>
                 </td>
             </tr>
 
-            {/* Expanded detail rows */}
-            {expanded && group.reports.map((report) => (
-                <ReportDetailRow
-                    key={report.reportId}
-                    report={report}
-                    onAction={handleAction}
-                    updatingId={updatingId}
-                />
-            ))}
+            {/* Expanded info row */}
+            {expanded && (
+                <tr>
+                    <td colSpan={5} className="px-4 py-4 bg-slate-50/40 dark:bg-slate-800/20">
+                        <div className="pl-10 space-y-3">
+                            <div className="flex gap-4 mb-2">
+                                {group.carrier && (
+                                    <p className="text-xs text-muted-foreground">
+                                        <span className="font-medium mr-1 text-slate-700 dark:text-slate-300">Nhà mạng:</span> {group.carrier}
+                                    </p>
+                                )}
+                                {group.phoneType && (
+                                    <p className="text-xs text-muted-foreground">
+                                        <span className="font-medium mr-1 text-slate-700 dark:text-slate-300">Loại số:</span> {group.phoneType}
+                                    </p>
+                                )}
+                                {group.area && (
+                                    <p className="text-xs text-muted-foreground">
+                                        <span className="font-medium mr-1 text-slate-700 dark:text-slate-300">Khu vực:</span> {group.area}
+                                    </p>
+                                )}
+                            </div>
+                            
+                            {/* Inner Reports List */}
+                            <div className="space-y-2">
+                                {group.phoneReports && group.phoneReports.length > 0 ? (
+                                    group.phoneReports.map(report => (
+                                        <div key={report.reportId} className="flex flex-wrap md:flex-nowrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-900/50">
+                                            <div className="flex-1 min-w-[250px] space-y-1">
+                                                <div className="flex items-center gap-2">
+                                                    {getStatusBadge(report.status)}
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {new Date(report.createdAt).toLocaleDateString("vi-VN", {
+                                                            day: "2-digit", month: "2-digit", year: "numeric", 
+                                                            hour: "2-digit", minute: "2-digit"
+                                                        })}
+                                                    </span>
+                                                </div>
+                                                <p className="text-sm text-slate-700 dark:text-slate-300 line-clamp-2">
+                                                    {report.content}
+                                                </p>
+                                            </div>
+                                            
+                                            <div className="flex gap-2 w-full md:w-auto">
+                                                <Button 
+                                                    variant="secondary" 
+                                                    size="sm" 
+                                                    className="flex-1 md:flex-none text-xs h-8"
+                                                    onClick={() => onViewDetail(report.reportId)}
+                                                >
+                                                    Mở Modal
+                                                </Button>
+                                                {report.status === "PENDING" ? (
+                                                    <>
+                                                        <Button 
+                                                            variant="outline" 
+                                                            size="sm" 
+                                                            className="flex-1 md:flex-none text-xs h-8 border-red-200 text-red-600 hover:bg-red-50"
+                                                            onClick={() => onUpdateStatus(report.reportId, "INVALID")}
+                                                        >
+                                                            Từ chối
+                                                        </Button>
+                                                        <Button 
+                                                            size="sm" 
+                                                            className="flex-1 md:flex-none text-xs h-8 bg-emerald-600 hover:bg-emerald-700"
+                                                            onClick={() => onUpdateStatus(report.reportId, "VALID")}
+                                                        >
+                                                            Duyệt
+                                                        </Button>
+                                                    </>
+                                                ) : report.status === "VALID" ? (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => onUpdateStatus(report.reportId, "RESOLVED")}
+                                                        className="flex-1 md:flex-none text-xs h-8 text-blue-600 hover:bg-blue-50"
+                                                    >
+                                                        Đánh dấu xử lý
+                                                    </Button>
+                                                ) : report.status === "RESOLVED" ? (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => handleCreateAssessment(report)}
+                                                        className="flex-1 md:flex-none text-xs h-8 text-amber-600 hover:bg-amber-50 dark:text-amber-500"
+                                                    >
+                                                        Viết đánh giá cảnh báo
+                                                    </Button>
+                                                ) : null}
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="text-sm text-muted-foreground italic">Không tìm thấy báo cáo chi tiết.</p>
+                                )}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            )}
         </>
-    )
-}
-
-function ReportDetailRow({ report, onAction, updatingId }: {
-    report: PhoneReportItem
-    onAction: (id: string, status: ReportStatus) => void
-    updatingId: string | null
-}) {
-    const isUpdating = updatingId === report.reportId
-
-    return (
-        <tr className="border-b border-slate-100 bg-white pl-8 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800/40 transition-colors">
-            <td className="px-4 py-3 pl-12">
-                <p className="text-sm text-slate-700 dark:text-slate-300 line-clamp-2">{report.content}</p>
-                {report.label && (
-                    <span className="mt-1 inline-block text-xs text-muted-foreground"># {report.label}</span>
-                )}
-            </td>
-            <td className="px-4 py-3 text-xs text-muted-foreground">
-                {new Date(report.createdAt).toLocaleDateString("vi-VN", {
-                    day: "2-digit", month: "2-digit", year: "numeric",
-                    hour: "2-digit", minute: "2-digit"
-                })}
-            </td>
-            <td className="px-4 py-3">{getStatusBadge(report.status)}</td>
-            <td className="px-4 py-3">
-                <span className="text-xs text-muted-foreground font-mono">
-                    {report.userId ? report.userId.slice(0, 8) + "..." : "Ẩn danh"}
-                </span>
-            </td>
-            <td className="px-4 py-3">
-                {report.status === "PENDING" ? (
-                    <div className="flex gap-1.5">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            disabled={isUpdating}
-                            onClick={() => onAction(report.reportId, "VALID")}
-                            className="gap-1 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/50"
-                            id={`approve-${report.reportId}`}
-                        >
-                            {isUpdating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
-                            Duyệt
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            disabled={isUpdating}
-                            onClick={() => onAction(report.reportId, "INVALID")}
-                            className="gap-1 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/50"
-                            id={`reject-${report.reportId}`}
-                        >
-                            {isUpdating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
-                            Từ chối
-                        </Button>
-                    </div>
-                ) : report.status === "VALID" ? (
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled={isUpdating}
-                        onClick={() => onAction(report.reportId, "RESOLVED")}
-                        className="gap-1 text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/50"
-                        id={`resolve-${report.reportId}`}
-                    >
-                        {isUpdating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
-                        Đánh dấu xử lý
-                    </Button>
-                ) : (
-                    <span className="text-xs text-muted-foreground">—</span>
-                )}
-            </td>
-        </tr>
     )
 }
 
@@ -170,29 +195,65 @@ function ReportDetailRow({ report, onAction, updatingId }: {
 const PAGE_SIZE = 20
 
 export default function AdminReports() {
-    const [groups, setGroups] = useState<GroupedPhoneReport[]>([])
+    const [groups, setGroups] = useState<PhoneReportFilterResponse[]>([])
     const [totalElements, setTotalElements] = useState(0)
-    const [totalPages, setTotalPages] = useState(0)
+    const [totalPages, setTotalPages] = useState(1)
     const [page, setPage] = useState(0)
-    const [statusFilter, setStatusFilter] = useState<ReportStatus | "ALL">("ALL")
+    const { user } = useAuth()
+    const isManager = user?.role === 'MANAGER'
+    const defaultStatus = isManager ? "VALID" : "ALL"
+
+    const [statusFilter, setStatusFilter] = useState<ReportStatus | "ALL">(defaultStatus)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
 
-    const { user } = useAuth()
+    const [detailReportId, setDetailReportId] = useState<string | null>(null)
+    const [modalUpdating, setModalUpdating] = useState(false)
+    const [actionCount, setActionCount] = useState(0)
+
+    const availableOptions = isManager
+        ? ALL_STATUS_OPTIONS.filter(o => o.value !== "ALL" && o.value !== "PENDING")
+        : ALL_STATUS_OPTIONS;
 
     const fetchReports = useCallback(async (status: ReportStatus | "ALL" = statusFilter, p = page) => {
         setLoading(true)
         setError("")
         try {
-            const res = await reportService.getGroupedReports({
-                status: status === "ALL" ? undefined : status,
-                page: p,
-                size: PAGE_SIZE,
-            })
-            const pageData = res.data
-            setGroups((pageData.content ?? []).map(g => ({ ...g, reports: g.reports ?? [] })))
-            setTotalElements(pageData.totalElements ?? 0)
-            setTotalPages(pageData.totalPages ?? 0)
+            if (status === "ALL") {
+                const [pRes, vRes, iRes, rRes] = await Promise.allSettled([
+                    reportService.getReportByStatus("PENDING"),
+                    reportService.getReportByStatus("VALID"),
+                    reportService.getReportByStatus("INVALID"),
+                    reportService.getReportByStatus("RESOLVED"),
+                ])
+                let allReports: PhoneReportFilterResponse[] = []
+                if (pRes.status === "fulfilled") allReports = [...allReports, ...(pRes.value.data ?? [])]
+                if (vRes.status === "fulfilled") allReports = [...allReports, ...(vRes.value.data ?? [])]
+                if (iRes.status === "fulfilled") allReports = [...allReports, ...(iRes.value.data ?? [])]
+                if (rRes.status === "fulfilled") allReports = [...allReports, ...(rRes.value.data ?? [])]
+                
+                const mergedMap = new Map<string, PhoneReportFilterResponse>()
+                allReports.forEach(r => {
+                    if (!mergedMap.has(r.phoneNumber)) {
+                        mergedMap.set(r.phoneNumber, { ...r })
+                    } else {
+                        const existing = mergedMap.get(r.phoneNumber)!
+                        existing.phoneReports = [...existing.phoneReports, ...r.phoneReports]
+                        existing.totalReports = Number(existing.totalReports) + Number(r.totalReports)
+                    }
+                })
+                
+                const mergedReports = Array.from(mergedMap.values())
+                setGroups(mergedReports)
+                setTotalElements(mergedReports.length)
+                setTotalPages(1) 
+            } else {
+                const res = await reportService.getReportByStatus(status)
+                const data = res.data ?? []
+                setGroups(data)
+                setTotalElements(data.length)
+                setTotalPages(1)
+            }
         } catch (err: any) {
             setError(err.message ?? "Không thể tải danh sách báo cáo")
         } finally {
@@ -200,23 +261,42 @@ export default function AdminReports() {
         }
     }, [statusFilter, page])
 
+    const loadStats = useCallback(async () => {
+        try {
+            const res = await reportService.getHotReports({ status: "VALID", page: 0, size: 1 })
+            if (res?.data?.totalElements !== undefined) {
+                setActionCount(res.data.totalElements)
+            }
+        } catch { /* silent */ }
+    }, [])
+
     useEffect(() => {
         fetchReports(statusFilter, page)
     }, [statusFilter, page])
+
+    useEffect(() => {
+        loadStats()
+    }, [loadStats])
 
     const handleUpdateStatus = async (reportId: string, status: ReportStatus) => {
         try {
             await reportService.updateReportStatus(reportId, status)
             // Re-fetch to reflect changes
             await fetchReports(statusFilter, page)
+            await loadStats()
+            if (detailReportId === reportId) {
+                setDetailReportId(null)
+            }
         } catch (err: any) {
             setError(err.message ?? "Không thể cập nhật trạng thái")
         }
     }
 
-    // Stats from current data
-    const pendingCount = groups.reduce((acc, g) =>
-        acc + g.reports.filter(r => r.status === "PENDING").length, 0)
+    const handleModalAction = async (reportId: string, status: ReportStatus) => {
+        setModalUpdating(true)
+        await handleUpdateStatus(reportId, status)
+        setModalUpdating(false)
+    }
 
     return (
         <div className="flex h-screen bg-slate-50 dark:bg-slate-950">
@@ -259,11 +339,11 @@ export default function AdminReports() {
                         </Card>
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
-                                <CardTitle className="text-sm font-medium text-muted-foreground">Chờ duyệt</CardTitle>
+                                <CardTitle className="text-sm font-medium text-muted-foreground">{isManager ? "Cần xử lý" : "Chờ duyệt"}</CardTitle>
                                 <Clock className="h-4 w-4 text-amber-500" />
                             </CardHeader>
                             <CardContent>
-                                <p className="text-2xl font-bold text-amber-600">{pendingCount}</p>
+                                <p className="text-2xl font-bold text-amber-600">{actionCount}</p>
                             </CardContent>
                         </Card>
                         <Card>
@@ -273,7 +353,7 @@ export default function AdminReports() {
                             </CardHeader>
                             <CardContent>
                                 <p className="text-2xl font-bold">
-                                    {groups.reduce((acc, g) => acc + g.totalReports, 0)}
+                                    {groups.reduce((acc, g) => acc + Number(g.totalReports), 0)}
                                 </p>
                             </CardContent>
                         </Card>
@@ -282,7 +362,7 @@ export default function AdminReports() {
                     {/* Toolbar */}
                     <div className="mb-4 flex items-center gap-3 flex-wrap">
                         <div className="flex gap-1 flex-wrap">
-                            {STATUS_OPTIONS.map(opt => (
+                            {availableOptions.map(opt => (
                                 <Button
                                     key={opt.value}
                                     variant={statusFilter === opt.value ? "default" : "outline"}
@@ -345,6 +425,8 @@ export default function AdminReports() {
                                                 key={group.phoneNumber}
                                                 group={group}
                                                 onUpdateStatus={handleUpdateStatus}
+                                                statusFilter={statusFilter}
+                                                onViewDetail={setDetailReportId}
                                             />
                                         ))
                                     )}
@@ -375,6 +457,17 @@ export default function AdminReports() {
                     )}
                 </main>
             </div>
+
+
+            {/* Modal */}
+            {detailReportId && (
+                <ReportDetailModal
+                    reportId={detailReportId}
+                    onClose={() => setDetailReportId(null)}
+                    onAction={handleModalAction}
+                    updating={modalUpdating}
+                />
+            )}
         </div>
     )
 }

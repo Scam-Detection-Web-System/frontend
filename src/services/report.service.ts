@@ -3,32 +3,60 @@ import { apiFetch } from '@/lib/api'
 // ===== Types =====
 export type ReportStatus = 'PENDING' | 'VALID' | 'INVALID' | 'RESOLVED'
 
+/** Kết quả dự đoán AI từ model nhận dạng lừa đảo */
+export interface PredictionResult {
+    score: number
+    reason: string
+    words: string[]
+    toxic: boolean
+}
+
+/**
+ * Matches backend PhoneReportResponse schema (returned by GET /reports/{reportId})
+ * Có đầy đủ thông tin hơn PhoneReportGroupResponse
+ */
 export interface PhoneReportItem {
     reportId: string
+    userId: string | null
     phoneNumber: string
+    phoneType?: string | null
+    carrier?: string | null
+    area?: string | null
     label: string | null
+    contactMethod?: string | null
+    scamTechnique?: string | null
     content: string
     status: ReportStatus
     createdAt: string
-    userId: string | null
-    contactMethod?: string | null
-    scamTechnique?: string | null
+    predictionResult?: PredictionResult | null
 }
 
 export interface GroupedPhoneReport {
     phoneNumber: string
+    phoneType?: 'MOBILE' | 'LANDLINE' | 'HOTLINE' | null
+    carrier?: string | null
+    area?: string | null
     totalReports: number
     reports: PhoneReportItem[]
 }
 
-/** Matches backend PhoneReportGroupResponse schema */
+
+export interface PhoneReportFilterResponse {
+    phoneNumber: string
+    phoneType?: 'MOBILE' | 'LANDLINE' | 'HOTLINE' | null
+    carrier?: string | null
+    area?: string | null
+    totalReports: string | number
+    phoneReports: PhoneReportItem[]
+}
+
+/** Matches backend PhoneReportGroupResponse schema (returned by /reports/groups) */
 export interface PhoneReportGroupResponse {
     phoneNumber: string
     phoneType: 'MOBILE' | 'LANDLINE' | 'HOTLINE' | null
     carrier: string | null
     area: string | null
     totalReports: number
-    reports?: PhoneReportItem[]
 }
 
 export interface PageGroupedReports {
@@ -56,6 +84,15 @@ export interface PhoneReportRequest {
     scamTechnique?: string
 }
 
+/** Matches backend UserReportResponse schema (returned by GET /reports/my-reports) */
+export interface UserReportResponse {
+    reportId: string
+    phoneNumber: string
+    status: ReportStatus
+    message: string
+    createdAt: string
+}
+
 export interface ReportUpdateStatusRequest {
     reportStatus: ReportStatus
 }
@@ -70,7 +107,8 @@ export interface GetReportsParams {
 export const reportService = {
     /**
      * GET /reports/groups
-     * Lấy danh sách báo cáo nhóm theo số điện thoại (ADMIN/MANAGER).
+     * Lấy danh sách nhóm báo cáo theo SĐT (MODERATOR).
+     * Response: PhoneReportGroupResponse[] - chỉ có metadata, không có danh sách reportId
      */
     getGroupedReports: (params?: GetReportsParams) => {
         const searchParams = new URLSearchParams()
@@ -82,55 +120,8 @@ export const reportService = {
     },
 
     /**
-     * GET /reports/groups (page 0, size 200)
-     * Tìm PhoneReportGroupResponse theo số điện thoại cụ thể.
-     * Trả về null nếu không tìm thấy hoặc lỗi auth.
-     */
-    getGroupByPhone: async (phoneNumber: string): Promise<PhoneReportGroupResponse | null> => {
-        try {
-            const res = await apiFetch<ApiResponse<PageGroupedReports>>('/reports/groups?page=0&size=200')
-            if (!res?.data?.content) return null
-            return res.data.content.find(g => g.phoneNumber === phoneNumber) ?? null
-        } catch {
-            return null
-        }
-    },
-
-    /**
-     * GET /reports/groups?phoneNumber=xxx&page=0&size=50
-     * Lấy danh sách báo cáo chi tiết theo số điện thoại.
-     */
-    getReportsByPhone: async (phoneNumber: string, status?: ReportStatus): Promise<PhoneReportItem[]> => {
-        try {
-            // Try with phoneNumber query param first
-            const params = new URLSearchParams()
-            params.set('phoneNumber', phoneNumber)
-            params.set('page', '0')
-            params.set('size', '50')
-            if (status) params.set('status', status)
-            try {
-                const res = await apiFetch<ApiResponse<PageGroupedReports>>(`/reports/groups?${params.toString()}`)
-                if (res?.data?.content?.length) {
-                    const group = res.data.content.find(g => g.phoneNumber === phoneNumber)
-                    if (group?.reports?.length) return group.reports
-                }
-            } catch {
-                // fallback: fetch all
-            }
-            // Fallback: fetch all and find by phone
-            const res2 = await apiFetch<ApiResponse<PageGroupedReports>>(`/reports/groups?page=0&size=200${status ? `&status=${status}` : ''}`)
-            if (!res2?.data?.content) return []
-            const group = res2.data.content.find(g => g.phoneNumber === phoneNumber)
-            return group?.reports ?? []
-        } catch {
-            return []
-        }
-    },
-
-    /**
      * GET /reports/groups?status=PENDING
      * Lấy danh sách báo cáo PENDING cho Moderator duyệt.
-     * Dùng cùng endpoint GET /reports/groups nhưng filter status=PENDING.
      */
     getModeratorPendingReports: (params?: { page?: number; size?: number }) => {
         const searchParams = new URLSearchParams()
@@ -141,12 +132,20 @@ export const reportService = {
     },
 
     /**
+     * GET /reports/status
+     * Lấy danh sách báo cáo chi tiết theo status (Dành cho chức năng mở rộng danh sách)
+     */
+    getReportByStatus: (status: ReportStatus) => {
+        return apiFetch<ApiResponse<PhoneReportFilterResponse[]>>(`/reports/status?status=${status}`)
+    },
+
+    /**
      * GET /reports/groups/hot
      * Lấy các report group có count > 5 (ADMIN/MANAGER).
+     * Chỉ filter VALID theo backend swagger.
      */
     getHotReports: (params?: GetReportsParams) => {
         const searchParams = new URLSearchParams()
-        if (params?.status) searchParams.set('status', params.status)
         if (params?.page !== undefined) searchParams.set('page', String(params.page))
         if (params?.size !== undefined) searchParams.set('size', String(params.size))
         const query = searchParams.toString()
@@ -155,7 +154,8 @@ export const reportService = {
 
     /**
      * GET /reports/{reportId}
-     * Lấy chi tiết một báo cáo cụ thể.
+     * Lấy chi tiết đầy đủ một báo cáo theo ID.
+     * Trả về PhoneReportItem bao gồm predictionResult, phoneType, carrier, area.
      */
     getReportById: (reportId: string) =>
         apiFetch<ApiResponse<PhoneReportItem>>(`/reports/${reportId}`),
@@ -169,6 +169,14 @@ export const reportService = {
             method: 'POST',
             body: JSON.stringify(data),
         }),
+
+    /**
+     * GET /reports/my-reports
+     * Lấy danh sách báo cáo đã gửi của user hiện tại (cần đăng nhập).
+     * Dùng trong trang tài khoản cá nhân.
+     */
+    getMyReports: () =>
+        apiFetch<ApiResponse<UserReportResponse[]>>('/reports/my-reports'),
 
     /**
      * PUT /reports/status/{reportId}

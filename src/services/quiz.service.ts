@@ -144,10 +144,20 @@ export const quizService = {
 
     /**
      * POST /questions/topic/{topicId}
-     * Thêm câu hỏi vào topic.
+     * Thêm một câu hỏi vào topic.
      */
     createQuestion: (topicId: string, data: QuestionCreationRequest) =>
-        apiFetch<ApiResponse<QuestionResponse>>(`/questions/topic/${topicId}`, {
+        apiFetch<ApiResponse<QuestionResponse[]>>(`/questions/topic/${topicId}`, {
+            method: 'POST',
+            body: JSON.stringify([data]),
+        }),
+
+    /**
+     * POST /questions/topic/{topicId}
+     * Batch import nhiều câu hỏi vào topic cùng lúc (Bulk).
+     */
+    createQuestionsBulk: (topicId: string, data: QuestionCreationRequest[]) =>
+        apiFetch<ApiResponse<QuestionResponse[]>>(`/questions/topic/${topicId}`, {
             method: 'POST',
             body: JSON.stringify(data),
         }),

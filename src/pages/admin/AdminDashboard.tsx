@@ -58,25 +58,27 @@ function DashboardHome() {
         async function loadStats() {
             setStatsLoading(true)
             try {
-                const [usersRes, allReportsRes, pendingReportsRes] = await Promise.allSettled([
-                    userService.getAllUsers({ page: 0, size: 200 }),
-                    reportService.getGroupedReports({ page: 0, size: 1 }),
-                    reportService.getGroupedReports({ status: "PENDING", page: 0, size: 1 }),
+                const isManager = user?.role === 'MANAGER'
+                // Both Manager and Admin handle Hot Reports (VALID -> RESOLVED). Admin has users access.
+                const [usersRes, allReportsRes, actionReportsRes] = await Promise.allSettled([
+                    user?.role === "ADMIN" ? userService.getAllUsers({ page: 0, size: 200 }) : Promise.resolve({ data: [] }),
+                    reportService.getHotReports({ page: 0, size: 1 }),
+                    reportService.getHotReports({ status: "VALID", page: 0, size: 1 }),
                 ])
 
                 const userList = usersRes.status === "fulfilled" ? (usersRes.value.data ?? []) : []
                 const totalReports =
                     allReportsRes.status === "fulfilled" ? allReportsRes.value.data.totalElements : 0
-                const pendingReports =
-                    pendingReportsRes.status === "fulfilled" ? pendingReportsRes.value.data.totalElements : 0
+                const actionReportsCount =
+                    actionReportsRes.status === "fulfilled" ? actionReportsRes.value.data.totalElements : 0
                 const blockedUsers = userList.filter(
-                    (u) => u.status !== "ACTIVE" && u.status !== "active"
+                    (u: any) => u.status !== "ACTIVE" && u.status !== "active"
                 ).length
 
                 setStats({
                     totalUsers: userList.length,
                     totalReports,
-                    pendingReports,
+                    pendingReports: actionReportsCount,
                     blockedUsers,
                 })
             } catch {
@@ -144,7 +146,7 @@ function DashboardHome() {
                             trendValue=""
                         />
                         <AdminStatsCard
-                            title="Chờ duyệt"
+                            title="Cần xử lý"
                             value={statsLoading ? "..." : fmt(stats.pendingReports)}
                             description="báo cáo cần xử lý"
                             icon={<Clock className="h-6 w-6" />}

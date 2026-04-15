@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
+import { useSearchParams } from "react-router-dom"
 import { AdminSidebar } from "@/components/admin/AdminSidebar"
 import { ModeToggle } from "@/components/shared/mode-toggle"
 import { Button } from "@/components/ui/button"
@@ -54,30 +55,50 @@ interface FormState {
     label: string
     riskLevel: RiskKey
     review: string
+    actions: string[]
+    advices: string[]
 }
 
 function AssessmentFormModal({
     editing,
+    initialData,
     onClose,
     onSaved,
 }: {
     editing: AssessmentResponse | null  // null = create mode
+    initialData?: Partial<FormState>
     onClose: () => void
     onSaved: () => void
 }) {
     const isEdit = editing !== null
 
     const [form, setForm] = useState<FormState>({
-        phoneNumber: editing?.phoneNumber ?? "",
-        label:       editing?.label ?? "",
-        riskLevel:   (editing?.riskLevel as RiskKey) ?? "LOW",
-        review:      editing?.review ?? "",
+        phoneNumber: editing?.phoneNumber ?? initialData?.phoneNumber ?? "",
+        label:       editing?.label ?? initialData?.label ?? "",
+        riskLevel:   (editing?.riskLevel as RiskKey) ?? initialData?.riskLevel ?? "LOW",
+        review:      editing?.review ?? initialData?.review ?? "",
+        actions:     editing?.actions ?? [],
+        advices:     editing?.advices ?? [],
     })
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState("")
+    const [newAction, setNewAction] = useState("")
+    const [newAdvice, setNewAdvice] = useState("")
 
     const handleChange = (field: keyof FormState, value: string) => {
         setForm(prev => ({ ...prev, [field]: value }))
+    }
+
+    const addTag = (field: "actions" | "advices", value: string) => {
+        const trimmed = value.trim()
+        if (!trimmed) return
+        setForm(prev => ({ ...prev, [field]: [...prev[field], trimmed] }))
+        if (field === "actions") setNewAction("")
+        else setNewAdvice("")
+    }
+
+    const removeTag = (field: "actions" | "advices", idx: number) => {
+        setForm(prev => ({ ...prev, [field]: prev[field].filter((_, i) => i !== idx) }))
     }
 
     const handleSave = async () => {
@@ -93,6 +114,8 @@ function AssessmentFormModal({
                     label:     form.label || undefined,
                     riskLevel: form.riskLevel,
                     review:    form.review || undefined,
+                    actions:   form.actions.length > 0 ? form.actions : undefined,
+                    advices:   form.advices.length > 0 ? form.advices : undefined,
                 }
                 await assessmentService.updateAssessment(editing.assessmentId, req)
             } else {
@@ -101,6 +124,8 @@ function AssessmentFormModal({
                     label:       form.label || undefined,
                     riskLevel:   form.riskLevel,
                     review:      form.review || undefined,
+                    actions:     form.actions.length > 0 ? form.actions : undefined,
+                    advices:     form.advices.length > 0 ? form.advices : undefined,
                 }
                 await assessmentService.createAssessment(req)
             }
@@ -213,6 +238,56 @@ function AssessmentFormModal({
                             className="resize-none"
                         />
                     </div>
+
+                    {/* Actions */}
+                    <div>
+                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">
+                            Hành động khuyến nghị <span className="text-[10px] text-slate-400 normal-case">(nếu gặp số này)</span>
+                        </label>
+                        <div className="flex flex-wrap gap-1.5 mb-2 min-h-[32px]">
+                            {form.actions.map((a, i) => (
+                                <span key={i} className="inline-flex items-center gap-1 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-2.5 py-1 text-xs font-medium">
+                                    {a}
+                                    <button type="button" onClick={() => removeTag("actions", i)} className="hover:text-orange-900 dark:hover:text-orange-100">×</button>
+                                </span>
+                            ))}
+                        </div>
+                        <div className="flex gap-2">
+                            <Input
+                                value={newAction}
+                                onChange={e => setNewAction(e.target.value)}
+                                onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addTag("actions", newAction))}
+                                placeholder="VD: Không nhấc máy, Chặn số..."
+                                className="text-sm"
+                            />
+                            <Button type="button" variant="outline" size="sm" onClick={() => addTag("actions", newAction)} className="shrink-0">Thêm</Button>
+                        </div>
+                    </div>
+
+                    {/* Advices */}
+                    <div>
+                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">
+                            Lời khuyên phòng tránh <span className="text-[10px] text-slate-400 normal-case">(tư vấn cho cộng đồng)</span>
+                        </label>
+                        <div className="flex flex-wrap gap-1.5 mb-2 min-h-[32px]">
+                            {form.advices.map((a, i) => (
+                                <span key={i} className="inline-flex items-center gap-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2.5 py-1 text-xs font-medium">
+                                    {a}
+                                    <button type="button" onClick={() => removeTag("advices", i)} className="hover:text-blue-900 dark:hover:text-blue-100">×</button>
+                                </span>
+                            ))}
+                        </div>
+                        <div className="flex gap-2">
+                            <Input
+                                value={newAdvice}
+                                onChange={e => setNewAdvice(e.target.value)}
+                                onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addTag("advices", newAdvice))}
+                                placeholder="VD: Kiểm tra kỹ trước chuyển tiền..."
+                                className="text-sm"
+                            />
+                            <Button type="button" variant="outline" size="sm" onClick={() => addTag("advices", newAdvice)} className="shrink-0">Thêm</Button>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Footer */}
@@ -259,8 +334,11 @@ function AssessmentRow({
                     {assessment.review ?? <span className="text-muted-foreground italic">Chưa có nhận xét</span>}
                 </p>
             </td>
-            <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
-                {assessment.comments?.length ?? 0} bình luận
+            <td className="px-4 py-3">
+                <div className="text-xs text-muted-foreground space-y-0.5">
+                    <p><span className="font-semibold text-slate-700 dark:text-slate-300">{assessment.totalReports ?? 0}</span> báo cáo</p>
+                    <p><span className="font-semibold text-emerald-600">{assessment.validReports ?? 0}</span> hợp lệ</p>
+                </div>
             </td>
             <td className="px-4 py-3">
                 <Button
@@ -293,6 +371,27 @@ export default function ManagerAssessments() {
     // Modal state
     const [showModal, setShowModal] = useState(false)
     const [editing, setEditing] = useState<AssessmentResponse | null>(null)
+    const [initialData, setInitialData] = useState<Partial<FormState>>({})
+    const [searchParams, setSearchParams] = useSearchParams()
+
+    useEffect(() => {
+        const newPhone = searchParams.get("newPhone")
+        if (newPhone) {
+            setInitialData({
+                phoneNumber: newPhone,
+                label: searchParams.get("label") || "",
+                review: searchParams.get("review") || "",
+            })
+            setEditing(null)
+            setShowModal(true)
+            
+            // Clean up url to not trigger again on reload
+            searchParams.delete("newPhone")
+            searchParams.delete("label")
+            searchParams.delete("review")
+            setSearchParams(searchParams, { replace: true })
+        }
+    }, [])
 
     const fetchAssessments = useCallback(async (p = page) => {
         setLoading(true)
@@ -315,6 +414,7 @@ export default function ManagerAssessments() {
 
     const openCreate = () => {
         setEditing(null)
+        setInitialData({})
         setShowModal(true)
     }
 
@@ -548,10 +648,10 @@ export default function ManagerAssessments() {
                 </main>
             </div>
 
-            {/* Modal */}
             {showModal && (
                 <AssessmentFormModal
                     editing={editing}
+                    initialData={initialData}
                     onClose={() => setShowModal(false)}
                     onSaved={() => fetchAssessments(page)}
                 />
