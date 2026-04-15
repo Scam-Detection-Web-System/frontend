@@ -16,7 +16,7 @@ import {
 } from "@/services/quiz.service"
 import {
     Activity, Plus, RefreshCw, X, Loader2, Edit2,
-    BookOpen, ChevronDown, ChevronUp, BrainCircuit
+    BookOpen, ChevronDown, ChevronUp, BrainCircuit, Upload
 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
@@ -118,6 +118,88 @@ function QuestionModal({ topicId, question, onClose, onSuccess }: QuestionModalP
     )
 }
 
+// ─── Bulk Import Modal ───────────────────────────────────────────────────────
+function BulkImportModal({ topicId, topicName, onClose, onSuccess }: {
+    topicId: string
+    topicName: string
+    onClose: () => void
+    onSuccess: () => void
+}) {
+    const PLACEHOLDER = JSON.stringify([
+        { content: "Câu hỏi mẫu?", optionA: "Đáp A", optionB: "Đáp B", optionC: "Đáp C", optionD: "Đáp D", correctAnswer: "A" },
+    ], null, 2)
+
+    const [json, setJson] = useState(PLACEHOLDER)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState("")
+    const [result, setResult] = useState<{ success: number } | null>(null)
+
+    const handleImport = async () => {
+        setError("")
+        let parsed: QuestionCreationRequest[]
+        try {
+            parsed = JSON.parse(json)
+            if (!Array.isArray(parsed) || parsed.length === 0) throw new Error("Danh sách câu hỏi rỗng")
+        } catch {
+            setError("JSON không hợp lệ. Vui lòng kiểm tra lại cấu trúc mảng.")
+            return
+        }
+        setLoading(true)
+        try {
+            await quizService.createQuestionsBulk(topicId, parsed)
+            setResult({ success: parsed.length })
+            onSuccess()
+        } catch (err: any) {
+            setError(err.message ?? "Lỗi khi import")
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="relative w-full max-w-2xl rounded-xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900 flex flex-col max-h-[90vh]">
+                <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800">
+                    <div>
+                        <h2 className="text-base font-bold">Import hàng loạt câu hỏi</h2>
+                        <p className="text-xs text-muted-foreground mt-0.5">Chủ đề: <strong>{topicName}</strong></p>
+                    </div>
+                    <button onClick={onClose} className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                        <X className="h-5 w-5" />
+                    </button>
+                </div>
+                <div className="overflow-y-auto flex-1 p-5 space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                        Dán vào đây mảng JSON chứa danh sách câu hỏi. Mỗi phần tử cần có: 
+                        <code className="mx-1 text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+                            content, optionA, optionB, optionC, optionD, correctAnswer
+                        </code>
+                    </p>
+                    <textarea
+                        value={json}
+                        onChange={e => setJson(e.target.value)}
+                        rows={14}
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 text-xs font-mono resize-none focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    />
+                    {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
+                    {result && (
+                        <Alert className="border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-200">
+                            <AlertDescription>✅ Đã import thành công {result.success} câu hỏi!</AlertDescription>
+                        </Alert>
+                    )}
+                </div>
+                <div className="flex gap-3 p-5 border-t border-slate-100 dark:border-slate-800">
+                    <Button variant="outline" className="flex-1" onClick={onClose} disabled={loading}>Hủy</Button>
+                    <Button className="flex-1 gap-2" onClick={handleImport} disabled={loading} id="bulk-import-submit">
+                        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                        Import {json ? (() => { try { const a = JSON.parse(json); return Array.isArray(a) ? a.length : "" } catch { return "" } })() : ""} câu hỏi
+                    </Button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
 // ─── Topic Modal ───────────────────────────────────────────────────────────────
 interface TopicModalProps {
     topic?: QuizTopicResponse
@@ -194,11 +276,13 @@ function TopicRow({
     onEdit,
     onAddQuestion,
     onEditQuestion,
+    onBulkImport,
 }: {
     topic: QuizTopicResponse
     onEdit: () => void
     onAddQuestion: () => void
     onEditQuestion: (q: QuestionResponse) => void
+    onBulkImport: () => void
 }) {
     const [expanded, setExpanded] = useState(false)
     const [questions, setQuestions] = useState<QuestionResponse[]>([])
@@ -238,6 +322,9 @@ function TopicRow({
                         </Button>
                         <Button variant="ghost" size="sm" onClick={onAddQuestion} className="gap-1.5 text-blue-600">
                             <Plus className="h-3.5 w-3.5" /> Thêm câu
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={onBulkImport} className="gap-1.5 text-purple-600">
+                            <Upload className="h-3.5 w-3.5" /> Import
                         </Button>
                         <Button variant="ghost" size="sm" onClick={toggleExpand} className="gap-1.5">
                             {loadingQ ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> :
@@ -303,6 +390,11 @@ export default function AdminQuiz() {
     const [questionTopicId, setQuestionTopicId] = useState("")
     const [editingQuestion, setEditingQuestion] = useState<QuestionResponse | undefined>()
 
+    // Bulk import modal
+    const [showBulkModal, setShowBulkModal] = useState(false)
+    const [bulkTopicId, setBulkTopicId] = useState("")
+    const [bulkTopicName, setBulkTopicName] = useState("")
+
     const fetchTopics = useCallback(async () => {
         setLoading(true)
         setError("")
@@ -334,6 +426,11 @@ export default function AdminQuiz() {
         setQuestionTopicId(topicId)
         setEditingQuestion(q)
         setShowQuestionModal(true)
+    }
+    const openBulkImport = (t: QuizTopicResponse) => {
+        setBulkTopicId(t.topicId)
+        setBulkTopicName(t.topicName)
+        setShowBulkModal(true)
     }
 
     return (
@@ -433,6 +530,7 @@ export default function AdminQuiz() {
                                                 onEdit={() => openEditTopic(t)}
                                                 onAddQuestion={() => openAddQuestion(t.topicId)}
                                                 onEditQuestion={(q) => openEditQuestion(t.topicId, q)}
+                                                onBulkImport={() => openBulkImport(t)}
                                             />
                                         ))
                                     )}
@@ -457,6 +555,14 @@ export default function AdminQuiz() {
                     question={editingQuestion}
                     onClose={() => setShowQuestionModal(false)}
                     onSuccess={() => { setShowQuestionModal(false) }}
+                />
+            )}
+            {showBulkModal && (
+                <BulkImportModal
+                    topicId={bulkTopicId}
+                    topicName={bulkTopicName}
+                    onClose={() => setShowBulkModal(false)}
+                    onSuccess={() => setShowBulkModal(false)}
                 />
             )}
         </div>

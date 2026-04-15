@@ -132,7 +132,7 @@ export default function PhoneAssessmentPage() {
         try {
             const payload = {
                 content: newComment.trim(),
-                scamLabel: selectedLabel || null
+                scamLabel: selectedLabel ? selectedLabel : ""
             }
             const res = await commentService.createComment(assessment.assessmentId, payload)
             // Thêm comment mới lên đầu danh sách
@@ -292,6 +292,42 @@ export default function PhoneAssessmentPage() {
                                                     <p className="italic text-slate-400">Chuyên gia chưa để lại nhận xét chi tiết.</p>
                                                 )}
                                             </div>
+
+                                            {/* Actions */}
+                                            {assessment.actions && assessment.actions.length > 0 && (
+                                                <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+                                                    <div className="flex items-center gap-2 mb-3">
+                                                        <AlertTriangle className="h-4 w-4 text-orange-500" />
+                                                        <h4 className="text-sm font-bold text-slate-900 dark:text-white">Hành động khuyến nghị khi gặp số này</h4>
+                                                    </div>
+                                                    <ul className="space-y-2">
+                                                        {assessment.actions.map((action, i) => (
+                                                            <li key={i} className="flex items-start gap-2.5 text-sm text-slate-700 dark:text-slate-300">
+                                                                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-[10px] font-bold">{i + 1}</span>
+                                                                {action}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
+
+                                            {/* Advices */}
+                                            {assessment.advices && assessment.advices.length > 0 && (
+                                                <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+                                                    <div className="flex items-center gap-2 mb-3">
+                                                        <CheckCircle className="h-4 w-4 text-blue-500" />
+                                                        <h4 className="text-sm font-bold text-slate-900 dark:text-white">Lời khuyên phòng tránh lừa đảo</h4>
+                                                    </div>
+                                                    <ul className="space-y-2">
+                                                        {assessment.advices.map((advice, i) => (
+                                                            <li key={i} className="flex items-start gap-2.5 text-sm text-slate-700 dark:text-slate-300">
+                                                                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[10px] font-bold">{i + 1}</span>
+                                                                {advice}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
                                         </div>
                                     </>
                                 )
@@ -299,6 +335,7 @@ export default function PhoneAssessmentPage() {
                         </div>
 
                         {/* Comments Section */}
+
                         <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                             <div className="flex items-center justify-between mb-8">
                                 <div className="flex items-center gap-2">

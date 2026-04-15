@@ -13,6 +13,7 @@ import { Check, X, Loader2 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Link } from "react-router-dom"
 import { reportService, PhoneReportItem, ReportStatus } from "@/services/report.service"
+import { useAuth } from "@/contexts/auth-context"
 
 const statusConfig: Record<ReportStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
     PENDING: { label: "Chờ duyệt", variant: "outline" },
@@ -26,21 +27,30 @@ export function AdminReportsTable() {
     const [loading, setLoading] = useState(true)
     const [updatingId, setUpdatingId] = useState<string | null>(null)
 
+    const { user } = useAuth()
+    const isManager = user?.role === 'MANAGER'
+
     const loadReports = async () => {
         setLoading(true)
         try {
-            // Fetch PENDING reports (most actionable) — take first page, size 8
-            const res = await reportService.getGroupedReports({ status: "PENDING", page: 0, size: 8 })
-            // Flatten grouped → individual report items (up to 8)
-            const flat: PhoneReportItem[] = []
-            for (const group of res.data.content ?? []) {
-                for (const r of group.reports || []) {
-                    flat.push(r)
-                    if (flat.length >= 8) break
-                }
-                if (flat.length >= 8) break
+            const res = await reportService.getReportByStatus("VALID")
+            if (res.data) {
+                // Chuyển đổi báo cáo chi tiết thành PhoneReportItem tổng hợp để hiển thị 
+                // Do AdminReportsTable là bảng summary nhỏ ở Dashboard, ta phẳng data ra để hiện
+                const summaryItems: PhoneReportItem[] = []
+                res.data.slice(0, 8).forEach((group, groupIdx) => {
+                    group.phoneReports.slice(0, 1).forEach((report, rIdx) => { // Lấy 1 báo cáo tiêu biểu của mỗi nhóm
+                        summaryItems.push({
+                            ...report,
+                            reportId: `group-${group.phoneNumber}-${groupIdx}-${rIdx}`,
+                            label: `${group.totalReports} báo cáo - SĐT này đã bị cảnh báo lừa đảo`
+                        })
+                    })
+                })
+                setReports(summaryItems)
+            } else {
+                setReports([])
             }
-            setReports(flat)
         } catch {
             setReports([])
         } finally {
@@ -48,7 +58,7 @@ export function AdminReportsTable() {
         }
     }
 
-    useEffect(() => { loadReports() }, [])
+    useEffect(() => { loadReports() }, [isManager]) // ✅ Fix 2: thêm isManager vào dependency
 
     const handleAction = async (reportId: string, status: ReportStatus) => {
         setUpdatingId(reportId)
@@ -65,7 +75,9 @@ export function AdminReportsTable() {
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <div>
-                        <CardTitle className="text-lg">Báo cáo chờ duyệt</CardTitle>
+                        <CardTitle className="text-lg">
+                            {isManager ? "Báo cáo cần xử lý" : "Báo cáo chờ duyệt"}
+                        </CardTitle>
                         <CardDescription>Các báo cáo lừa đảo cần xử lý</CardDescription>
                     </div>
                     <Button variant="outline" size="sm" asChild>
@@ -82,7 +94,7 @@ export function AdminReportsTable() {
                         </div>
                     ) : reports.length === 0 ? (
                         <p className="py-10 text-center text-sm text-muted-foreground">
-                            Không có báo cáo nào đang chờ duyệt.
+                            Không có báo cáo nào đang chờ xử lý.
                         </p>
                     ) : (
                         <Table>
@@ -113,7 +125,10 @@ export function AdminReportsTable() {
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            {report.status === "PENDING" && (
+                                            {/* ✅ Fix 3: Hiện nút đúng theo role */}
+                                            
+                                            {/* Admin: duyệt hoặc từ chối báo cáo PENDING */}
+                                            {!isManager && report.status === "PENDING" && (
                                                 <div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                                                     <Button
                                                         variant="ghost"
@@ -138,6 +153,24 @@ export function AdminReportsTable() {
                                                         {updatingId === report.reportId
                                                             ? <Loader2 className="h-4 w-4 animate-spin" />
                                                             : <X className="h-4 w-4" />}
+                                                    </Button>
+                                                </div>
+                                            )}
+
+                                            {/* Manager: đánh dấu RESOLVED báo cáo VALID */}
+                                            {isManager && report.status === "VALID" && (
+                                                <div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-emerald-600 hover:text-emerald-700"
+                                                        title="Đánh dấu đã xử lý"
+                                                        disabled={updatingId === report.reportId}
+                                                        onClick={() => handleAction(report.reportId, "RESOLVED")}
+                                                    >
+                                                        {updatingId === report.reportId
+                                                            ? <Loader2 className="h-4 w-4 animate-spin" />
+                                                            : <Check className="h-4 w-4" />}
                                                     </Button>
                                                 </div>
                                             )}

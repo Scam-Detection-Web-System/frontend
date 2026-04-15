@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { ModeratorSidebar } from "@/components/admin/ModeratorSidebar"
 import { ModeToggle } from "@/components/shared/mode-toggle"
 import { Button } from "@/components/ui/button"
@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Input } from "@/components/ui/input"
 import {
     reportService,
-    GroupedPhoneReport,
+    PhoneReportFilterResponse,
     PhoneReportItem,
     ReportStatus,
 } from "@/services/report.service"
@@ -32,6 +32,8 @@ import {
     User,
     AlertTriangle,
     X,
+    Brain,
+    Zap,
 } from "lucide-react"
 
 // ─── Status badge ────────────────────────────────────────────────
@@ -62,18 +64,67 @@ function StatusBadge({ status }: { status: ReportStatus }) {
     )
 }
 
+// ─── Translation Maps ──────────────────────────────────────────────
+export const LABEL_MAP: Record<string, string> = {
+    "SCAM": "Lừa đảo",
+    "ADVERTISING": "Quảng cáo",
+    "SUSPICIOUS": "Đáng ngờ",
+    "SPAM": "Làm phiền",
+    "UNKNOWN": "Không rõ",
+    "SAFE": "An toàn",
+}
+
+export const CONTACT_METHOD_MAP: Record<string, string> = {
+    "ANSWERED": "Đã trả lời cuộc gọi",
+    "MISSED_CALL": "Cuộc gọi nhỡ",
+    "VOICEMAIL": "Hộp thư thoại",
+    "SMS": "Tin nhắn SMS",
+    "MMS": "Tin nhắn MMS",
+    "OTHER": "Khác",
+}
+
+export const SCAM_TECHNIQUE_MAP: Record<string, string> = {
+    "IMPERSONATION": "Giả mạo tổ chức",
+    "LOTTERY": "Lừa trúng thưởng",
+    "URGENCY": "Tạo áp lực khẩn cấp",
+    "THREAT": "Đe dọa",
+    "DEBT": "Đòi nợ",
+    "PHISHING_LINK": "Liên kết lừa đảo",
+    "APP_INSTALL": "Lừa cài ứng dụng",
+    "GAMBLING": "Lừa cờ bạc",
+    "WRONG_TRANSFER": "Giả chuyển nhầm tiền",
+    "ZALO_FRIEND": "Kết bạn Zalo lừa đảo",
+    "AI_VOICE": "Giả giọng nói AI",
+    "FAKE_DOCUMENT": "Tài liệu giả mạo",
+    "DATA_COLLECTION": "Thu thập thông tin cá nhân",
+    "OTHER": "Khác",
+}
+
 // ─── Detail Modal ──────────────────────────────────────────────────
-function ReportDetailModal({
-    report,
+export function ReportDetailModal({
+    reportId,
     onClose,
     onAction,
     updating,
 }: {
-    report: PhoneReportItem
+    reportId: string
     onClose: () => void
     onAction: (reportId: string, status: ReportStatus) => Promise<void>
     updating: boolean
 }) {
+    const [report, setReport] = useState<PhoneReportItem | null>(null)
+    const [loadingDetail, setLoadingDetail] = useState(true)
+    const [fetchError, setFetchError] = useState("")
+
+    useEffect(() => {
+        setLoadingDetail(true)
+        setFetchError("")
+        reportService.getReportById(reportId)
+            .then(res => setReport(res.data))
+            .catch(() => setFetchError("Không thể tải chi tiết báo cáo."))
+            .finally(() => setLoadingDetail(false))
+    }, [reportId])
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div className="relative w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900 flex flex-col max-h-[90vh]">
@@ -85,9 +136,9 @@ function ReportDetailModal({
                         </div>
                         <div>
                             <h2 className="text-base font-bold text-slate-900 dark:text-white font-mono">
-                                {report.phoneNumber}
+                                {report?.phoneNumber ?? "..."}
                             </h2>
-                            <StatusBadge status={report.status} />
+                            {report && <StatusBadge status={report.status} />}
                         </div>
                     </div>
                     <button
@@ -100,80 +151,123 @@ function ReportDetailModal({
 
                 {/* Body */}
                 <div className="overflow-y-auto flex-1 p-5 space-y-4">
-                    {/* Nội dung */}
-                    <div className="rounded-xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50">
-                        <div className="flex items-center gap-2 mb-2">
-                            <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                                Nội dung báo cáo
-                            </span>
+                    {loadingDetail ? (
+                        <div className="flex flex-col items-center justify-center py-10 text-muted-foreground gap-3">
+                            <Loader2 className="h-6 w-6 animate-spin" />
+                            <p className="text-sm">Đang tải chi tiết báo cáo...</p>
                         </div>
-                        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                            {report.content}
-                        </p>
-                    </div>
+                    ) : fetchError ? (
+                        <p className="text-sm text-red-500 text-center py-6">{fetchError}</p>
+                    ) : report ? (
+                        <>
+                            {/* Nội dung */}
+                            <div className="rounded-xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                                        Nội dung báo cáo
+                                    </span>
+                                </div>
+                                <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                                    {report.content}
+                                </p>
+                            </div>
 
-                    {/* Meta info grid */}
-                    <div className="grid grid-cols-2 gap-3">
-                        {report.label && (
-                            <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
-                                <div className="flex items-center gap-1.5 mb-1">
-                                    <Tag className="h-3.5 w-3.5 text-muted-foreground" />
-                                    <span className="text-[10px] font-semibold text-muted-foreground uppercase">Nhãn</span>
+                            {/* AI Prediction Result */}
+                            {report.predictionResult && (
+                                <div className={`rounded-xl border p-4 ${report.predictionResult.toxic
+                                        ? "border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-950/20"
+                                        : "border-emerald-200 bg-emerald-50 dark:border-emerald-800/40 dark:bg-emerald-950/20"
+                                    }`}>
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <AlertTriangle className={`h-4 w-4 ${report.predictionResult.toxic ? "text-red-600" : "text-emerald-600"
+                                            }`} />
+                                        <span className={`text-xs font-semibold uppercase tracking-wide ${report.predictionResult.toxic ? "text-red-700 dark:text-red-400" : "text-emerald-700 dark:text-emerald-400"
+                                            }`}>
+                                            Phân tích AI — Điểm số: {(report.predictionResult.score * 100).toFixed(1)}%
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-slate-600 dark:text-slate-400 mb-2 leading-relaxed">
+                                        {report.predictionResult.reason}
+                                    </p>
+                                    {report.predictionResult.words.length > 0 && (
+                                        <div className="flex flex-wrap gap-1.5 mt-2">
+                                            {report.predictionResult.words.map((w, i) => (
+                                                <span
+                                                    key={i}
+                                                    className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                                                >
+                                                    {w}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
-                                <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                                    {report.label}
-                                </p>
-                            </div>
-                        )}
-                        {report.contactMethod && (
-                            <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
-                                <div className="flex items-center gap-1.5 mb-1">
-                                    <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
-                                    <span className="text-[10px] font-semibold text-muted-foreground uppercase">Kênh liên hệ</span>
+                            )}
+
+                            {/* Meta info grid */}
+                            <div className="grid grid-cols-2 gap-3">
+                                {report.label && (
+                                    <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
+                                        <div className="flex items-center gap-1.5 mb-1">
+                                            <Tag className="h-3.5 w-3.5 text-muted-foreground" />
+                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase">Đặc điểm</span>
+                                        </div>
+                                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                                            {LABEL_MAP[report.label] || report.label}
+                                        </p>
+                                    </div>
+                                )}
+                                {report.contactMethod && (
+                                    <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
+                                        <div className="flex items-center gap-1.5 mb-1">
+                                            <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
+                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase">Kênh liên hệ</span>
+                                        </div>
+                                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                                            {CONTACT_METHOD_MAP[report.contactMethod] || report.contactMethod}
+                                        </p>
+                                    </div>
+                                )}
+                                {report.scamTechnique && (
+                                    <div className="rounded-xl border border-amber-100 bg-amber-50 p-3 dark:border-amber-800/30 dark:bg-amber-950/20">
+                                        <div className="flex items-center gap-1.5 mb-1">
+                                            <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
+                                            <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-400 uppercase">Kỹ thuật lừa đảo</span>
+                                        </div>
+                                        <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                                            {report.scamTechnique.split(',').map(t => SCAM_TECHNIQUE_MAP[t.trim()] || t.trim()).join(', ')}
+                                        </p>
+                                    </div>
+                                )}
+                                <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
+                                    <div className="flex items-center gap-1.5 mb-1">
+                                        <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                                        <span className="text-[10px] font-semibold text-muted-foreground uppercase">Thời gian</span>
+                                    </div>
+                                    <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                                        {new Date(report.createdAt).toLocaleDateString("vi-VN", {
+                                            day: "2-digit", month: "2-digit", year: "numeric",
+                                            hour: "2-digit", minute: "2-digit",
+                                        })}
+                                    </p>
                                 </div>
-                                <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                                    {report.contactMethod}
-                                </p>
-                            </div>
-                        )}
-                        {report.scamTechnique && (
-                            <div className="rounded-xl border border-amber-100 bg-amber-50 p-3 dark:border-amber-800/30 dark:bg-amber-950/20">
-                                <div className="flex items-center gap-1.5 mb-1">
-                                    <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
-                                    <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-400 uppercase">Kỹ thuật lừa đảo</span>
+                                <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
+                                    <div className="flex items-center gap-1.5 mb-1">
+                                        <User className="h-3.5 w-3.5 text-muted-foreground" />
+                                        <span className="text-[10px] font-semibold text-muted-foreground uppercase">Người báo cáo</span>
+                                    </div>
+                                    <p className="text-sm font-medium text-slate-800 dark:text-slate-200 font-mono">
+                                        {report.userId ? report.userId.slice(0, 12) + "..." : "Ẩn danh"}
+                                    </p>
                                 </div>
-                                <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
-                                    {report.scamTechnique}
-                                </p>
                             </div>
-                        )}
-                        <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
-                            <div className="flex items-center gap-1.5 mb-1">
-                                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                                <span className="text-[10px] font-semibold text-muted-foreground uppercase">Thời gian</span>
-                            </div>
-                            <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                                {new Date(report.createdAt).toLocaleDateString("vi-VN", {
-                                    day: "2-digit", month: "2-digit", year: "numeric",
-                                    hour: "2-digit", minute: "2-digit",
-                                })}
-                            </p>
-                        </div>
-                        <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
-                            <div className="flex items-center gap-1.5 mb-1">
-                                <User className="h-3.5 w-3.5 text-muted-foreground" />
-                                <span className="text-[10px] font-semibold text-muted-foreground uppercase">Người báo cáo</span>
-                            </div>
-                            <p className="text-sm font-medium text-slate-800 dark:text-slate-200 font-mono">
-                                {report.userId ? report.userId.slice(0, 12) + "..." : "Ẩn danh"}
-                            </p>
-                        </div>
-                    </div>
+                        </>
+                    ) : null}
                 </div>
 
                 {/* Actions */}
-                {report.status === "PENDING" && (
+                {!loadingDetail && report && report.status === "PENDING" && (
                     <div className="p-5 border-t border-slate-100 dark:border-slate-800 flex gap-3">
                         <Button
                             variant="outline"
@@ -206,56 +300,19 @@ function ReportGroupRow({
     group,
     onUpdateStatus,
     onViewDetail,
-    statusFilter,
 }: {
-    group: GroupedPhoneReport
+    group: PhoneReportFilterResponse
     onUpdateStatus: (reportId: string, status: ReportStatus) => Promise<void>
-    onViewDetail: (report: PhoneReportItem) => void
-    statusFilter: ReportStatus | "ALL"
+    onViewDetail: (reportId: string) => void
 }) {
     const [expanded, setExpanded] = useState(false)
-    const [loadingDetail, setLoadingDetail] = useState(false)
-    const [reports, setReports] = useState<PhoneReportItem[]>(group.reports || [])
-    const [fetched, setFetched] = useState((group.reports || []).length > 0)
-    const [updatingId, setUpdatingId] = useState<string | null>(null)
-
-    const handleExpand = async () => {
-        const next = !expanded
-        setExpanded(next)
-        if (next && !fetched) {
-            setLoadingDetail(true)
-            try {
-                const status = statusFilter === "ALL" ? undefined : statusFilter as ReportStatus
-                const items = await reportService.getReportsByPhone(group.phoneNumber, status)
-                setReports(items)
-                setFetched(true)
-            } catch {
-                // silent
-            } finally {
-                setLoadingDetail(false)
-            }
-        }
-    }
-
-    const handleAction = async (reportId: string, status: ReportStatus) => {
-        setUpdatingId(reportId)
-        await onUpdateStatus(reportId, status)
-        try {
-            const filterStatus = statusFilter === "ALL" ? undefined : statusFilter as ReportStatus
-            const items = await reportService.getReportsByPhone(group.phoneNumber, filterStatus)
-            setReports(items)
-        } catch { /* silent */ }
-        setUpdatingId(null)
-    }
-
-    const pendingInGroup = reports.filter(r => r.status === "PENDING").length
 
     return (
         <>
             {/* Group header */}
             <tr
                 className="border-b border-slate-100 bg-slate-50/60 hover:bg-slate-100/80 dark:border-slate-800 dark:bg-slate-800/30 dark:hover:bg-slate-800/60 cursor-pointer transition-colors"
-                onClick={handleExpand}
+                onClick={() => setExpanded(!expanded)}
             >
                 <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
@@ -273,130 +330,99 @@ function ReportGroupRow({
                     </div>
                 </td>
                 <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                        <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
-                            {group.totalReports} báo cáo
-                        </span>
-                        {pendingInGroup > 0 && (
-                            <span className="rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 px-2.5 py-0.5 text-xs font-semibold">
-                                {pendingInGroup} chờ duyệt
-                            </span>
-                        )}
-                    </div>
+                    <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                        {group.totalReports} báo cáo
+                    </span>
                 </td>
                 <td className="px-4 py-3 text-muted-foreground text-sm" colSpan={3}>
-                    {loadingDetail ? (
-                        <span className="flex items-center gap-1.5 text-xs">
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            Đang tải...
-                        </span>
-                    ) : fetched ? (
-                        <span className="text-xs">{reports.length} báo cáo chi tiết</span>
-                    ) : (
-                        <span className="text-xs">Nhấn để tải {group.totalReports} báo cáo chi tiết</span>
-                    )}
+                    <span className="text-xs text-muted-foreground">
+                        {expanded ? "Thu gọn" : "Mở rộng để xem chi tiết"}
+                    </span>
                 </td>
             </tr>
 
-            {/* Loading row */}
-            {expanded && loadingDetail && (
+            {/* Expanded info */}
+            {expanded && (
                 <tr>
-                    <td colSpan={5} className="px-4 py-4 text-center text-sm text-muted-foreground">
-                        <Loader2 className="mx-auto h-5 w-5 animate-spin mb-1" />
-                        Đang tải chi tiết...
-                    </td>
-                </tr>
-            )}
-
-            {/* Empty row */}
-            {expanded && !loadingDetail && reports.length === 0 && (
-                <tr>
-                    <td colSpan={5} className="px-4 py-4 text-center text-sm text-muted-foreground bg-slate-50/30 dark:bg-slate-800/20">
-                        Không có báo cáo nào.
-                    </td>
-                </tr>
-            )}
-
-            {/* Expanded detail rows */}
-            {expanded && !loadingDetail && reports.map((report) => (
-                <tr
-                    key={report.reportId}
-                    className="border-b border-slate-100 bg-white hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800/40 transition-colors"
-                >
-                    <td className="px-4 py-3 pl-14">
-                        <p className="text-sm text-slate-700 dark:text-slate-300 line-clamp-2 max-w-xs">
-                            {report.content}
-                        </p>
-                        {report.label && (
-                            <span className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground">
-                                <Tag className="h-3 w-3" />
-                                {report.label}
-                            </span>
-                        )}
-                    </td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
-                        {new Date(report.createdAt).toLocaleDateString("vi-VN", {
-                            day: "2-digit", month: "2-digit", year: "numeric",
-                            hour: "2-digit", minute: "2-digit",
-                        })}
-                    </td>
-                    <td className="px-4 py-3">
-                        <StatusBadge status={report.status} />
-                    </td>
-                    <td className="px-4 py-3">
-                        <span className="text-xs text-muted-foreground font-mono">
-                            {report.userId ? report.userId.slice(0, 8) + "..." : "Ẩn danh"}
-                        </span>
-                    </td>
-                    <td className="px-4 py-3">
-                        <div className="flex items-center gap-1.5">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => onViewDetail(report)}
-                                className="gap-1 text-violet-600 hover:bg-violet-50 hover:text-violet-700 dark:hover:bg-violet-950/30"
-                                id={`view-${report.reportId}`}
-                            >
-                                Chi tiết
-                            </Button>
-                            {report.status === "PENDING" && (
-                                <>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        disabled={updatingId === report.reportId}
-                                        onClick={() => handleAction(report.reportId, "VALID")}
-                                        className="gap-1 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/30"
-                                        id={`approve-${report.reportId}`}
-                                    >
-                                        {updatingId === report.reportId ? (
-                                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                        ) : (
-                                            <CheckCircle2 className="h-3.5 w-3.5" />
-                                        )}
-                                        Duyệt
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        disabled={updatingId === report.reportId}
-                                        onClick={() => handleAction(report.reportId, "INVALID")}
-                                        className="gap-1 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/30"
-                                        id={`reject-${report.reportId}`}
-                                    >
-                                        {updatingId === report.reportId ? (
-                                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                        ) : (
-                                            <XCircle className="h-3.5 w-3.5" />
-                                        )}
-                                        Từ chối
-                                    </Button>
-                                </>
-                            )}
+                    <td colSpan={5} className="px-4 py-4 bg-slate-50/40 dark:bg-slate-800/20">
+                        <div className="pl-10 space-y-3">
+                            <div className="flex gap-4 mb-2">
+                                {group.carrier && (
+                                    <p className="text-xs text-muted-foreground">
+                                        <span className="font-medium mr-1 text-slate-700 dark:text-slate-300">Nhà mạng:</span> {group.carrier}
+                                    </p>
+                                )}
+                                {group.phoneType && (
+                                    <p className="text-xs text-muted-foreground">
+                                        <span className="font-medium mr-1 text-slate-700 dark:text-slate-300">Loại số:</span> {group.phoneType}
+                                    </p>
+                                )}
+                                {group.area && (
+                                    <p className="text-xs text-muted-foreground">
+                                        <span className="font-medium mr-1 text-slate-700 dark:text-slate-300">Khu vực:</span> {group.area}
+                                    </p>
+                                )}
+                            </div>
+                            
+                            {/* Inner Reports List */}
+                            <div className="space-y-2">
+                                {group.phoneReports && group.phoneReports.length > 0 ? (
+                                    group.phoneReports.map(report => (
+                                        <div key={report.reportId} className="flex flex-wrap md:flex-nowrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-900/50">
+                                            <div className="flex-1 min-w-[250px] space-y-1">
+                                                <div className="flex items-center gap-2">
+                                                    <StatusBadge status={report.status} />
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {new Date(report.createdAt).toLocaleDateString("vi-VN", {
+                                                            day: "2-digit", month: "2-digit", year: "numeric", 
+                                                            hour: "2-digit", minute: "2-digit"
+                                                        })}
+                                                    </span>
+                                                </div>
+                                                <p className="text-sm text-slate-700 dark:text-slate-300 line-clamp-2">
+                                                    {report.content}
+                                                </p>
+                                            </div>
+                                            
+                                            <div className="flex gap-2 w-full md:w-auto">
+                                                <Button 
+                                                    variant="secondary" 
+                                                    size="sm" 
+                                                    className="flex-1 md:flex-none text-xs h-8"
+                                                    onClick={() => onViewDetail(report.reportId)}
+                                                >
+                                                    Mở Modal
+                                                </Button>
+                                                {report.status === "PENDING" && (
+                                                    <>
+                                                        <Button 
+                                                            variant="outline" 
+                                                            size="sm" 
+                                                            className="flex-1 md:flex-none text-xs h-8 border-red-200 text-red-600 hover:bg-red-50"
+                                                            onClick={() => onUpdateStatus(report.reportId, "INVALID")}
+                                                        >
+                                                            Từ chối
+                                                        </Button>
+                                                        <Button 
+                                                            size="sm" 
+                                                            className="flex-1 md:flex-none text-xs h-8 bg-emerald-600 hover:bg-emerald-700"
+                                                            onClick={() => onUpdateStatus(report.reportId, "VALID")}
+                                                        >
+                                                            Duyệt
+                                                        </Button>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="text-sm text-muted-foreground italic">Không tìm thấy báo cáo chi tiết cho số điện thoại này theo bộ lọc hiện tại.</p>
+                                )}
+                            </div>
                         </div>
                     </td>
                 </tr>
-            ))}
+            )}
         </>
     )
 }
@@ -412,17 +438,17 @@ const FILTER_OPTIONS: { value: ReportStatus | "ALL"; label: string }[] = [
 ]
 
 export default function ModeratorReports() {
-    const [groups, setGroups] = useState<GroupedPhoneReport[]>([])
+    const [groups, setGroups] = useState<PhoneReportFilterResponse[]>([])
     const [totalElements, setTotalElements] = useState(0)
-    const [totalPages, setTotalPages] = useState(0)
+    const [totalPages, setTotalPages] = useState(1)
     const [page, setPage] = useState(0)
     const [statusFilter, setStatusFilter] = useState<ReportStatus | "ALL">("PENDING")
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
     const [search, setSearch] = useState("")
 
-    // Detail modal
-    const [detailReport, setDetailReport] = useState<PhoneReportItem | null>(null)
+    // Detail modal — lưu reportId thay vì toàn bộ object, để modal tự fetch qua getReportById
+    const [detailReportId, setDetailReportId] = useState<string | null>(null)
     const [modalUpdating, setModalUpdating] = useState(false)
 
     // Stats
@@ -435,16 +461,43 @@ export default function ModeratorReports() {
             setLoading(true)
             setError("")
             try {
-                const params = {
-                    status: status === "ALL" ? undefined : status,
-                    page: p,
-                    size: PAGE_SIZE,
+                if (status === "ALL") {
+                    // Cần fetch tất cả status vì API chỉ cho phép tìm theo status cụ thể
+                    const [pRes, vRes, iRes, rRes] = await Promise.allSettled([
+                        reportService.getReportByStatus("PENDING"),
+                        reportService.getReportByStatus("VALID"),
+                        reportService.getReportByStatus("INVALID"),
+                        reportService.getReportByStatus("RESOLVED"),
+                    ])
+                    let allReports: PhoneReportFilterResponse[] = []
+                    if (pRes.status === "fulfilled") allReports = [...allReports, ...(pRes.value.data ?? [])]
+                    if (vRes.status === "fulfilled") allReports = [...allReports, ...(vRes.value.data ?? [])]
+                    if (iRes.status === "fulfilled") allReports = [...allReports, ...(iRes.value.data ?? [])]
+                    if (rRes.status === "fulfilled") allReports = [...allReports, ...(rRes.value.data ?? [])]
+                    
+                    // Gộp các report trùng phoneNumber
+                    const mergedMap = new Map<string, PhoneReportFilterResponse>()
+                    allReports.forEach(r => {
+                        if (!mergedMap.has(r.phoneNumber)) {
+                            mergedMap.set(r.phoneNumber, { ...r })
+                        } else {
+                            const existing = mergedMap.get(r.phoneNumber)!
+                            existing.phoneReports = [...existing.phoneReports, ...r.phoneReports]
+                            existing.totalReports = Number(existing.totalReports) + Number(r.totalReports)
+                        }
+                    })
+                    
+                    const mergedReports = Array.from(mergedMap.values())
+                    setGroups(mergedReports)
+                    setTotalElements(mergedReports.length)
+                    setTotalPages(1) // Flat list không có phân trang
+                } else {
+                    const res = await reportService.getReportByStatus(status)
+                    const data = res.data ?? []
+                    setGroups(data)
+                    setTotalElements(data.length)
+                    setTotalPages(1)
                 }
-                const res = await reportService.getGroupedReports(params)
-                const pageData = res.data
-                setGroups((pageData.content ?? []).map(g => ({ ...g, reports: g.reports ?? [] })))
-                setTotalElements(pageData.totalElements ?? 0)
-                setTotalPages(pageData.totalPages ?? 0)
             } catch (err: any) {
                 setError(err.message ?? "Không thể tải danh sách báo cáo")
             } finally {
@@ -482,8 +535,9 @@ export default function ModeratorReports() {
             await reportService.updateReportStatus(reportId, status)
             await fetchReports(statusFilter, page)
             await loadStats()
-            if (detailReport?.reportId === reportId) {
-                setDetailReport(null)
+            // Đóng modal sau khi cập nhật
+            if (detailReportId === reportId) {
+                setDetailReportId(null)
             }
         } catch (err: any) {
             setError(err.message ?? "Không thể cập nhật trạng thái")
@@ -688,8 +742,7 @@ export default function ModeratorReports() {
                                                 key={group.phoneNumber}
                                                 group={group}
                                                 onUpdateStatus={handleUpdateStatus}
-                                                onViewDetail={setDetailReport}
-                                                statusFilter={statusFilter}
+                                                onViewDetail={setDetailReportId}
                                             />
                                         ))
                                     )}
@@ -733,10 +786,10 @@ export default function ModeratorReports() {
             </div>
 
             {/* Detail Modal */}
-            {detailReport && (
+            {detailReportId && (
                 <ReportDetailModal
-                    report={detailReport}
-                    onClose={() => setDetailReport(null)}
+                    reportId={detailReportId}
+                    onClose={() => setDetailReportId(null)}
                     onAction={handleModalAction}
                     updating={modalUpdating}
                 />

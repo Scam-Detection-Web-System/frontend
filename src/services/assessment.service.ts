@@ -2,6 +2,7 @@ import { apiFetch } from '@/lib/api'
 
 // ===== Types (matches Swagger exactly) =====
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
+export type PhoneTypeEnum = 'MOBILE' | 'LANDLINE' | 'HOTLINE'
 
 export interface CommentResponse {
     commentId: string
@@ -17,12 +18,20 @@ export interface AssessmentResponse {
     assessmentId: string
     userId: string | null
     phoneNumber: string
-    phoneType: string | null   // MOBILE | LANDLINE | HOTLINE
+    phoneType: PhoneTypeEnum | null
     carrier: string | null
     area: string | null
+    /** Tổng số báo cáo liên quan đến SĐT này */
+    totalReports: number
+    /** Số báo cáo hợp lệ (đã được duyệt VALID) */
+    validReports: number
     label: string | null
-    riskLevel: string | null
+    riskLevel: RiskLevel | null
     review: string | null
+    /** Các hành động Manager khuyên người dùng nên làm khi gặp số này */
+    actions: string[]
+    /** Các lời khuyên chung về phòng tránh lừa đảo từ số này */
+    advices: string[]
     comments: CommentResponse[]
 }
 
@@ -40,16 +49,24 @@ export interface AssessmentCreationRequest {
     label?: string
     riskLevel?: string
     review?: string
+    /** Các hành động khuyến nghị */
+    actions?: string[]
+    /** Các lời khuyên phòng tránh */
+    advices?: string[]
 }
 
 export interface AssessmentUpdateRequest {
     phoneNumber?: string
-    phoneType?: string
+    phoneType?: PhoneTypeEnum
     carrier?: string
     area?: string
     label?: string
     riskLevel?: string
     review?: string
+    /** Các hành động khuyến nghị */
+    actions?: string[]
+    /** Các lời khuyên phòng tránh */
+    advices?: string[]
 }
 
 export interface GetAssessmentsParams {
@@ -77,6 +94,7 @@ export const assessmentService = {
     /**
      * PUT /assessments/{assessmentId}
      * Cập nhật assessment (Manager).
+     * Có thể cập nhật: phoneType, carrier, area, label, riskLevel, review, actions, advices
      */
     updateAssessment: (assessmentId: string, data: AssessmentUpdateRequest) =>
         apiFetch<ApiResponse<AssessmentResponse>>(`/assessments/${assessmentId}`, {
@@ -87,6 +105,7 @@ export const assessmentService = {
     /**
      * POST /assessments
      * Tạo bài đánh giá mới (Manager).
+     * Hỗ trợ: phoneNumber, label, riskLevel, review, actions[], advices[]
      */
     createAssessment: (data: AssessmentCreationRequest) =>
         apiFetch<ApiResponse<AssessmentResponse>>('/assessments', {

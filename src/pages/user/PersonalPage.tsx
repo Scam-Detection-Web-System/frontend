@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
@@ -10,11 +11,28 @@ import {
     Pencil, Settings,
     Mail, ShieldCheck, Zap,
     Star, Search, FileWarning, Bell, ChevronRight,
-    LogOut, Phone, Newspaper, Brain,
+    LogOut, Phone, Newspaper, Brain, Loader2,
 } from "lucide-react"
+import { reportService, UserReportResponse } from "@/services/report.service"
+
+const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
+    PENDING: { label: "Chờ duyệt", className: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" },
+    VALID:   { label: "Hợp lệ",   className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" },
+    INVALID: { label: "Từ chối",  className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300" },
+    RESOLVED:{ label: "Đã xử lý",className: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" },
+}
 
 export default function PersonalPage() {
     const { user, logout } = useAuth()
+    const [myReports, setMyReports] = useState<UserReportResponse[]>([])
+    const [loadingReports, setLoadingReports] = useState(true)
+
+    useEffect(() => {
+        reportService.getMyReports()
+            .then(res => setMyReports(res.data ?? []))
+            .catch(() => setMyReports([]))
+            .finally(() => setLoadingReports(false))
+    }, [])
 
     const displayAvatar = user?.avatar
     const initials = user?.name
@@ -23,6 +41,7 @@ export default function PersonalPage() {
         .join("")
         .toUpperCase()
         .slice(0, 2) || "U"
+
 
     return (
         <div className="flex flex-1 justify-center px-4 pb-10">
@@ -117,37 +136,77 @@ export default function PersonalPage() {
                             </CardContent>
                         </Card>
 
-                        {/* Hoạt động */}
+                        {/* Báo cáo của tôi */}
                         <Card className="border-slate-200 dark:border-slate-700/50">
                             <CardHeader className="pb-3">
                                 <div className="flex items-center justify-between">
                                     <CardTitle className="flex items-center gap-2 text-base">
                                         <Phone className="h-4 w-4 text-primary" />
-                                        Hoạt động
+                                        Báo cáo của tôi
                                     </CardTitle>
-                                    <Link to="/" className="text-sm font-medium text-primary hover:text-primary/80">
-                                        Xem chi tiết
+                                    <Link to="/baocao" className="text-sm font-medium text-primary hover:text-primary/80">
+                                        + Báo cáo mới
                                     </Link>
                                 </div>
                             </CardHeader>
                             <CardContent>
-                                <div className="grid grid-cols-3 gap-3">
-                                    <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 dark:border-primary/20 dark:bg-primary/10">
-                                        <p className="text-xs text-muted-foreground mb-1">SĐT đã kiểm tra</p>
-                                        <p className="text-xl font-bold text-primary">12</p>
+                                {/* Stats */}
+                                <div className="grid grid-cols-2 gap-3 mb-4">
+                                    <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 dark:border-primary/20 dark:bg-primary/10">
+                                        <p className="text-xs text-muted-foreground mb-1">Tổng đã gửi</p>
+                                        <p className="text-xl font-bold text-primary">
+                                            {loadingReports ? <Loader2 className="h-5 w-5 animate-spin" /> : myReports.length}
+                                        </p>
                                     </div>
-                                    <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:border-slate-700/50 dark:bg-slate-800/50">
-                                        <p className="text-xs text-muted-foreground mb-1">Báo cáo đã gửi</p>
-                                        <p className="text-xl font-bold text-primary">3</p>
-                                    </div>
-                                    <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:border-slate-700/50 dark:bg-slate-800/50">
-                                        <p className="text-xs text-muted-foreground mb-1">Đóng góp</p>
-                                        <p className="text-xl font-bold text-primary">5</p>
+                                    <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3 dark:border-emerald-700/50 dark:bg-emerald-900/10">
+                                        <p className="text-xs text-muted-foreground mb-1">Được duyệt</p>
+                                        <p className="text-xl font-bold text-emerald-600">
+                                            {loadingReports ? <Loader2 className="h-5 w-5 animate-spin" /> : myReports.filter(r => r.status === "VALID" || r.status === "RESOLVED").length}
+                                        </p>
                                     </div>
                                 </div>
+
+                                {/* Report list */}
+                                {loadingReports ? (
+                                    <div className="flex items-center justify-center py-6 text-muted-foreground gap-2">
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        <span className="text-sm">Đang tải...</span>
+                                    </div>
+                                ) : myReports.length === 0 ? (
+                                    <div className="rounded-xl border border-dashed border-slate-200 dark:border-slate-700 py-6 text-center">
+                                        <FileWarning className="mx-auto h-8 w-8 text-slate-300 dark:text-slate-600 mb-2" />
+                                        <p className="text-sm text-muted-foreground">Bạn chưa gửi báo cáo nào</p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                                        {myReports.map(r => {
+                                            const cfg = STATUS_CONFIG[r.status] ?? { label: r.status, className: "bg-slate-100 text-slate-600" }
+                                            return (
+                                                <Link
+                                                    key={r.reportId}
+                                                    to={`/sodienthoai/${r.phoneNumber}`}
+                                                    className="flex items-center justify-between gap-2 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 px-3 py-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group"
+                                                >
+                                                    <div className="flex items-center gap-2 min-w-0">
+                                                        <Phone className="h-3.5 w-3.5 text-primary shrink-0" />
+                                                        <span className="text-sm font-mono font-semibold text-slate-900 dark:text-white truncate">{r.phoneNumber}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 shrink-0">
+                                                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${cfg.className}`}>
+                                                            {cfg.label}
+                                                        </span>
+                                                        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
+                                                    </div>
+                                                </Link>
+                                            )
+                                        })}
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
-                    </div>
+
+
+                    </div>{/* END LEFT COLUMN */}
 
                     {/* RIGHT COLUMN (1/3) */}
                     <div className="space-y-5">
