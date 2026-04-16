@@ -58,6 +58,9 @@ function HistoryCard({ item, index }: { item: QuizHistoryItem; index: number }) 
     const pct = item.totalQuestions > 0
         ? Math.round((item.correctAnswers / item.totalQuestions) * 100)
         : 0
+    const point10Raw = item.totalQuestions > 0 ? (item.correctAnswers / item.totalQuestions) * 10 : 0
+    const point10 = Number.isInteger(point10Raw) ? point10Raw : point10Raw.toFixed(1)
+    
     const cfg = scoreConfig(pct)
     const dateStr = item.completedAt ?? item.createdAt ?? item.submittedAt
 
@@ -86,7 +89,7 @@ function HistoryCard({ item, index }: { item: QuizHistoryItem; index: number }) 
 
                 {/* Score badge */}
                 <div className="shrink-0 text-right">
-                    <p className={cn("text-2xl font-black", cfg.color)}>{pct}%</p>
+                    <p className={cn("text-2xl font-black", cfg.color)}>{point10}</p>
                     <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-semibold", cfg.badge)}>
                         {cfg.label}
                     </span>

@@ -28,17 +28,16 @@ import { useAuth } from "@/contexts/auth-context"
 interface UserModalProps {
     mode: "create" | "edit"
     user?: UserResponse
-    currentUserRole?: string
+    roleType: "MANAGER" | "MODERATOR" | "USER"
     onClose: () => void
     onSuccess: () => void
 }
 
-function UserModal({ mode, user, currentUserRole, onClose, onSuccess }: UserModalProps) {
+function UserModal({ mode, user, roleType, onClose, onSuccess }: UserModalProps) {
     const [username, setUsername] = useState(user?.username ?? "")
     const [email, setEmail] = useState(user?.email ?? "")
     const [password, setPassword] = useState("")
     const [gender, setGender] = useState(user?.gender ?? "")
-    const [role, setRole] = useState(currentUserRole === "MANAGER" ? "MODERATOR" : "USER")
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
 
@@ -48,9 +47,9 @@ function UserModal({ mode, user, currentUserRole, onClose, onSuccess }: UserModa
         setLoading(true)
         try {
             if (mode === "create") {
-                if (role === "MANAGER") {
+                if (roleType === "MANAGER") {
                     await userService.createManager({ username, email, password, gender })
-                } else if (role === "MODERATOR") {
+                } else if (roleType === "MODERATOR") {
                     await userService.createModerator({ username, email, password, gender })
                 } else {
                     await userService.createUser({ username, email, password, gender })
@@ -141,23 +140,7 @@ function UserModal({ mode, user, currentUserRole, onClose, onSuccess }: UserModa
                         </select>
                     </div>
 
-                    {/* Role Selection (Chỉ khi tạo mới & là ADMIN mới được chọn) */}
-                    {mode === "create" && (
-                        <div className="space-y-1.5">
-                            <Label htmlFor="modal-role">Vai trò</Label>
-                            <select
-                                id="modal-role"
-                                value={role}
-                                onChange={e => setRole(e.target.value)}
-                                disabled={loading || currentUserRole === "MANAGER"}
-                                className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
-                            >
-                                <option value="USER">User (Người dùng thường)</option>
-                                <option value="MODERATOR">Moderator (Kiểm duyệt viên)</option>
-                                {currentUserRole === "ADMIN" && <option value="MANAGER">Manager (Quản lý)</option>}
-                            </select>
-                        </div>
-                    )}
+                    {/* Role Selection REMOVED because it relies on roleType inherited from parent */}
 
                     {error && (
                         <Alert variant="destructive">
@@ -180,7 +163,7 @@ function UserModal({ mode, user, currentUserRole, onClose, onSuccess }: UserModa
 }
 
 // ─── Main Page ────────────────────────────────────────────────────────
-export default function AdminUsers() {
+export default function AdminUsers({ roleType }: { roleType: "MANAGER" | "MODERATOR" | "USER" }) {
     const { user: currentUser } = useAuth()
     const [users, setUsers] = useState<UserResponse[]>([])
     const [loading, setLoading] = useState(true)
@@ -198,19 +181,24 @@ export default function AdminUsers() {
         setLoading(true)
         setError('')
         try {
-            if (currentUser?.role === 'MANAGER') {
+            if (roleType === 'MANAGER') {
+                const res = await userService.getAllManagers()
+                setUsers(res.data ?? [])
+            } else if (roleType === 'MODERATOR') {
                 const res = await userService.getAllModerators()
                 setUsers(res.data ?? [])
             } else {
-                const res = await userService.getAllUsers({ page: 0, size: 50 })
-                setUsers(res.data ?? [])
+                // Fetch users (may contain admins/managers too, so we filter by role="USER")
+                const res = await userService.getAllUsers({ page: 0, size: 200 })
+                const filteredList = (res.data ?? []).filter(u => u.role === "USER")
+                setUsers(filteredList)
             }
         } catch (err: any) {
             setError(err.message ?? 'Không thể tải danh sách người dùng')
         } finally {
             setLoading(false)
         }
-    }, [currentUser?.role])
+    }, [roleType])
 
     useEffect(() => {
         fetchUsers()
@@ -288,10 +276,10 @@ export default function AdminUsers() {
                 <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-6 dark:border-slate-700/50 dark:bg-slate-900">
                     <div>
                         <h1 className="text-lg font-semibold text-slate-900 dark:text-white">
-                            Quản lý người dùng
+                            {roleType === "MANAGER" ? "Quản lý Manager" : roleType === "MODERATOR" ? "Quản lý Moderator" : "Quản lý Người dùng"}
                         </h1>
                         <p className="text-xs text-muted-foreground">
-                            Xem, thêm và chỉnh sửa tài khoản người dùng
+                            Xem, thêm và chỉnh sửa tài khoản {roleType === "MANAGER" ? "manager" : roleType === "MODERATOR" ? "moderator" : "người dùng"}
                         </p>
                     </div>
                     <div className="flex items-center gap-3">
@@ -481,7 +469,7 @@ export default function AdminUsers() {
                 <UserModal
                     mode={modalMode}
                     user={selectedUser}
-                    currentUserRole={currentUser?.role}
+                    roleType={roleType}
                     onClose={() => setShowModal(false)}
                     onSuccess={handleModalSuccess}
                 />

@@ -10,6 +10,8 @@ const ERROR_MAP: Record<string, string> = {
   'User not found': 'Không tìm thấy tài khoản',
   'Email not found': 'Email không tồn tại trong hệ thống',
   'Account not found': 'Không tìm thấy tài khoản',
+  'User does not exists': 'Tài khoản không tồn tại',
+  'User does not exist': 'Tài khoản không tồn tại',
   'User already exists': 'Email này đã được đăng ký',
   'Email already exists': 'Email này đã được đăng ký',
   'Email already in use': 'Email này đã được sử dụng',

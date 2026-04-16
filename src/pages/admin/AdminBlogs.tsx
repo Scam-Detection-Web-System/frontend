@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { blogService, BlogResponse } from "@/services/blog.service"
+import { useAuth } from "@/contexts/auth-context"
 import {
     Activity,
     Plus,
@@ -208,6 +209,9 @@ function BlogModal({ mode, blog, onClose, onSuccess }: BlogModalProps) {
 // ─── Blog Detail Modal ─────────────────────────────────────────────────
 
 function BlogDetailModal({ blog, onClose, onEdit }: { blog: BlogResponse; onClose: () => void; onEdit: () => void }) {
+    const { user } = useAuth()
+    const canEdit = user?.role === "ADMIN" || user?.role === "MANAGER"
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
@@ -236,9 +240,11 @@ function BlogDetailModal({ blog, onClose, onEdit }: { blog: BlogResponse; onClos
                     </div>
                     <div className="flex gap-2 pt-2">
                         <Button variant="outline" onClick={onClose} className="flex-1">Đóng</Button>
-                        <Button onClick={onEdit} className="flex-1 gap-2">
-                            <Edit2 className="h-4 w-4" /> Chỉnh sửa
-                        </Button>
+                        {canEdit && (
+                            <Button onClick={onEdit} className="flex-1 gap-2">
+                                <Edit2 className="h-4 w-4" /> Chỉnh sửa
+                            </Button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -251,6 +257,9 @@ function BlogDetailModal({ blog, onClose, onEdit }: { blog: BlogResponse; onClos
 const PAGE_SIZE = 10
 
 export default function AdminBlogs() {
+    const { user } = useAuth()
+    const canEdit = user?.role === "ADMIN" || user?.role === "MANAGER"
+
     const [blogs, setBlogs] = useState<BlogResponse[]>([])
     const [totalElements, setTotalElements] = useState(0)
     const [totalPages, setTotalPages] = useState(0)
@@ -380,10 +389,12 @@ export default function AdminBlogs() {
                         >
                             <RefreshCw className="h-4 w-4" />
                         </Button>
-                        <Button type="button" onClick={openCreate} className="ml-auto gap-2">
-                            <Plus className="h-4 w-4" />
-                            Thêm bài viết
-                        </Button>
+                        {canEdit && (
+                            <Button type="button" onClick={openCreate} className="ml-auto gap-2">
+                                <Plus className="h-4 w-4" />
+                                Thêm bài viết
+                            </Button>
+                        )}
                     </form>
 
                     {/* Error */}
@@ -465,16 +476,18 @@ export default function AdminBlogs() {
                                                             <Eye className="h-3.5 w-3.5" />
                                                             Xem
                                                         </Button>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() => openEdit(blog)}
-                                                            className="gap-1.5"
-                                                            id={`edit-blog-${blog.blogId}`}
-                                                        >
-                                                            <Edit2 className="h-3.5 w-3.5" />
-                                                            Sửa
-                                                        </Button>
+                                                        {canEdit && (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => openEdit(blog)}
+                                                                className="gap-1.5"
+                                                                id={`edit-blog-${blog.blogId}`}
+                                                            >
+                                                                <Edit2 className="h-3.5 w-3.5" />
+                                                                Sửa
+                                                            </Button>
+                                                        )}
                                                     </div>
                                                 </td>
                                             </tr>

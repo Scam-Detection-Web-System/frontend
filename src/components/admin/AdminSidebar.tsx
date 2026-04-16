@@ -11,6 +11,8 @@ import {
     BrainCircuit,
     ShieldCheck,
     ClipboardList,
+    UserCog,
+    UserCheck,
 } from "lucide-react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -22,7 +24,9 @@ const navItems = [
     { href: "/admin/reports", label: "Báo cáo", icon: FileWarning, allowedRoles: ['ADMIN', 'MANAGER'] },
     { href: "/admin/assessments", label: "Đánh giá SĐT", icon: ClipboardList, allowedRoles: ['MANAGER'] },
     { href: "/admin/moderator-reports", label: "Duyệt báo cáo", icon: ShieldCheck, allowedRoles: ['MODERATOR'] },
-    { href: "/admin/users", label: "Người dùng", icon: Users, allowedRoles: ['ADMIN', 'MANAGER'] },
+    { href: "/admin/users/managers", label: "Quản lý Manager", icon: UserCog, allowedRoles: ['ADMIN'] },
+    { href: "/admin/users/moderators", label: "Quản lý Moderator", icon: UserCheck, allowedRoles: ['ADMIN', 'MANAGER'] },
+    { href: "/admin/users/end-users", label: "Quản lý Người dùng", icon: Users, allowedRoles: ['ADMIN'] },
     { href: "/admin/quiz", label: "Quiz & Câu hỏi", icon: BrainCircuit, allowedRoles: ['ADMIN', 'MANAGER'] },
     { href: "/admin/news", label: "Tin tức", icon: Newspaper, allowedRoles: ['ADMIN', 'MANAGER', 'MODERATOR'] },
     { href: "/admin/settings", label: "Cài đặt", icon: Settings, allowedRoles: ['ADMIN', 'MANAGER', 'MODERATOR'] },
