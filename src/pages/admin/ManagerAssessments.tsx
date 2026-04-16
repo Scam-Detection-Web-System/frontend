@@ -26,6 +26,8 @@ import {
     X,
     Search,
     ClipboardList,
+    ChevronRight,
+    Clock,
 } from "lucide-react"
 
 // ─── Risk Level config ───────────────────────────────────────────────────────
@@ -41,10 +43,13 @@ const RISK_CONFIG: Record<RiskKey, { label: string; className: string }> = {
 }
 
 function RiskBadge({ level }: { level: string | null }) {
-    const cfg = RISK_CONFIG[(level ?? "") as RiskKey] ?? { label: level ?? "—", className: "bg-slate-100 text-slate-700" }
+    if (!level) return <span className="text-slate-500">Chưa đánh giá</span>
+    const normalized = level.toUpperCase()
+    
+    // Minimalist monochrome/neutral styling for badges
     return (
-        <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${cfg.className}`}>
-            {cfg.label}
+        <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+            {RISK_CONFIG[normalized as RiskKey]?.label || level}
         </span>
     )
 }
@@ -317,8 +322,8 @@ function AssessmentRow({
         <tr className="border-b border-slate-100 bg-white hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800/40 transition-colors">
             <td className="px-4 py-3">
                 <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30 shrink-0">
-                        <Phone className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 shrink-0">
+                        <Phone className="h-4 w-4 text-slate-500 dark:text-slate-400" />
                     </div>
                     <span className="font-bold text-slate-900 dark:text-white font-mono">{assessment.phoneNumber}</span>
                 </div>
@@ -335,9 +340,10 @@ function AssessmentRow({
                 </p>
             </td>
             <td className="px-4 py-3">
-                <div className="text-xs text-muted-foreground space-y-0.5">
-                    <p><span className="font-semibold text-slate-700 dark:text-slate-300">{assessment.totalReports ?? 0}</span> báo cáo</p>
-                    <p><span className="font-semibold text-emerald-600">{assessment.validReports ?? 0}</span> hợp lệ</p>
+                <div className="flex gap-2">
+                    <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
+                        {assessment.totalReports ?? 0} báo cáo
+                    </span>
                 </div>
             </td>
             <td className="px-4 py-3">
@@ -345,10 +351,9 @@ function AssessmentRow({
                     variant="ghost"
                     size="sm"
                     onClick={() => onEdit(assessment)}
-                    className="gap-1 text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/30"
+                    className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 font-medium"
                     id={`edit-${assessment.assessmentId}`}
                 >
-                    <Edit3 className="h-3.5 w-3.5" />
                     Sửa
                 </Button>
             </td>
@@ -487,20 +492,20 @@ export default function ManagerAssessments() {
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
                                 <CardTitle className="text-sm font-medium text-muted-foreground">Tổng đánh giá</CardTitle>
-                                <ClipboardList className="h-4 w-4 text-blue-500" />
+                                <Phone className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
-                                <p className="text-2xl font-bold text-blue-600">{totalElements}</p>
+                                <p className="text-2xl font-bold text-slate-900 dark:text-white">{totalElements}</p>
                                 <p className="text-xs text-muted-foreground mt-0.5">số điện thoại được đánh giá</p>
                             </CardContent>
                         </Card>
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
                                 <CardTitle className="text-sm font-medium text-muted-foreground">Nguy hiểm cao</CardTitle>
-                                <AlertTriangle className="h-4 w-4 text-red-500" />
+                                <Clock className="h-4 w-4 text-amber-500" />
                             </CardHeader>
                             <CardContent>
-                                <p className="text-2xl font-bold text-red-600">
+                                <p className="text-2xl font-bold text-amber-500">
                                     {assessments.filter(a => a.riskLevel === "HIGH" || a.riskLevel === "CRITICAL").length}
                                 </p>
                                 <p className="text-xs text-muted-foreground mt-0.5">trên trang này</p>
@@ -509,10 +514,10 @@ export default function ManagerAssessments() {
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
                                 <CardTitle className="text-sm font-medium text-muted-foreground">An toàn</CardTitle>
-                                <ShieldCheck className="h-4 w-4 text-emerald-500" />
+                                <ClipboardList className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
-                                <p className="text-2xl font-bold text-emerald-600">
+                                <p className="text-2xl font-bold text-slate-900 dark:text-white">
                                     {assessments.filter(a => a.riskLevel === "LOW").length}
                                 </p>
                                 <p className="text-xs text-muted-foreground mt-0.5">trên trang này</p>
@@ -564,10 +569,9 @@ export default function ManagerAssessments() {
                         {/* Create */}
                         <Button
                             onClick={openCreate}
-                            className="ml-auto gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                            className="ml-auto"
                             id="create-assessment"
                         >
-                            <Plus className="h-4 w-4" />
                             Tạo đánh giá mới
                         </Button>
                     </div>

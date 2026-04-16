@@ -12,15 +12,13 @@ import {
     RefreshCw,
     FileWarning,
     Clock,
-    CheckCircle2,
-    XCircle,
     ChevronDown,
     ChevronRight,
     Loader2,
     Phone,
 } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
-import { ReportDetailModal, LABEL_MAP, CONTACT_METHOD_MAP, SCAM_TECHNIQUE_MAP } from "./ModeratorReports"
+import { ReportDetailModal, LABEL_MAP } from "./ModeratorReports"
 
 const ALL_STATUS_OPTIONS: { value: ReportStatus | "ALL"; label: string }[] = [
     { value: "ALL", label: "Tất cả" },
@@ -42,7 +40,7 @@ function getStatusBadge(status: ReportStatus) {
 }
 
 // ─── Grouped Report Row (Expandable) ──────────────────────────────────────
-function ReportGroupRow({ group, onUpdateStatus, statusFilter, onViewDetail }: {
+function ReportGroupRow({ group, onUpdateStatus, onViewDetail }: {
     group: PhoneReportFilterResponse
     onUpdateStatus: (reportId: string, status: ReportStatus) => Promise<void>
     statusFilter: ReportStatus | "ALL"
@@ -192,7 +190,6 @@ function ReportGroupRow({ group, onUpdateStatus, statusFilter, onViewDetail }: {
 }
 
 // ─── Main Page ─────────────────────────────────────────────────────────────
-const PAGE_SIZE = 20
 
 export default function AdminReports() {
     const [groups, setGroups] = useState<PhoneReportFilterResponse[]>([])
@@ -215,7 +212,7 @@ export default function AdminReports() {
         ? ALL_STATUS_OPTIONS.filter(o => o.value !== "ALL" && o.value !== "PENDING")
         : ALL_STATUS_OPTIONS;
 
-    const fetchReports = useCallback(async (status: ReportStatus | "ALL" = statusFilter, p = page) => {
+    const fetchReports = useCallback(async (status: ReportStatus | "ALL" = statusFilter) => {
         setLoading(true)
         setError("")
         try {
@@ -271,7 +268,7 @@ export default function AdminReports() {
     }, [])
 
     useEffect(() => {
-        fetchReports(statusFilter, page)
+        fetchReports(statusFilter)
     }, [statusFilter, page])
 
     useEffect(() => {
@@ -282,7 +279,7 @@ export default function AdminReports() {
         try {
             await reportService.updateReportStatus(reportId, status)
             // Re-fetch to reflect changes
-            await fetchReports(statusFilter, page)
+            await fetchReports(statusFilter)
             await loadStats()
             if (detailReportId === reportId) {
                 setDetailReportId(null)
@@ -377,7 +374,7 @@ export default function AdminReports() {
                         <Button
                             variant="outline"
                             size="icon"
-                            onClick={() => fetchReports(statusFilter, page)}
+                            onClick={() => fetchReports(statusFilter)}
                             title="Làm mới"
                             className="ml-auto"
                         >

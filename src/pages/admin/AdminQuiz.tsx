@@ -9,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
     quizService,
     QuizTopicResponse,
-    QuizDetailResponse,
     QuestionResponse,
     QuizTopicCreationRequest,
     QuestionCreationRequest,

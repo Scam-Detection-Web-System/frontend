@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import {
     Brain, ChevronRight, ChevronLeft, Trophy, RotateCcw,
-    Loader2, CheckCircle, XCircle, BookOpen, Star, LogIn, History
+    Loader2, CheckCircle, XCircle, BookOpen, Star, History
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/contexts/auth-context"
@@ -24,7 +24,7 @@ function TopicCard({ topic, onSelect }: { topic: QuizTopicResponse; onSelect: ()
         >
             <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-md">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-600 shadow-sm dark:bg-slate-800 dark:text-slate-300">
                         <Brain className="h-6 w-6" />
                     </div>
                     <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
@@ -168,7 +168,7 @@ function QuizScreen({
                     <Button
                         onClick={handleSubmit}
                         disabled={submitting || Object.keys(answers).length < totalQuestions}
-                        className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
+                        className="gap-2"
                     >
                         {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trophy className="h-4 w-4" />}
                         {submitting ? "Đang nộp..." : "Nộp bài"}
@@ -210,9 +210,9 @@ function QuizScreen({
 
 // ─── Result Screen ────────────────────────────────────────────────────────────
 function scoreConfig(score: number) {
-    if (score >= 80) return { label: "Xuất sắc!", color: "text-emerald-600", icon: <Trophy className="h-16 w-16 text-yellow-500" />, stars: 3 }
-    if (score >= 60) return { label: "Tốt!", color: "text-blue-600", icon: <Star className="h-16 w-16 text-blue-500" />, stars: 2 }
-    return { label: "Cần cố gắng thêm!", color: "text-amber-600", icon: <RotateCcw className="h-16 w-16 text-amber-500" />, stars: 1 }
+    if (score >= 80) return { label: "Xuất sắc!", color: "text-slate-100", icon: <Trophy className="h-16 w-16 text-slate-200" />, stars: 3 }
+    if (score >= 60) return { label: "Tốt!", color: "text-slate-200", icon: <Star className="h-16 w-16 text-slate-300" />, stars: 2 }
+    return { label: "Cần cố gắng thêm!", color: "text-slate-300", icon: <RotateCcw className="h-16 w-16 text-slate-400" />, stars: 1 }
 }
 
 function ResultScreen({
@@ -233,18 +233,18 @@ function ResultScreen({
         <div className="mx-auto w-full max-w-2xl">
             {/* Score card */}
             <Card className="mb-6 overflow-hidden">
-                <div className="bg-gradient-to-br from-blue-600 to-purple-700 p-8 text-white text-center">
+                <div className="bg-slate-900 p-8 text-white text-center dark:bg-slate-950">
                     <div className="flex justify-center mb-4">{cfg.icon}</div>
                     <h2 className="text-3xl font-bold mb-1">{cfg.label}</h2>
-                    <p className="text-blue-100 text-sm">{result.topicName}</p>
+                    <p className="text-slate-300 text-sm">{result.topicName}</p>
                     <div className="mt-6 flex justify-center gap-8">
                         <div>
                             <p className="text-4xl font-black">{pct}%</p>
-                            <p className="text-sm text-blue-200">Điểm số</p>
+                            <p className="text-sm text-slate-400">Điểm số</p>
                         </div>
                         <div>
                             <p className="text-4xl font-black">{result.correctAnswers}/{result.totalQuestions}</p>
-                            <p className="text-sm text-blue-200">Câu đúng</p>
+                            <p className="text-sm text-slate-400">Câu đúng</p>
                         </div>
                     </div>
                 </div>
@@ -369,8 +369,8 @@ export default function QuizPage() {
                 {/* Page Header */}
                 {screen === "topics" && (
                     <div className="mb-10 text-center">
-                        <div className="mb-4 inline-flex items-center justify-center rounded-full bg-purple-100 p-3 dark:bg-purple-900/40">
-                            <Brain className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                        <div className="mb-4 inline-flex items-center justify-center rounded-full bg-slate-100 p-3 dark:bg-slate-800">
+                            <Brain className="h-6 w-6 text-slate-600 dark:text-slate-400" />
                         </div>
                         <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
                             Trắc nghiệm nhận thức về lừa đảo

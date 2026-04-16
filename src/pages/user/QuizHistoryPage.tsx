@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { quizService, QuizHistoryItem } from "@/services/quiz.service"
 import { useAuth } from "@/contexts/auth-context"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -15,27 +15,27 @@ import { cn } from "@/lib/utils"
 function scoreConfig(pct: number) {
     if (pct >= 80) return {
         label: "Xuất sắc",
-        color: "text-emerald-600 dark:text-emerald-400",
-        bg: "bg-emerald-50 dark:bg-emerald-950/30",
-        border: "border-emerald-200 dark:border-emerald-800/40",
-        badge: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
-        icon: <Trophy className="h-5 w-5 text-yellow-500" />,
+        color: "text-slate-900 dark:text-white",
+        bg: "bg-white dark:bg-slate-900",
+        border: "border-slate-200 dark:border-slate-700/50",
+        badge: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
+        icon: <Trophy className="h-5 w-5 text-slate-600 dark:text-slate-400" />,
     }
     if (pct >= 60) return {
         label: "Tốt",
-        color: "text-blue-600 dark:text-blue-400",
-        bg: "bg-blue-50 dark:bg-blue-950/30",
-        border: "border-blue-200 dark:border-blue-800/40",
-        badge: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-        icon: <Star className="h-5 w-5 text-blue-500" />,
+        color: "text-slate-900 dark:text-white",
+        bg: "bg-white dark:bg-slate-900",
+        border: "border-slate-200 dark:border-slate-700/50",
+        badge: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
+        icon: <Star className="h-5 w-5 text-slate-500 dark:text-slate-400" />,
     }
     return {
         label: "Cần cố gắng",
-        color: "text-amber-600 dark:text-amber-400",
-        bg: "bg-amber-50 dark:bg-amber-950/30",
-        border: "border-amber-200 dark:border-amber-800/40",
-        badge: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
-        icon: <RotateCcw className="h-5 w-5 text-amber-500" />,
+        color: "text-slate-900 dark:text-white",
+        bg: "bg-white dark:bg-slate-900",
+        border: "border-slate-200 dark:border-slate-700/50",
+        badge: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
+        icon: <RotateCcw className="h-5 w-5 text-slate-400 dark:text-slate-500" />,
     }
 }
 
@@ -117,7 +117,7 @@ function HistoryCard({ item, index }: { item: QuizHistoryItem; index: number }) 
                 <div
                     className={cn(
                         "h-full rounded-full transition-all duration-500",
-                        pct >= 80 ? "bg-emerald-500" : pct >= 60 ? "bg-blue-500" : "bg-amber-500"
+                        pct >= 80 ? "bg-slate-800 dark:bg-slate-200" : pct >= 60 ? "bg-slate-500 dark:bg-slate-400" : "bg-slate-300 dark:bg-slate-600"
                     )}
                     style={{ width: `${pct}%` }}
                 />
@@ -161,8 +161,8 @@ export default function QuizHistoryPage() {
             <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="mb-10 text-center">
-                    <div className="mb-4 inline-flex items-center justify-center rounded-full bg-purple-100 p-3 dark:bg-purple-900/40">
-                        <History className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                    <div className="mb-4 inline-flex items-center justify-center rounded-full bg-slate-100 p-3 dark:bg-slate-800">
+                        <History className="h-6 w-6 text-slate-600 dark:text-slate-400" />
                     </div>
                     <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
                         Lịch sử làm quiz
@@ -233,7 +233,7 @@ export default function QuizHistoryPage() {
                             Bạn chưa hoàn thành bài quiz nào. Hãy thử ngay!
                         </p>
                         <Link to="/quiz">
-                            <Button className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700">
+                            <Button className="gap-2">
                                 <Brain className="h-4 w-4" />
                                 Bắt đầu làm quiz
                                 <ChevronRight className="h-4 w-4" />
@@ -247,30 +247,30 @@ export default function QuizHistoryPage() {
                     <>
                         {/* Stats cards */}
                         <div className="mb-6 grid grid-cols-3 gap-3">
-                            <Card className="border-purple-200 dark:border-purple-800/40 text-center">
+                            <Card className="border-slate-200 dark:border-slate-700/50 text-center">
                                 <CardContent className="pt-4 pb-4">
                                     <div className="flex justify-center mb-1">
-                                        <History className="h-5 w-5 text-purple-500" />
+                                        <History className="h-5 w-5 text-slate-500" />
                                     </div>
-                                    <p className="text-2xl font-black text-purple-600 dark:text-purple-400">{total}</p>
+                                    <p className="text-2xl font-black text-slate-900 dark:text-white">{total}</p>
                                     <p className="text-xs text-muted-foreground mt-0.5">Lần làm bài</p>
                                 </CardContent>
                             </Card>
-                            <Card className="border-blue-200 dark:border-blue-800/40 text-center">
+                            <Card className="border-slate-200 dark:border-slate-700/50 text-center">
                                 <CardContent className="pt-4 pb-4">
                                     <div className="flex justify-center mb-1">
-                                        <TrendingUp className="h-5 w-5 text-blue-500" />
+                                        <TrendingUp className="h-5 w-5 text-slate-500" />
                                     </div>
-                                    <p className="text-2xl font-black text-blue-600 dark:text-blue-400">{avgPct}%</p>
+                                    <p className="text-2xl font-black text-slate-900 dark:text-white">{avgPct}%</p>
                                     <p className="text-xs text-muted-foreground mt-0.5">Điểm trung bình</p>
                                 </CardContent>
                             </Card>
-                            <Card className="border-yellow-200 dark:border-yellow-800/40 text-center">
+                            <Card className="border-slate-200 dark:border-slate-700/50 text-center">
                                 <CardContent className="pt-4 pb-4">
                                     <div className="flex justify-center mb-1">
-                                        <Award className="h-5 w-5 text-yellow-500" />
+                                        <Award className="h-5 w-5 text-slate-500" />
                                     </div>
-                                    <p className="text-2xl font-black text-yellow-600 dark:text-yellow-400">{best}%</p>
+                                    <p className="text-2xl font-black text-slate-900 dark:text-white">{best}%</p>
                                     <p className="text-xs text-muted-foreground mt-0.5">Điểm cao nhất</p>
                                 </CardContent>
                             </Card>
@@ -286,7 +286,7 @@ export default function QuizHistoryPage() {
                         {/* CTA */}
                         <div className="mt-8 text-center">
                             <Link to="/quiz">
-                                <Button className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700">
+                                <Button className="gap-2">
                                     <Brain className="h-4 w-4" />
                                     Làm bài mới
                                     <ChevronRight className="h-4 w-4" />

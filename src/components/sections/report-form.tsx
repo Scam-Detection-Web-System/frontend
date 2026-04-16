@@ -96,7 +96,7 @@ const SCAM_TECHNIQUE_OPTIONS = [
 ]
 
 export function ReportForm() {
-  const { user, isAuthenticated } = useAuth()
+  const { isAuthenticated } = useAuth()
   const [searchParams] = useSearchParams()
   const [showLoginDialog, setShowLoginDialog] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)

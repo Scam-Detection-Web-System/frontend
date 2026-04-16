@@ -23,6 +23,44 @@ import {
     Eye,
 } from "lucide-react"
 
+// ─── Utility ────────────────────────────────────────────────────────
+const compressImage = (file: File, maxWidth = 1000): Promise<File> => {
+    return new Promise((resolve) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onload = (event) => {
+            const img = new Image()
+            img.src = event.target?.result as string
+            img.onload = () => {
+                const canvas = document.createElement('canvas')
+                let width = img.width
+                let height = img.height
+                if (width > maxWidth) {
+                    height = Math.round((height * maxWidth) / width)
+                    width = maxWidth
+                }
+                canvas.width = width
+                canvas.height = height
+                const ctx = canvas.getContext('2d')
+                ctx?.drawImage(img, 0, 0, width, height)
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        const newFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+                            type: 'image/jpeg',
+                            lastModified: Date.now()
+                        })
+                        resolve(newFile)
+                    } else {
+                        resolve(file)
+                    }
+                }, 'image/jpeg', 0.8) // 80% quality JPEG
+            }
+            img.onerror = () => resolve(file)
+        }
+        reader.onerror = () => resolve(file)
+    })
+}
+
 // ─── Blog Modal (Create / Edit) ────────────────────────────────────────
 
 interface BlogModalProps {
@@ -43,11 +81,18 @@ function BlogModal({ mode, blog, onClose, onSuccess }: BlogModalProps) {
     const [loading, setLoading] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (!file) return
-        setImage(file)
-        setPreview(URL.createObjectURL(file))
+
+        let finalFile = file;
+        // Nếu ảnh lớn hơn 500KB, tự động nén lại để không bị lỗi Nginx 413 / Connection Reset
+        if (file.size > 500 * 1024) {
+             finalFile = await compressImage(file);
+        }
+
+        setImage(finalFile)
+        setPreview(URL.createObjectURL(finalFile))
     }
 
     const handleSubmit = async (e: React.FormEvent) => {

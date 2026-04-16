@@ -3,7 +3,6 @@ import {
     FileWarning,
     Newspaper,
     Settings,
-    ShieldCheck,
     LogOut,
     ChevronLeft,
     ChevronRight,
@@ -77,7 +76,7 @@ export function ModeratorSidebar() {
                         <span className="text-lg font-bold text-slate-900 dark:text-white">
                             AnTiScaQ
                         </span>
-                        <p className="text-[10px] text-violet-600 font-semibold leading-tight">
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold leading-tight uppercase tracking-wide mt-0.5">
                             Kiểm duyệt viên
                         </p>
                     </div>
@@ -97,8 +96,8 @@ export function ModeratorSidebar() {
                             className={cn(
                                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                                 isActive
-                                    ? "bg-violet-50 text-violet-700 dark:bg-violet-950/30 dark:text-violet-300"
-                                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white",
+                                    ? "bg-slate-100 text-slate-900 font-bold dark:bg-slate-800 dark:text-white"
+                                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-white",
                                 collapsed && "justify-center px-2"
                             )}
                             title={collapsed ? item.label : undefined}
@@ -111,8 +110,8 @@ export function ModeratorSidebar() {
                                     className={cn(
                                         "flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold",
                                         isActive
-                                            ? "bg-violet-600 text-white"
-                                            : "bg-amber-500 text-white",
+                                            ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
+                                            : "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300",
                                         collapsed && "absolute translate-x-3 -translate-y-2 text-[9px] h-4 min-w-4"
                                     )}
                                 >
@@ -150,7 +149,7 @@ export function ModeratorSidebar() {
                         <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
                             {user?.name}
                         </p>
-                        <span className="inline-block rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
+                        <span className="inline-block rounded-md border border-slate-200 bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 mt-1">
                             Moderator
                         </span>
                     </div>
