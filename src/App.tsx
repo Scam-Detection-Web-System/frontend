@@ -20,6 +20,7 @@ import NewsDetailPage from "./pages/user/NewsDetailPage"
 import QuizPage from "./pages/user/QuizPage"
 import QuizHistoryPage from "./pages/user/QuizHistoryPage"
 import PhoneAssessmentPage from "./pages/user/PhoneAssessmentPage"
+import ReportDetailPage from "./pages/user/ReportDetailPage"
 import { ChatbotButton } from "@/components/shared/chatbot-button"
 
 // Protected route component for admin pages
@@ -76,6 +77,7 @@ function AppRoutes() {
                                 <Route path="/" element={<Home />} />
                                 <Route path="/taikhoan" element={<UserRoute><PersonalPage /></UserRoute>} />
                                 <Route path="/taikhoan/chinhsua" element={<UserRoute><EditProfilePage /></UserRoute>} />
+                                <Route path="/taikhoan/baocao/:id" element={<UserRoute><ReportDetailPage /></UserRoute>} />
                                 <Route path="/baomat" element={<UserRoute><SecurityPage /></UserRoute>} />
                                 <Route
                                     path="/kiemtra"

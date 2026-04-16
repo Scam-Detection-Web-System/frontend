@@ -127,7 +127,7 @@ export function BrowserProtectionSection() {
                         {/* Download button */}
                         <div className="mt-8">
                             <a
-                                href="#"
+                                href="https://chromewebstore.google.com/detail/antiscaq/dfjakhhnfjfidbbepniaklmjbgeamikm?hl=en-US&utm_source=ext_sidebar"
                                 className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-opacity hover:opacity-90"
                             >
                                 <Download className="h-4 w-4" />

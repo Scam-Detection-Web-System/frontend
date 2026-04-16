@@ -17,8 +17,6 @@ import {
     RefreshCw,
     FileWarning,
     Clock,
-    CheckCircle2,
-    XCircle,
     ChevronDown,
     ChevronRight,
     Loader2,
@@ -32,9 +30,7 @@ import {
     User,
     AlertTriangle,
     X,
-    Brain,
-    Zap,
-} from "lucide-react"
+    } from "lucide-react"
 
 // ─── Status badge ────────────────────────────────────────────────
 function StatusBadge({ status }: { status: ReportStatus }) {
@@ -131,8 +127,8 @@ export function ReportDetailModal({
                 {/* Header */}
                 <div className="flex items-start justify-between p-5 border-b border-slate-100 dark:border-slate-800">
                     <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 dark:bg-violet-900/30">
-                            <Phone className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800">
+                            <Phone className="h-5 w-5 text-slate-500 dark:text-slate-400" />
                         </div>
                         <div>
                             <h2 className="text-base font-bold text-slate-900 dark:text-white font-mono">
@@ -321,8 +317,8 @@ function ReportGroupRow({
                         ) : (
                             <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
                         )}
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-100 dark:bg-violet-900/30 shrink-0">
-                            <Phone className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 shrink-0">
+                            <Phone className="h-4 w-4 text-slate-500 dark:text-slate-400" />
                         </div>
                         <span className="font-bold text-slate-900 dark:text-white font-mono">
                             {group.phoneNumber}
@@ -457,7 +453,7 @@ export default function ModeratorReports() {
     const [invalidTotal, setInvalidTotal] = useState(0)
 
     const fetchReports = useCallback(
-        async (status: ReportStatus | "ALL" = statusFilter, p = page) => {
+        async (status: ReportStatus | "ALL" = statusFilter) => {
             setLoading(true)
             setError("")
             try {
@@ -523,7 +519,7 @@ export default function ModeratorReports() {
     }, [])
 
     useEffect(() => {
-        fetchReports(statusFilter, page)
+        fetchReports(statusFilter)
     }, [statusFilter, page])
 
     useEffect(() => {
@@ -533,7 +529,7 @@ export default function ModeratorReports() {
     const handleUpdateStatus = async (reportId: string, status: ReportStatus) => {
         try {
             await reportService.updateReportStatus(reportId, status)
-            await fetchReports(statusFilter, page)
+            await fetchReports(statusFilter)
             await loadStats()
             // Đóng modal sau khi cập nhật
             if (detailReportId === reportId) {
@@ -584,7 +580,7 @@ export default function ModeratorReports() {
                     {/* Stats */}
                     <div className="mb-6 grid gap-4 sm:grid-cols-3">
                         <Card
-                            className="border-amber-200 dark:border-amber-800/40 cursor-pointer hover:border-amber-400 transition-colors"
+                            className="border-slate-200 dark:border-slate-700/50 cursor-pointer hover:border-slate-300 transition-colors"
                             onClick={() => { setStatusFilter("PENDING"); setPage(0) }}
                         >
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -592,42 +588,42 @@ export default function ModeratorReports() {
                                 <Clock className="h-4 w-4 text-amber-500" />
                             </CardHeader>
                             <CardContent>
-                                <p className="text-2xl font-bold text-amber-600">{pendingTotal}</p>
+                                <p className="text-2xl font-bold text-slate-900 dark:text-white">{pendingTotal}</p>
                                 <p className="text-xs text-muted-foreground mt-0.5">Cần xử lý</p>
                             </CardContent>
                         </Card>
                         <Card
-                            className="border-emerald-200 dark:border-emerald-800/40 cursor-pointer hover:border-emerald-400 transition-colors"
+                            className="border-slate-200 dark:border-slate-700/50 cursor-pointer hover:border-slate-300 transition-colors"
                             onClick={() => { setStatusFilter("VALID"); setPage(0) }}
                         >
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
                                 <CardTitle className="text-sm font-medium text-muted-foreground">Đã duyệt</CardTitle>
-                                <ShieldCheck className="h-4 w-4 text-emerald-500" />
+                                <ShieldCheck className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
-                                <p className="text-2xl font-bold text-emerald-600">{validTotal}</p>
+                                <p className="text-2xl font-bold text-slate-900 dark:text-white">{validTotal}</p>
                                 <p className="text-xs text-muted-foreground mt-0.5">Gửi lên Manager</p>
                             </CardContent>
                         </Card>
                         <Card
-                            className="border-red-200 dark:border-red-800/40 cursor-pointer hover:border-red-400 transition-colors"
+                            className="border-slate-200 dark:border-slate-700/50 cursor-pointer hover:border-slate-300 transition-colors"
                             onClick={() => { setStatusFilter("INVALID"); setPage(0) }}
                         >
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
                                 <CardTitle className="text-sm font-medium text-muted-foreground">Từ chối</CardTitle>
-                                <ShieldX className="h-4 w-4 text-red-500" />
+                                <ShieldX className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
-                                <p className="text-2xl font-bold text-red-600">{invalidTotal}</p>
+                                <p className="text-2xl font-bold text-slate-900 dark:text-white">{invalidTotal}</p>
                                 <p className="text-xs text-muted-foreground mt-0.5">Không hợp lệ</p>
                             </CardContent>
                         </Card>
                     </div>
 
                     {/* Flow info banner */}
-                    <div className="mb-4 flex items-center gap-3 rounded-xl border border-violet-200 bg-violet-50 px-4 py-3 dark:border-violet-800/40 dark:bg-violet-950/20">
-                        <FileWarning className="h-4 w-4 shrink-0 text-violet-600 dark:text-violet-400" />
-                        <p className="text-xs text-violet-700 dark:text-violet-300">
+                    <div className="mb-4 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/50">
+                        <FileWarning className="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" />
+                        <p className="text-xs text-slate-700 dark:text-slate-300">
                             <strong>Quy trình:</strong> Người dùng gửi báo cáo →
                             <span className="font-semibold"> Moderator duyệt</span> (PENDING → VALID/INVALID) →
                             <span className="font-semibold"> Manager xem xét</span> (VALID → RESOLVED)
@@ -680,7 +676,7 @@ export default function ModeratorReports() {
                         <Button
                             variant="outline"
                             size="icon"
-                            onClick={() => fetchReports(statusFilter, page)}
+                            onClick={() => fetchReports(statusFilter)}
                             title="Làm mới"
                             className="ml-auto"
                         >

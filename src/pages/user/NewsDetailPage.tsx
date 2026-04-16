@@ -1,219 +1,257 @@
+import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { ArrowLeft, Clock, AlertTriangle, Tag, ExternalLink } from "lucide-react"
+import { ArrowLeft, Clock, Tag, AlertCircle, RefreshCw, User, Share2, BookOpen } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { blogService, BlogResponse } from "@/services/blog.service"
 
-export const newsArticles = [
-  {
-    id: 1,
-    title: "Combo du lịch giá rẻ: Kỳ nghỉ trong mơ hay Cú lừa tiền triệu",
-    excerpt: "Mùa du lịch đang đến gần, nhu cầu \"xách ba lô lên và đi\" của mọi người tăng cao. Đánh vào tâm lý muốn săn vé rẻ, combo \"hời\", các đối tượng lừa đảo đã tung ra",
-    date: "03/04/2026",
-    category: "Tin tức",
-    isUrgent: false,
-    source: "Chống Lừa Đảo",
-    imageUrl: "https://chongluadao.vn/blog/wp-content/uploads/2026/03/Gemini_Generated_Image_ez8m1yez8m1yez8m.png",
-    content: "Mùa du lịch đang đến gần, nhu cầu “xách ba lô lên và đi” của mọi người tăng cao. Đánh vào tâm lý muốn săn vé rẻ, combo “hời”, các đối tượng lừa đảo đã tung ra hàng loạt chiêu trò tinh vi khiến không ít người rơi vào cảnh “tiền mất, tật mang”.\n\nĐể bảo vệ bản thân và gia đình, hãy cùng Chống Lừa Đảo điểm mặt những thủ đoạn “bình cũ rượu mới” đang nở rộ trong năm 2026.\n\nNhững “chiêu bài” lừa đảo phổ biến\n\nKẻ gian hiện nay không chỉ đơn thuần là biến mất sau khi nhận tiền, mà còn dàn dựng kịch bản vô cùng chuyên nghiệp:\n\nMã đặt chỗ (PNR) “thật” nhưng… ảo:\n\nĐây là chiêu cực kỳ tinh vi.\n\nKẻ lừa đảo vào trang web chính thức của hãng hàng không để đặt chỗ (chưa thanh toán) rồi gửi mã PNR cho bạn.\n\nKhi bạn kiểm tra trên hệ thống hãng, thông tin hoàn toàn khớp. Nhưng thực tế, mã này sẽ tự hủy sau 12-24 giờ nếu không thanh toán.\n\nNgay khi bạn tin tưởng chuyển tiền, chúng sẽ không xuất vé và chặn liên lạc.\n\n“Tích xanh” giả, uy tín ảo:\n\nNhiều hội nhóm, fanpage được mua lại hoặc thuê có sẵn tích xanh Facebook, hàng chục nghìn lượt theo dõi và hàng trăm bình luận “seeding” khen ngợi.\n\nChúng mạo danh các resort lớn, công ty lữ hành uy tín để chạy quảng cáo combo giảm giá 30-50%.\n\nSuất “ngoại giao”, vé “giờ chót”:\n\nChúng đánh vào tâm lý gấp gáp bằng cách rao bán các suất hủy phòng đột xuất, vé nội bộ giá siêu rẻ và yêu cầu chuyển tiền ngay để “giữ chỗ” vì có người khác đang chờ.\n\nWebsite giả mạo tinh vi:\n\nCác tên miền như\n\nvietnamairlines-giare[.]com\n\nhay\n\nbooking-uudai[.]xyz\n\nđược thiết kế giao diện giống hệt trang chủ chính thống để lừa người dùng nhập thông tin thanh toán.\n\nCách nhận biết và phòng tránh\n\nĐừng để những hình ảnh lung linh và mức giá “không tưởng” làm mờ mắt. Hãy nằm lòng bảng quy tắc sau:\n\nBảng đối chiếu nhanh để nhận diện rủi ro\n\nDấu hiệu\n\nMức độ\n\nnguy hiểm\n\nHành động khuyên dùng\n\nGiá rẻ hơn thị trường >30%\n\n⚠️ Cao\n\nSo sánh giá trực tiếp trên web hãng hoặc các nền tảng trung gian uy tín như Agoda/Booking.\n\nYêu cầu chuyển khoản vào tài khoản cá nhân\n\n⚠️ Cao\n\nƯu tiên thanh toán qua cổng chính thức hoặc tài khoản công ty.\n\nGiục giễu, hối thúc chuyển tiền ngay\n\n⚠️⚠️ Rất cao\n\nBình tĩnh xác minh, không chuyển tiền dưới áp lực tâm lý.\n\nWebsite có đuôi lạ (.xyz, .cc, .tk)\n\n❌ Tuyệt đối tránh\n\nChỉ giao dịch trên các tên miền .vn hoặc .com chính thức.\n\nCách xác minh độ uy tín\n\nXác thực mã code:\n\nKhi nhận mã PNR vé máy bay hoặc mã đặt phòng, hãy gọi trực tiếp số Hotline của hãng hàng không/khách sạn đó để hỏi:\n\n“Mã này đã được thanh toán (Issued) chưa hay chỉ mới là giữ chỗ (Booking)?”\n\nKiểm tra uy tín fanpage:\n\nVào phần “Tính minh bạch của trang” để xem ngày thành lập và lịch sử đổi tên. Nếu một trang du lịch lớn mà mới lập được vài tháng hoặc đổi tên từ “Bán quần áo” sang “Du lịch giá rẻ” thì 99% là lừa đảo.\n\nTra cứu thông tin tại ChongLuaDao.vn:\n\nTrước khi click vào bất kỳ đường link nào hoặc giao dịch với tài khoản lạ, hãy sử dụng công cụ AI của Chống Lừa Đảo để kiểm tra mức độ an toàn.\n\nBạn phải làm gì khi đã lỡ “sập bẫy”?\n\nNếu chẳng may trở thành nạn nhân, đừng giữ im lặng vì điều đó sẽ tiếp tay cho kẻ xấu:\n\nLiên hệ ngân hàng ngay lập tức: Gọi hotline ngân hàng hoặc đến chi nhánh gần nhất để yêu cầu tạm dừng giao dịch hoặc phong tỏa tài khoản/thẻ. Cung cấp số tài khoản thụ hưởng của kẻ lừa đảo để ngân hàng đưa vào danh sách cảnh báo.\n\nLưu trữ bằng chứng: Hãy lưu lại tất cả thông tin liên quan bao gồm:\n\nThông tin liên lạc: Số điện thoại, tài khoản mạng xã hội, ID Telegram hay bất cứ kênh thông tin liên lạc nào của kẻ lừa đảo.\n\nNội dung trao đổi: Ảnh chụp màn hình tin nhắn, ghi âm cuộc gọi lừa dẫn dụ.\n\nBằng chứng tài chính: Biên lai chuyển tiền, sao kê tài khoản ngân hàng, các mã giao dịch (TransID).\n\nTrình báo cơ quan chức năng:\n\nĐến cơ quan Công an địa phương (xã/phường) gần nhất hoặc Phòng An ninh mạng và phòng, chống tội phạm sử dụng công nghệ cao (PA05) tại Công an tỉnh/thành phố để tố giác tội phạm.\n\nBáo cáo ngay:\n\nGửi thông tin về cho Chống Lừa Đảo để chúng tôi cảnh báo cộng đồng và ngăn chặn website độc hại.\n\nMột kỳ nghỉ hạnh phúc bắt đầu từ sự tỉnh táo.\n\nĐừng để cái bẫy “giá rẻ” phá hỏng kế hoạch du lịch của bạn."
-  },
-  {
-    id: 2,
-    title: "Lừa đảo tình cảm dẫn dụ đầu tư – Khi AI trở thành cỗ máy thao túng tâm lý",
-    excerpt: "Kịch bản lừa đảo tình cảm dẫn dụ đầu tư (Pig Butchering) đã trở nên nguy hiểm hơn bao giờ hết nhờ khả năng tự động hóa của AI:",
-    date: "03/04/2026",
-    category: "Tin tức",
-    isUrgent: false,
-    source: "Chống Lừa Đảo",
-    imageUrl: "https://chongluadao.vn/blog/wp-content/uploads/2026/01/Hinh-7-Tu-dong-hoa-lua-dao-quy-mo-lon-bang-AI.png",
-    content: "Tội phạm mạng hiện nay đã nâng cấp các chiêu trò lừa đảo từ “thủ công” sang quy mô “công nghiệp” nhờ sự hỗ trợ của trí tuệ nhân tạo (AI). Thay vì chỉ có thể trò chuyện với 5-10 người, một hacker giờ đây có thể cùng lúc “tán tỉnh” hàng nghìn nạn nhân thông qua mạng lưới Chatbot AI trên các nền tảng như Telegram, Tinder hay Facebook Dating.\n\nKịch bản Pig Butchering (mổ heo) thời AI\n\nKịch bản lừa đảo tình cảm dẫn dụ đầu tư (Pig Butchering) đã trở nên nguy hiểm hơn bao giờ hết nhờ khả năng tự động hóa của AI:\n\nThu thập thông tin: AI tiến hành dò quét dữ liệu công khai trên LinkedIn, Facebook để lập hồ sơ sở thích, công việc của bạn.\n\nCá nhân hóa nội dung: Thay vì gửi 1 email chung chung cho 1000 người, AI soạn 1000 email khác nhau. Ví dụ: “Chào A, mình thấy bạn mới tham gia hội thảo X ở Hà Nội…”.\n\nKiên nhẫn tuyệt đối: Chatbot AI sẵn sàng tâm sự, chúc ngủ ngon và duy trì hội thoại 24/7 với bạn để xây dựng lòng tin.\n\nChốt đơn bằng người thật: Chỉ khi bạn đã hoàn toàn “cắn câu” và có ý định nạp tiền, AI mới chuyển quyền cho kẻ lừa đảo thật để thực hiện bước cuối cùng: gửi link độc hại cho bạn hoặc mời gọi bạn tham gia vào các sàn đầu tư ảo.\n\nCách nhận diện “người tình ảo” AI\n\nĐể không rơi vào ma trận tâm lý của AI, bạn cần chú ý các dấu hiệu sau:\n\nPhản hồi quá hoàn hảo: Tin nhắn luôn đúng ngữ pháp tuyệt đối, văn phong đôi khi hơi “sách vở” và được gửi ngay lập tức bất kể ngày đêm.\n\nMất trí nhớ ngữ cảnh: Đôi khi AI lặp lại các câu chuyện theo khuôn mẫu hoặc quên mất những chi tiết quan trọng đã trao đổi trước đó.\n\nLuôn từ chối gặp mặt: Đối tượng luôn tìm lý do để không gọi video hoặc gặp mặt trực tiếp ngoài đời.\n\nQuy tắc 3 Không để tự bảo vệ bản thân\n\nTrong kỷ nguyên AI, niềm tin trên mạng cần được đặt dưới sự kiểm chứng khắt khe:\n\nKHÔNG tin tưởng tuyệt đối người lạ: Luôn nghi ngờ những tài khoản quá hiểu rõ về sở thích và đời tư của bạn thông qua dữ liệu công khai trên mạng xã hội.\n\nKHÔNG đầu tư qua lời mời chào trực tuyến: Áp dụng quy tắc “Zero Trust” – Không tin bất kỳ ai trên mạng đề cập đến tài chính nếu chưa gặp mặt trực tiếp ngoài đời.\n\nKHÔNG chia sẻ thông tin nhạy cảm: Hạn chế công khai quá nhiều chi tiết cá nhân trên LinkedIn hay Facebook để tránh bị AI lập hồ sơ tấn công.\n\nHãy tỉnh táo trước những sự quan tâm “hoàn hảo” trên mạng xã hội. Một kịch bản được cá nhân hóa bởi AI có thể khiến bạn mất trắng tài sản trong nháy mắt."
-  },
-  {
-    id: 3,
-    title: "Lừa đảo trực tuyến 2025-2026: Khi tội phạm mạng tiến hóa nhờ AI",
-    excerpt: "Lừa đảo trực tuyến đang đứng trước một sự chuyển dịch ngoặt lớn: Nếu năm 2025 là năm của các vụ tấn công dựa trên dữ liệu, thì 2026 sẽ là năm của sự \"AI hóa\" toàn diện và tấn công đa phương thức.",
-    date: "03/04/2026",
-    category: "Tin tức",
-    isUrgent: false,
-    source: "Chống Lừa Đảo",
-    imageUrl: "https://chongluadao.vn/blog/wp-content/uploads/2026/01/lua-dao-2025-2026.png",
-    content: "Nếu năm 2025 được đánh dấu bởi những vụ rò rỉ dữ liệu quy mô lớn và các chiêu trò lừa đảo truyền thống được “tinh chỉnh”, thì 2026 chính là năm mà tội phạm mạng thực sự bước vào kỷ nguyên “AI hóa”. Từ việc mạo danh qua tin nhắn và email đơn giản, giờ đây chúng ta đối mặt với những “nhân vật ảo” có thể nói chuyện, xuất hiện trên video và thậm chí dẫn dắt nạn nhân qua cả một hành trình lừa đảo phức tạp trên nhiều nền tảng khác nhau.\n\nCó thể thấy rằng, cuộc chiến chống lừa đảo trực tuyến đang chuyển từ “phát hiện công nghệ giả mạo” sang “nhận diện hành vi và quy trình bất thường”. Hãy cùng\n\nChống Lừa Đảo\n\ntìm hiểu về sự dịch chuyển trong xu hướng lừa đảo trực tuyến trong năm 2025-2026.\n\nBức tranh lừa đảo trực tuyến năm 2025\n\nRò rỉ dữ liệu: Mỏ vàng của tội phạm mạng\n\nNăm 2025 chứng kiến hàng loạt vụ rò rỉ dữ liệu nghiêm trọng tại Việt Nam và khu vực Đông Nam Á. Thông tin cá nhân từ ngân hàng, sàn thương mại điện tử, ứng dụng giao hàng, và thậm chí cả cơ quan nhà nước bị đánh cắp với quy mô chưa từng có.\n\nTại sao điều này nguy hiểm?\n\nDữ liệu rò rỉ không chỉ là danh sách tên và số điện thoại. Chúng bao gồm lịch sử giao dịch, thói quen tiêu dùng, mối quan hệ gia đình, thậm chí cả dữ liệu sinh trắc học. Tội phạm sử dụng những thông tin này để:\n\nXây dựng hồ sơ chi tiết về từng nạn nhân tiềm năng\n\nTạo kịch bản lừa đảo cá nhân hóa dựa trên hoàn cảnh thực tế\n\nTăng tỷ lệ thành công vì nạn nhân tin rằng “họ biết quá rõ về tôi”\n\nMột ví dụ điển hình: tội phạm biết bạn vừa mua hàng trên một sàn thương mại điện tử, họ gọi điện mạo danh shipper với đúng thông tin đơn hàng, yêu cầu bạn “xác minh” qua một đường link giả mạo.\n\nKỹ thuật tấn công nhưng hiệu quả\n\nTrong năm 2025, các kỹ thuật lừa đảo phổ biến vẫn xoay quanh:\n\nRansomware và Malware:\n\nTấn công vào doanh nghiệp vừa và nhỏ thiếu hệ thống bảo mật\n\nMã hóa dữ liệu và đòi tiền chuộc bằng tiền mã hóa (cryptocurrency)\n\nLợi dụng nhân viên làm việc từ xa với thiết bị cá nhân kém bảo mật\n\nPhishing/Smishing qua Email và SMS\n\nGiả mạo thông báo từ ngân hàng, cơ quan thuế, công ty điện lực\n\nTạo cảm giác cấp bách: “Tài khoản của bạn sẽ bị khóa trong 24 giờ”\n\nLink dẫn đến trang web giả mạo gần như không phân biệt được với trang thật\n\nLừa đảo đầu tư và\n\nmô hình Ponzi trực tuyến\n\nHứa hẹn lợi nhuận cao, rủi ro thấp\n\nSử dụng hình ảnh người nổi tiếng hoặc “chuyên gia tài chính” giả mạo\n\nTạo nhóm cộng đồng kín để tạo hiệu ứng đám đông\n\nScam Center: Nhà máy sản xuất lừa đảo quy mô công nghiệp\n\nMột hiện tượng đáng lo ngại là sự gia tăng của các “scam center” – những trung tâm lừa đảo tổ chức quy mô lớn, hoạt động như doanh nghiệp thực thụ với:\n\nPhân công rõ ràng: người viết kịch bản, người gọi điện, người rửa tiền\n\nCơ sở vật chất hiện đại tại các khu vực biên giới khó kiểm soát\n\nLừa đảo xuyên biên giới, nhắm vào nạn nhân ở nhiều quốc gia\n\nCác trung tâm lừa đảo này đặc biệt tập trung vào lừa đảo tình cảm, đầu tư tài chính, và mạo danh cơ quan chức năng.\n\nNăm 2026: Khi AI trở thành “đồng minh” của tội phạm mạnh\n\nCuộc đổ bộ của Deepfake và Voice Clone\n\nCông nghệ deepfake và voice cloning đã phát triển đến mức có thể tạo ra video và giọng nói giả mạo gần như hoàn hảo với chi phí thấp và thời gian ngắn. Chỉ cần vài giây đoạn ghi âm hoặc video gốc (dễ dàng lấy từ mạng xã hội), tội phạm có thể:\n\nTạo video cuộc gọi giả mạo từ người thân, đồng nghiệp, hoặc lãnh đạo\n\nSao chép giọng nói CEO yêu cầu kế toán chuyển tiền khẩn cấp\n\nGiả danh cán bộ ngân hàng, công an qua video call để tăng độ tin cậy\n\nNguyên nhân khiến chiêu trò này trở nên nguy hiểm:\n\nCon người có xu hướng tin vào những gì nhìn thấy trực tiếp\n\nÁp lực thời gian khiến nạn nhân bỏ qua các bước xác minh\n\nCông nghệ phát triển nhanh hơn khả năng nhận biết của người dùng thông thường\n\nTấn công đa kênh: Kịch bản lừa đảo bao vây nạn nhân\n\nNăm 2026 đánh dấu sự chuyển dịch từ lừa đảo đơn kênh sang lừa đảo đa kênh – một chiến dịch phối hợp qua nhiều nền tảng:\n\nVí dụ về một kịch bản hoàn chỉnh:\n\nGiai đoạn 1 – Tiếp cận qua SMS:\n\nNạn nhân nhận tin nhắn từ “ngân hàng” về giao dịch bất thường\n\nGiai đoạn 2 – Tạo áp lực qua Email:\n\nEmail xác nhận với logo và định dạng chính xác\n\nGiai đoạn 3 – Chatbot AI trên Facebook:\n\nBot tự động trả lời hướng dẫn “cách bảo vệ tài khoản”\n\nGiai đoạn 4 – Video call giả mạo:\n\n“Nhân viên ngân hàng” gọi video xác nhận, yêu cầu cung cấp OTP\n\nGiai đoạn 5 – Telegram/Zalo để “hỗ trợ khẩn cấp”:\n\nDẫn dắt nạn nhân thực hiện các bước cuối cùng\n\nMỗi kênh củng cố độ tin cậy cho kênh khác, tạo ra một “hệ sinh thái lừa đảo” khép kín.\n\nAI tối ưu hóa vòng đời tấn công\n\nHiện nay, tội phạm mạng sử dụng AI để mở rộng quy mô lừa đảo từ “thủ công” sang “công nghiệp”. Các Chatbot AI đã được lợi dụng để trở thành những “kẻ tư vấn lừa đảo không bao giờ ngủ” có khả năng:\n\nTrả lời tự động 24/7 với độ tự nhiên cao\n\nHọc từ cuộc trò chuyện để điều chỉnh chiến thuật\n\nCó thể xử lý hàng nghìn nạn nhân đồng thời\n\nGiả vờ cảm thông, tạo kết nối cảm xúc với nạn nhân\n\nKhông chỉ dừng lại ở việc tiếp cận nạn nhân, AI còn được dùng để:\n\nQuét và phân tích hàng triệu hồ sơ mạng xã hội để tìm nạn nhân tiềm năng\n\nViết mã tự động để tạo trang web giả mạo trong vài phút\n\nTối ưu hóa thời điểm tấn công dựa trên hành vi trực tuyến của nạn nhân\n\nCá nhân hóa nội dung: Viết những “mồi nhử” phù hợp hoàn hảo với tâm lý và hoàn cảnh của từng đối tượng dựa trên dữ liệu đã thu thập.\n\nTại sao “danh tính” trở thành điểm yếu số 1?\n\nTrong năm 2026, thiết bị di động trở thành bề mặt rủi ro lớn nhất vì nó chứa đựng toàn bộ định danh cá nhân (e-KYC), ví điện tử và ngân hàng số. Khi video và giọng nói không còn đủ tin cậy, việc xác thực danh tính trở thành một thách thức lớn. Đối với các doanh nghiệp, việc bảo vệ dữ liệu không còn là lựa chọn mà là vấn đề sống còn. Áp lực tuân thủ pháp lý tăng mạnh, vì chỉ một vụ lộ lọt dữ liệu cũng có thể dẫn đến làn sóng lừa đảo hàng loạt và khủng hoảng uy tín trầm trọng.\n\nSự dịch chuyển trong lừa đảo trực tuyến\n\nNếu năm 2025 là giai đoạn tích lũy “nhiên liệu” từ dữ liệu, thì năm 2026 chính là thời điểm tội phạm mạng kích hoạt bộ máy tấn công tự động hóa trên diện rộng. Dưới đây là bảng phân tích chi tiết sự chuyển dịch này:\n\nKhía cạnh /Mảng\n\nĐặc điểm nổi bật năm 2025\n\nDịch chuyển/Leo thang năm 2026\n\nCông nghệ liên quan\n\nMức độ rủi ro (Suy luận)\n\nLừa đảo nhắm người dùng cá nhân\n\nTỷ lệ nạn nhân giảm nhưng thiệt hại kinh tế lớn. Phổ biến kịch bản mạo danh ngân hàng, cơ quan chức năng, shipper, đầu tư.\n\nLừa đảo được “AI hoá”. Sử dụng Deepfake, voice clone và nhân vật ảo để mạo danh thuyết phục hơn qua video giả, giả cán bộ hoặc người thân.\n\nDeepfake, Voice clone, Nhân vật ảo\n\nRất cao do khả năng thao túng tâm lý tinh vi, khó phân biệt thật giả đối với người dùng thông thường.\n\nBề mặt tấn công\n\nMobile và web là bề mặt chính cho người dùng cá nhân và tổ chức.\n\nMobile trở thành bề mặt rủi ro lớn nhất do gắn liền với các hoạt động ngân hàng, định danh số, chăm sóc khách hàng và ví điện tử.\n\nMobile Banking, Định danh số (E-KYC), Ví điện tử\n\nRất cao vì điện thoại di động chứa toàn bộ thông tin nhạy cảm nhất của cá nhân.\n\nMalware / Ransomware\n\nĐánh cắp dữ liệu để tống tiền là xu hướng chính trong bối cảnh số hoá mạnh mẽ.\n\nAI được dùng để tối ưu hoá vòng đời tấn công: từ trinh sát, viết mã độc đến tự động hoá khai thác, khiến việc phát hiện trở nên khó khăn hơn.\n\nRansomware, AI tự động hoá mã độc\n\nCực kỳ nghiêm trọng đối với các doanh nghiệp và hạ tầng trọng yếu do tốc độ tấn công nhanh.\n\nKỹ thuật “dẫn dụ”\n\nChủ yếu sử dụng các kịch bản lừa đảo quen thuộc, thực hiện qua hình thức đơn kênh hoặc hai kênh.\n\nTấn công đa kênh (multi-channel) trở thành tiêu chuẩn: kéo nạn nhân từ SMS/mạng xã hội sang app chat, trang thanh toán giả. Hội thoại do AI vận hành 24/7.\n\nĐa kênh (Multi-channel), Chatbot AI\n\nCao vì tạo ra hệ sinh thái lừa đảo khép kín, bủa vây nạn nhân trên nhiều nền tảng cùng lúc.\n\n“Ngành công nghiệp” scam\n\nCác trung tâm lừa đảo hoạt động mạnh ở Đông Nam Á, gắn với lừa đảo, rửa tiền và tổ chức xuyên biên giới.\n\nMô hình tội phạm tiếp tục mở rộng sang nhiều khu vực, áp lực lừa đảo khó có thể giảm trong ngắn hạn.\n\nMạng lưới tội phạm xuyên biên giới, Hệ thống rửa tiền số\n\nCao, gây bất ổn an ninh mạng khu vực và gây khó khăn lớn trong việc thực thi pháp luật.\n\nDữ liệu cá nhân & rò rỉ\n\nTiếp tục là “nhiên liệu” cho các cuộc lừa đảo. Dữ liệu bị mua bán, khai thác nhằm mục tiêu tấn công chính xác hơn.\n\nTội phạm lợi dụng chủ đề “cập nhật dữ liệu/định danh” để mạo danh lừa đảo khi các khung pháp lý bắt đầu siết chặt.\n\nKhai thác dữ liệu (Data mining), Kỹ thuật xã hội (Social Engineering)\n\nTrung bình đến Cao, đe dọa trực tiếp đến quyền riêng tư và an toàn tài chính của cá nhân.\n\nLá chắn bảo vệ: 6 nguyên tắc vàng chống lừa đảo\n\nĐể đối phó với sự tinh vi của tội phạm AI, hãy tuân thủ các nguyên tắc sau:\n\nCảnh giác với hình ảnh/giọng nói:\n\nLuôn tắt máy và gọi lại vào số chính chủ để xác minh khi có yêu cầu chuyển tiền.\n\nChặn đường dẫn dụ đa kênh:\n\nKhông truy cập vào liên kết lạ; hãy tự gõ tên website hoặc sử dụng ứng dụng chính thức.\n\nXác minh trước khi chuyển tiền:\n\nLuôn kiểm tra chéo qua nhiều kênh liên lạc khác nhau trước khi thực hiện giao dịch.\n\nBảo vệ thiết bị di động:\n\nCoi điện thoại như ví tiền; cập nhật hệ điều hành thường xuyên và không cài ứng dụng không rõ nguồn gốc.\n\nQuản lý dữ liệu cá nhân:\n\nHạn chế chia sẻ thông tin nhạy cảm (giấy tờ tùy thân, vé máy bay) lên mạng xã hội; sử dụng bảo mật 2 lớp (2FA).\n\nQuy trình Dừng – Lưu – Báo:\n\nKhi có nghi ngờ, hãy ngừng tương tác, lưu lại bằng chứng và báo ngay cho ngân hàng hoặc cơ quan chức năng.\n\nTrong kỷ nguyên AI, sự cảnh giác không chỉ nằm ở việc kiểm tra thông tin mà còn nằm ở việc tuân thủ các quy trình xác thực chặt chẽ. Đừng để cảm xúc lấn át sự an toàn của bạn."
-  },
-  {
-    id: 4,
-    title: "Bảo vệ người cao tuổi khỏi lừa đảo: Vai trò của gia đình và cộng đồng",
-    excerpt: "Các nghiên cứu quốc tế và thực tiễn phòng chống tội phạm đều chỉ ra rằng: Công nghệ chặn lọc chỉ giải quyết được phần ngọn, chính sự quan tâm của gia đình và",
-    date: "03/04/2026",
-    category: "Tin tức",
-    isUrgent: false,
-    source: "Chống Lừa Đảo",
-    imageUrl: "https://chongluadao.vn/blog/wp-content/uploads/2026/01/Hinh-8-Tuyen-phong-thu-kep.png",
-    content: "Các nghiên cứu quốc tế và thực tiễn phòng chống tội phạm đều chỉ ra rằng: Công nghệ chặn lọc chỉ giải quyết được phần ngọn, chính sự quan tâm của gia đình và sự bao bọc của cộng đồng mới là “hàng rào miễn dịch” hiệu quả nhất giúp người cao tuổi chống lại các thủ đoạn lừa đảo tinh vi.\n\nTrong bối cảnh các đối tượng lừa đảo đang lợi dụng\n\nnhiều chiêu trò lừa đảo nhắm vào người lớn tuổi, hãy cùng Chống Lừa Đảo tìm hiểu tầm quan trọng của “lá chắn kép” được tạo bởi gia đình và cộng đồng nhằm bảo vệ người lớn tuổi khỏi những chiêu trò ngày càng tinh vi.\n\nVai trò của gia đình: “Tuyến phòng thủ” đầu tiên\n\nCon cháu không chỉ là người hỗ trợ tài chính mà phải trở thành “Cố vấn kỹ thuật” và “Chuyên gia tâm lý” cho ông bà, cha mẹ.\n\nThiết lập “hàng rào kỹ thuật”\n\nNgười cao tuổi thường gặp khó khăn trong thao tác cài đặt, vì vậy con cháu cần chủ động thực hiện các biện pháp bảo vệ thụ động trên thiết bị của họ:\n\nDọn dẹp thiết bị: Cài đặt phần mềm diệt virus, các ứng dụng chặn cuộc gọi rác/tin nhắn rác uy tín (Ví dụ: TrueCaller, Whoscall…).\n\nBảo mật tài khoản:\n\nThiết lập bảo mật 2 lớp (2FA) cho Zalo, Facebook, Email.\n\nĐổi mật khẩu định kỳ và sử dụng mật khẩu mạnh (tránh dùng ngày sinh, số điện thoại dễ đoán).\n\nQuan trọng\n\n: Cài đặt hạn mức chuyển khoản thấp trên ứng dụng ngân hàng (ví dụ: tối đa 5-10 triệu/ngày) để giảm thiểu thiệt hại nếu lỡ bị tấn công.\n\nGiám sát thụ động\n\n: Đăng ký dịch vụ thông báo biến động số dư qua số điện thoại của con cái (nếu được sự đồng thuận) để kịp thời phát hiện giao dịch bất thường.\n\nLiệu pháp “vắc-xin tinh thần”\n\nThường xuyên cập nhật\n\n(“Tiêm nhắc lại”): Trong các bữa cơm hoặc cuộc gọi, hãy kể lại các vụ lừa đảo mới xuất hiện trên báo đài. Phân tích rõ: “Tại sao nạn nhân lại tin?”, “Kẻ gian đã nói câu gì?”. Cách kể chuyện này giúp người cao tuổi ghi nhớ lâu hơn là những lời dặn dò khô khan.\n\nTạo môi trường không phán xét\n\n: Khuyến khích ông bà chia sẻ mọi cuộc gọi lạ. Quan trọng nhất là cam kết: “Nếu lỡ có bị lừa, con cháu sẽ cùng giải quyết chứ không trách mắng”. Điều này giúp xóa bỏ tâm lý sợ hãi, giấu giếm khi sự việc xảy ra.\n\nVai trò của cộng đồng: Mạng lưới an sinh và giáo dục trực quan\n\nTổ dân phố, Hội Người cao tuổi, Hội Phụ nữ và các tổ chức đoàn thể cần thay đổi phương thức tuyên truyền từ “đọc văn bản” sang các hình thức trực quan, sinh động và gần gũi hơn.\n\nTổ chức truyền thông tương tác\n\nMô hình “Sân khấu hóa”: Thay vì các buổi họp khô cứng, hãy tổ chức các buổi diễn tiểu phẩm ngắn (30-60 phút).\n\nNội dung: Dựng lại các tình huống lừa đảo điển hình (giả danh công an, bán thuốc thần dược…).\n\nDiễn viên: Chính là các hội viên người cao tuổi hoặc đoàn thanh niên.\n\nHiệu quả: Việc nhìn thấy tận mắt kịch bản lừa đảo giúp NCT dễ dàng hình dung và nhận diện khi gặp tình huống thực tế.\n\nBuổi chia sẻ kinh nghiệm: Mời những người đã từng nhận được cuộc gọi lừa đảo (và đã cảnh giác thoát được) lên chia sẻ câu chuyện của họ. “Người thật việc thật” luôn có sức thuyết phục cao nhất.\n\nXây dựng “điểm tiếp cận” thông tin\n\nPhân bổ tài liệu tuyên truyền tại các điểm nóng mà người cao tuổi thường xuyên lui tới:\n\nTờ rơi cầm tay: In bộ quy tắc “\n\n5 KHÔNG – 3 NÊN\n\n” chữ to, màu sắc rõ ràng để phát tại các buổi họp tổ dân phố.\n\nPoster/Áp phích: Dán tại Nhà văn hóa, Trạm y tế phường, Bảng tin khu dân cư, Chợ truyền thống và đặc biệt là tại Quầy giao dịch ngân hàng/Bưu điện.\n\nQuy tắc 5 Không – 3 Nên cần nhớ\n\nMạng lưới “hàng xóm trông nhau”\n\nPhát huy văn hóa “tình làng nghĩa xóm”. Các tổ dân phố cần quan tâm đặc biệt đến các hộ người cao tuổi sống một mình/neo đơn.\n\nKhuyến khích hàng xóm để mắt khi thấy có người lạ thường xuyên lui tới nhà người cao tuổi hoặc thấy người cao tuổi có biểu hiện lo lắng, hay ra ngân hàng rút tiền bất thường."
-  },
-  {
-    id: 5,
-    title: "Hướng dẫn nhận biết tin giả, thông tin xấu độc, lệch chuẩn",
-    excerpt: "Trên mạng Internet, bên cạnh thông tin hữu ích là vô số tin giả (Fake news), tin đồn thất thiệt và nội dung độc hại. Để giữ cho mình một cái đầu lạnh, hãy áp",
-    date: "03/04/2026",
-    category: "Tin tức",
-    isUrgent: false,
-    source: "Chống Lừa Đảo",
-    imageUrl: "https://chongluadao.vn/blog/wp-content/uploads/2026/01/Hinh-14-Bo-6-cau-hoi.png",
-    content: "Trên mạng Internet, bên cạnh thông tin hữu ích là vô số tin giả (Fake news), tin đồn thất thiệt và nội dung độc hại. Để giữ cho mình một cái đầu lạnh, hãy áp dụng “Bộ 6 câu hỏi thần thánh” trước khi quyết định TIN hoặc CHIA SẺ bất cứ điều gì.\n\nBộ 6 câu hỏi “kiểm chứng”\n\n1️⃣\n\nTin này từ đâu ra?\n\nLà báo chính thống (VTV, Thanh Niên, Tuổi Trẻ, Nhân Dân…) hay là một trang lạ hoắc?\n\nCảnh giác\n\n: Các trang có tên nghe rất “kêu” nhưng thiếu uy tín như: “Sự thật chấn động”, “Tin nóng 247”, “Bí mật bật mí”…\n\n2️⃣\n\nTác giả là ai, nguồn ở đâu?\n\nBài viết có tên phóng viên, tác giả cụ thể không? Hay chỉ là “Sưu tầm”, “Nguồn: Internet”, “Nghe nói”?\n\nNguyên tắc\n\n: Thông tin không rõ người chịu trách nhiệm thường là tin bịa đặt.\n\n3️⃣\n\nTiêu đề có cố tình làm mình “Sốc” hoặc “Sợ” không?\n\nTin giả thường dùng từ ngữ mạnh để kích động cảm xúc: “Rùng mình”, “Phẫn nộ”, “Cấp báo”, “Không xem sẽ hối hận”.\n\nLời khuyên\n\n: Thấy tiêu đề giật gân, hãy bình tĩnh gấp đôi. Đừng để nỗi sợ điều khiển ngón tay mình.\n\n4️⃣ Hình ảnh/Video có hợp lý không?\n\nHãy nhìn kỹ\n\n: Tin nói “Hà Nội rét đậm” mà trong ảnh người ta mặc áo cộc tay? Tin nói “vừa xảy ra hôm nay” mà video nhìn mờ nhòe, cũ kỹ?\n\nChiêu trò\n\n: Kẻ xấu thường lấy video tai nạn ở nước ngoài hoặc từ 10 năm trước rồi gắn chú thích mới để câu like.\n\n5️⃣\n\nCó ai khác nói về việc này không?\n\nHãy thử tìm kiếm trên Google hoặc vào các trang báo lớn. Nếu chuyện động trời như vậy mà không có tờ báo lớn nào đăng, thì 99% là tin vịt.\n\n6️⃣\n\nNgười đăng bài này là ai?\n\nBấm vào xem trang cá nhân của người đăng. Nếu là tài khoản mới lập, không có ảnh thật, ít bạn bè, nhưng toàn chia sẻ tin tiêu cực, chửi bới → Đây là tài khoản ảo (Clone) chuyên đi phá hoại.\n\nNhận diện “Nội dung xấu độc” cần tránh xa\n\nĐôi khi ranh giới giữa tin tức và nội dung độc hại rất mong manh. Hãy giải thích cho người lớn các dạng bài viết tuyệt đối không nên tiếp cận:\n\nXuyên tạc, chống phá: Bài viết nói xấu Đảng, Nhà nước, bôi nhọ lãnh đạo, hoặc chia rẽ tôn giáo, vùng miền.\n\nKích động bạo lực: Video đánh nhau, tai nạn máu me không che, cổ vũ hành vi trả thù, ghét bỏ.\n\nTệ nạn & Mê tín: Quảng cáo cờ bạc, lô đề, cá độ online; hoặc các bài viết tuyên truyền mê tín dị đoan, dọa dẫm về tâm linh để trục lợi (bán bùa chú).\n\nHội nhóm lừa đảo: Kêu gọi tham gia “Hội kín”, “Nhóm đầu tư mật”, yêu cầu đóng phí thành viên hoặc chuyển tiền để nhận “bí kíp làm giàu”.\n\nQuy trình “3 BƯỚC XỬ LÝ” khi gặp tin xấu\n\nNhiều người vì bức xúc mà vào bình luận chửi mắng kẻ đăng tin giả. Thực tế, việc đó đôi khi là phản tác dụng.\n\nQuy trình chuẩn:\n\nKHÔNG TƯƠNG TÁC (Tuyệt đối không):\n\nKhông bấm Like, không bấm Share.\n\nĐặc biệt\n\n: Không vào bình luận tranh cãi.\n\nLý do\n\n: Facebook/YouTube thấy có người bình luận (dù là chửi) sẽ nghĩ bài đó “hot” và càng phân phối cho nhiều người xem hơn. Cách tốt nhất để diệt tin xấu là Lờ đi.\n\nBÁO CÁO (Report):\n\nHãy coi đây là hành động “quét rác” cho cộng đồng.\n\nBấm vào dấu 3 chấm (…) ở góc bài viết/video → Chọn Báo cáo (Report) → Chọn lý do (Tin giả, Bạo lực, Lừa đảo…).\n\nCHẶN (Block):\n\nNếu trang đó liên tục đăng tin rác, hãy bấm Chặn (Block) để vĩnh viễn không nhìn thấy họ nữa.\n\nCẩm nang xử lý tin xấu độc"
-  },
-  {
-    id: 6,
-    title: "Cẩm nang 3 bước vàng để không bị mắc bẫy lừa đảo qua mạng",
-    excerpt: "Ngày nay, kẻ lừa đảo có trăm phương ngàn kế để nhắm vào túi tiền của chúng ta. Chúng có thể đóng giả công an, nhân viên ngân hàng, hay thậm chí là người thân",
-    date: "03/04/2026",
-    category: "Tin tức",
-    isUrgent: false,
-    source: "Chống Lừa Đảo",
-    imageUrl: "https://chongluadao.vn/blog/wp-content/uploads/2026/02/unnamed-94.png",
-    content: "Ngày nay, kẻ lừa đảo có trăm phương ngàn kế để nhắm vào túi tiền của chúng ta. Chúng có thể đóng giả công an, nhân viên ngân hàng, hay thậm chí là người thân đang gặp nạn. Để có thể giữ vững “hàng rào bảo mật” cho bản thân, hãy cùng Chống Lừa Đảo tìm hiểu quy tắc\n\n3 Bước: Dừng lại – Kiểm tra – Bảo vệ\n\n.\n\nDỪNG LẠI: Đừng vội tin, đừng vội làm theo\n\nKẻ lừa đảo thường tạo ra tâm lý cấp bách (như giả danh Công an đe dọa lệnh bắt, hay thông báo người thân gặp nạn) để ép nạn nhân hành động ngay lập tức.\n\nKhi nhận được một cuộc gọi lạ thông báo nợ cước điện thoại, vi phạm giao thông, hay một tin nhắn trúng thưởng lớn, phản ứng đầu tiên của chúng ta thường là lo lắng hoặc phấn khởi. Đó chính là lúc kẻ xấu lợi dụng.\n\nNguyên tắc:\n\nTuyệt đối không cung cấp thông tin cá nhân (số CCCD, tài khoản ngân hàng) hay chuyển bất kỳ khoản tiền nào nếu chưa xác thực rõ ràng.\n\nGhi nhớ:\n\nCác cơ quan chức năng và ngân hàng tại Việt Nam\n\nkhông bao giờ\n\nyêu cầu người dân chuyển tiền qua điện thoại để “phục vụ điều tra” hay xác minh tài chính.\n\nKIỂM TRA: Đâu là thật, đâu là giả?\n\nKẻ lừa đảo hiện nay có thể giả danh rất tinh vi. Trước khi quyết định làm bất cứ điều gì, hãy tự đặt câu hỏi:\n\n“Liệu đây có phải là thật không?”\n\nMọi tin nhắn trúng thưởng, cuộc gọi cảnh báo hay đường link lạ đều có nguy cơ là giả mạo. Hãy chủ động trở thành người kiểm soát thông tin:\n\nKhông bấm vào link lạ:\n\nTuyệt đối không nhấp vào các liên kết đính kèm trong tin nhắn (SMS, Zalo, Messenger) để tránh bị cài đặt mã độc hoặc đánh cắp tài khoản.\n\nXác minh độc lập:\n\nNếu nhận được cuộc gọi tự xưng là từ ngân hàng hoặc doanh nghiệp, hãy chủ động cúp máy và gọi lại vào số hotline chính thức được công bố trên trang web của đơn vị đó để hỏi lại cho rõ.\n\nMẹo nhỏ:\n\nNếu thấy nghi ngờ, hãy nói “Không” và cúp máy hoặc xóa tin nhắn ngay lập tức. Đừng sợ bị coi là bất lịch sự với kẻ lạ!\n\nSử dụng công cụ hỗ trợ:\n\nBạn có thể kiểm tra độ tín nhiệm của trang web tại ai.chongluadao.vn hoặc sử dụng chatbot AI của CLD trên Zalo để được tư vấn khi nhận thấy có dấu hiệu lừa đảo.\n\nBẢO VỆ: Hành động ngay khi thấy nghi ngờ\n\nPhòng bệnh hơn chữa bệnh, nhưng nếu chẳng may đã tiếp xúc với kẻ lừa đảo, hành động kịp thời sẽ giúp giảm thiểu thiệt hại đáng kể. Nếu chẳng may đã lỡ cung cấp thông tin hoặc chuyển tiền, hãy bình tĩnh và thực hiện các bước sau càng nhanh càng tốt:\n\nLiên hệ ngân hàng:\n\nGọi ngay cho hotline ngân hàng bạn đang sử dụng để yêu cầu khóa tài khoản, khóa thẻ hoặc tạm dừng mọi giao dịch khẩn cấp nếu đã lỡ cung cấp mã OTP hoặc chuyển tiền cho kẻ lạ.\n\nTrình báo cơ quan chức năng:\n\nHãy đến ngay cơ quan\n\nCông an địa phương gần nhất\n\n(Công an xã, phường, thị trấn) hoặc gửi đơn tố giác đến cơ quan Điều tra để được hỗ trợ can thiệp kịp thời theo quy định của pháp luật Việt Nam. Đây là bước quan trọng nhất để cơ quan chức năng có cơ sở truy vết và xử lý tội phạm.\n\nBáo cáo cho Chống Lừa Đảo:\n\nSong song đó, hãy gửi thông tin (số điện thoại lừa đảo, số tài khoản kẻ gian, link trang web giả mạo) về cho chúng tôi tại địa chỉ chongluadao.vn/report. Mỗi báo cáo của bạn là một viên gạch góp phần xây dựng hệ thống cảnh báo sớm, giúp hàng triệu người dùng khác không rơi vào cái bẫy tương tự.\n\nLan tỏa:\n\nViệc bạn kể lại câu chuyện sẽ giúp bạn bè, hàng xóm xung quanh biết đường mà tránh, khiến kẻ xấu không còn đất diễn."
-  },
-  {
-    id: 7,
-    title: "Hướng dẫn sử dụng Chatbot AI của Chống Lừa Đảo trên Zalo",
-    excerpt: "Trong bối cảnh tội phạm mạng ngày càng tinh vi với hàng ngàn chiêu trò lừa đảo mới xuất hiện mỗi ngày, việc có một công cụ bảo vệ luôn sẵn sàng trong tầm tay",
-    date: "03/04/2026",
-    category: "Tin tức",
-    isUrgent: false,
-    source: "Chống Lừa Đảo",
-    imageUrl: "https://chongluadao.vn/blog/wp-content/uploads/2026/01/gioi-thieu-chatbot-ai-zalo.png",
-    content: "Trong bối cảnh tội phạm mạng ngày càng tinh vi với hàng ngàn chiêu trò lừa đảo mới xuất hiện mỗi ngày, việc có một công cụ bảo vệ luôn sẵn sàng trong tầm tay trở nên vô cùng cần thiết. Hiểu được nhu cầu đó, Chống Lừa Đảo đã chính thức ra mắt Chatbot AI ngay trên nền tảng Zalo – ứng dụng nhắn tin quen thuộc của người Việt.\n\nVậy làm thế nào để khai thác tối đa sức mạnh của “trợ lý an ninh mạng” này? Hãy cùng\n\nChống Lừa Đảo\n\nkhám phá chi tiết trong bài viết dưới đây!\n\nCách truy cập Chatbot AI Chống Lừa Đảo\n\nTrước tiên, bạn cần kết nối với Chatbot. Có 3 cách đơn giản để làm điều này:\n\nCách 1: Tìm kiếm trực tiếp trên Zalo\n\nMở ứng dụng Zalo trên điện thoại\n\nNhấn vào thanh tìm kiếm phía trên\n\nGõ từ khóa “Chống Lừa Đảo”\n\nChọn tài khoản Official Account (OA) có dấu tích xanh\n\nKết quả tìm kiếm Chống Lừa Đảo trên Zalo\n\nCách 2: Truy cập qua link\n\nNhấn vào link:\n\nhttps://zalo.me/chongluadao\n\nHệ thống sẽ tự động mở ứng dụng Zalo và đưa bạn đến trang Chatbot\n\nCách 3: Quét mã QR\n\nMở Zalo, chọn biểu tượng quét mã QR\n\nQuét mã QR dưới đây\n\nQR code truy cập chatbot AI của Chống Lừa Đảo\n\nSau khi kết nối thành công, bạn đã có thể trò chuyện với Chatbot AI như đang nhắn tin với một người bạn!\n\nCác tính năng chính của Chatbot\n\nKiểm tra trang web và số điện thoại lừa đảo\n\nNgười dùng có thể gửi bất kỳ đường link (URL) hoặc số điện thoại nghi ngờ vào Chatbot. Hệ thống sẽ lập tức đối soát với cơ sở dữ liệu khổng lồ của Chống Lừa Đảo cùng các đối tác an ninh mạng uy tín (bao gồm ScamAdviser, Hudson Rock, Google Web Risk, APWG, iCallme) và trả về kết quả ngay lập tức.\n\nĐây là tính năng được sử dụng nhiều nhất, giúp bạn xác minh độ tin cậy của một website hoặc số điện thoại chỉ trong vài giây.\n\nCách sử dụng:\n\nCopy đường link website (ví dụ: shopee-khuyenmai[.]vip) hoặc số điện thoại cần kiểm tra\n\nGửi link trực tiếp vào khung chat với Chatbot\n\nChatbot sẽ trả về kết quả website/sđt này có trong danh sách lừa đảo hay không\n\nLưu ý:\n\nNếu trang web chưa có trong “danh sách đen”, Chatbot sẽ tự động gợi ý bạn sử dụng công cụ AI chuyên sâu để quét mã nguồn và cấu trúc trang web, phát hiện các rủi ro tiềm ẩn mà mắt thường khó nhận ra.\n\nChatbot đưa ra khuyến nghị khi đường link không có trong danh sách đen\n\nPhân tích hình ảnh để phát hiện lừa đảo\n\nBạn nhận được tin nhắn ngân hàng lạ? Email thông báo trúng thưởng? Đây là lúc tính năng phân tích hình ảnh phát huy sức mạnh.\n\nCách sử dụng:\n\nChụp màn hình tin nhắn, email hoặc thông báo bạn nghi ngờ\n\nGửi hình ảnh trực tiếp vào chat với Chatbot\n\nAI sẽ phân tích các yếu tố như:\n\nFont chữ bất thường\n\nBố cục không chuyên nghiệp\n\nLogo giả mạo hoặc chất lượng kém\n\nNội dung phi logic hoặc có lỗi chính tả\n\nDấu hiệu photoshop\n\nKhông chỉ nhanh chóng đưa ra kết luận với độ chính xác cao, Chatbot của Chống Lừa Đảo còn đưa các khuyến cáo cũng như lời khuyên cho người dùng tùy thuộc vào từng trường hợp lừa đảo khác nhau.\n\nVí dụ\n\n: Người dùng nhận được một tin nhắn phishing nhắm vào tài khoản Telegram. Chatbot AI của Chống Lừa Đảo đã nhanh chóng nhận diện được nguy cơ lừa đảo, đồng thời đưa ra:\n\nKhuyến cáo: Không nhấp vào đường link và không cung cấp thông tin cá nhân\n\nLời khuyên: Nếu đã lỡ nhập thông tin và tài khoản, hãy nhanh chóng đổi mật khẩu tài khoản Telegram và bật xác thực hai bước (2FA) cho tài khoản\n\nAI tiến hành phân tích bức ảnh chụp tin nhắn Telegram do người dùng gửi đến\n\nAI tiến hành phân tích bức ảnh chụp email do người dùng gửi đến\n\nTrong trường hợp người dùng gửi đến một email phishing, Chatbot cũng nhanh chóng đưa ra nhận định và khuyến cáo đến người dùng không nên cung cấp bất kỳ thông tin nào theo yêu cầu của email.\n\nBáo cáo trang web lừa đảo\n\nKhi phát hiện một trang web lừa đảo, bạn có thể giúp bảo vệ cộng đồng bằng cách báo cáo ngay trong khung chat.\n\nCách thực hiện:\n\nCung cấp các thông tin:\n\nĐường link website lừa đảo\n\nMô tả ngắn gọn hành vi lừa đảo (ví dụ: “Giả mạo Shopee, lừa chuyển tiền”)\n\nĐịa chỉ email của bạn (để nhận phản hồi)\n\nGửi báo cáo\n\nNgười dùng được hướng dẫn để báo cáo website lừa đảo ngay tại khung trò chuyện\n\nSau khi báo cáo:\n\nĐội ngũ kỹ thuật của Chống Lừa Đảo sẽ xác minh thông tin\n\nNếu xác thực là lừa đảo, trang web sẽ được cập nhật vào hệ thống cảnh báo\n\nEmail của bạn sẽ được ghi nhận vào chương trình\n\nScam Fighter. Chương trình Scam Fighter:\n\nTop người dùng có lượng báo cáo được thông qua cao nhất sẽ nhận thưởng hằng tháng và hằng năm. Đây là cách để bạn không chỉ tự bảo vệ mình mà còn đóng góp vào công cuộc bảo vệ cộng đồng!\n\nTư vấn kiến thức về lừa đảo\n\nChatbot AI không chỉ là công cụ kiểm tra, mà còn là “người thầy” am hiểu về mọi chiêu trò lừa đảo.\n\nBạn có thể hỏi Chatbot:\n\nVề các tình huống cụ thể:\n\n“Tôi nhận được tin nhắn này, có phải lừa đảo không?” (kèm mô tả hoặc hình ảnh)\n\n“Công ty X mời tôi đầu tư, có đáng tin không?”\n\n“Làm sao biết một trang bán hàng trên Facebook là thật?”\n\nVề các hình thức lừa đảo:\n\n“Phishing là gì?”\n\n“Các hình thức lừa đảo phổ biến hiện nay”\n\n“Lừa đảo qua Zalo có những dấu hiệu gì?”\n\n“Deepfake là gì và nguy hiểm ra sao?”\n\nVề cách xử lý khi bị lừa:\n\n“Tôi đã chuyển tiền cho kẻ lừa đảo, phải làm gì?”\n\n“Làm sao để khôi phục tài khoản Facebook bị hack?”\n\n“Tôi bị tống tiền bằng hình ảnh nhạy cảm, cần xử lý như thế nào?”\n\nChatbot sẽ trả lời với:\n\nNhận định chuyên môn dựa trên cơ sở dữ liệu được huấn luyện bởi các chuyên gia an ninh mạng\n\nHướng dẫn từng bước chi tiết, dễ hiểu\n\nKhuyến cáo về các bước cần thực hiện ngay\n\nGợi ý liên hệ cơ quan chức năng nếu cần thiết\n\nHướng dẫn xử lý khi trở thành nạn nhân của lừa đảo\n\nTư vấn trường hợp trẻ em là nạn nhân tống tiền\n\nTư vấn cách xử lý khi trở thành nạn nhân tống tiền\n\nAI trả lời câu hỏi về các chiêu trò lừa đảo\n\nAI đưa ra nhận định về dấu hiệu lừa đảo\n\nTìm hiểu về Chống Lừa Đảo và xác minh thông tin\n\nChatbot còn hỗ trợ bạn tìm hiểu về các dịch vụ của Chống Lừa Đảo và xác minh thông tin liên quan.\n\nCác câu hỏi bạn có thể đặt:\n\n“Chống Lừa Đảo cung cấp những dịch vụ gì?”\n\n“Làm sao để cài đặt tiện ích Chống Lừa Đảo?”\n\n“Chống Lừa Đảo có ứng dụng mobile không?”\n\n“Scam Fighter là chương trình gì?”\n\nTính năng xác minh quan trọng:\n\nNếu có người tự xưng là thành viên Chống Lừa Đảo liên hệ với bạn, bạn có thể hỏi Chatbot:\n\n“Số điện thoại 0XXX XXX XXX có phải của Chống Lừa Đảo không?”\n\n“Email\n\nabc@xyz.com\n\ncó phải email chính thức không?”\n\nChatbot sẽ xác nhận thông tin và đưa ra cảnh báo nếu phát hiện giả mạo. Đây là tính năng cực kỳ hữu ích vì kẻ lừa đảo thường mạo danh các tổ chức uy tín!"
-  },
-  {
-    id: 8,
-    title: "Các thủ đoạn lừa đảo nhắm vào người cao tuổi",
-    excerpt: "Hiện nay, kẻ gian đang lợi dụng tâm lý lo lắng bệnh tật, mong muốn có thêm thu nhập và lòng tốt của người cao tuổi để thực hiện nhiều chiêu trò lừa đảo tinh",
-    date: "03/04/2026",
-    category: "Tin tức",
-    isUrgent: false,
-    source: "Chống Lừa Đảo",
-    imageUrl: "https://chongluadao.vn/blog/wp-content/uploads/2026/01/Hinh-16-Tong-quan.png",
-    content: "Hiện nay, kẻ gian đang lợi dụng tâm lý lo lắng bệnh tật, mong muốn có thêm thu nhập và lòng tốt của người cao tuổi để thực hiện nhiều chiêu trò lừa đảo tinh vi. Bên cạnh những chiêu trò lừa đảo online, lừa đảo trực tiếp ngay tại nhà bằng cách giả danh nhân viên công ích, cán bộ cũng là một trong những chiêu trò lừa đảo nguy hiểm nhất đối với người cao tuổi.\n\nNguyên nhân khiến người cao tuổi trở thành đích ngắm của lừa đảo\n\nTheo ghi nhận từ các cơ quan chức năng và tổ chức an ninh mạng quốc tế, người cao tuổi đang trở thành nhóm đối tượng thường bị nhắm đến của tội phạm lừa đảo công nghệ cao. Hiện tượng này không xuất phát từ sự suy giảm nhận thức, mà là hệ quả của sự chênh lệch về tiếp cận thông tin và các đặc điểm tâm lý xã hội đặc thù.\n\nDưới đây là phân tích chi tiết các nhóm nguyên nhân chính:\n\nĐặc điểm về tài chính và lối sống\n\nKhả năng thanh khoản cao\n\n: Người cao tuổi thường sở hữu các khoản tiền nhàn rỗi (lương hưu, tiền tiết kiệm dưỡng già, tiền con cháu biếu tặng) dưới dạng tiền mặt hoặc gửi ngân hàng. Đây là nguồn tài sản có tính thanh khoản cao, dễ dàng chuyển đổi hoặc chuyển khoản, khiến họ trở thành “con mồi” hấp dẫn về mặt kinh tế đối với tội phạm.\n\nSự cô lập xã hội\n\n: Một bộ phận lớn người cao tuổi sống một mình hoặc thiếu sự tương tác thường xuyên với con cháu do nhịp sống hiện đại. Sự cô đơn tạo ra nhu cầu tâm lý muốn được trò chuyện, chia sẻ. Tội phạm lợi dụng điểm yếu này để tiếp cận, xây dựng lòng tin giả tạo (social engineering) trước khi thực hiện hành vi lừa đảo.\n\nRào cản công nghệ\n\nThiếu hụt kỹ năng số\n\n: Người cao tuổi thường gặp khó khăn trong việc tiếp cận và hiểu các khái niệm mới như: Smart Banking, mã OTP, sinh trắc học, hoặc các dấu hiệu nhận biết website/ứng dụng giả mạo.\n\nKhả năng kiểm chứng thông tin hạn chế\n\n: Khác với thế hệ trẻ có thói quen kiểm tra chéo thông tin, người cao tuổi có xu hướng tin tưởng mặc định vào các thông tin xuất hiện trên thiết bị điện tử hoặc từ những người tự xưng là “cơ quan chức năng”.\n\nRào cản hành vi và tâm lý\n\nTâm lý “Sợ phiền hà” và “Sợ bị đánh giá”\n\n:\n\nTrước khi bị lừa: Nạn nhân thường tự giải quyết các vấn đề phát sinh trên không gian mạng thay vì hỏi ý kiến con cháu, do tâm lý sợ bị coi là lạc hậu, lẩm cẩm hoặc làm phiền người thân.\n\nSau khi bị lừa: Tâm lý mặc cảm, xấu hổ khiến nạn nhân giấu giếm sự việc, không trình báo cơ quan công an. Điều này dẫn đến tình trạng “vùng tối của tội phạm” – nơi tội phạm tiếp tục hoành hành mà không bị phát hiện.\n\nTâm lý tuân thủ quyền lực\n\n: Thế hệ người cao tuổi thường có sự tôn trọng và sợ hãi cao độ đối với các cơ quan pháp luật (Công an, Tòa án, Viện kiểm sát). Kịch bản giả danh cơ quan chức năng đe dọa bắt bớ đánh trúng vào điểm yếu tâm lý này, gây ra sự hoảng loạn và mất khả năng phán đoán tức thời.\n\nThực tế cho thấy, sự tổn thương của người cao tuổi trước các thủ đoạn lừa đảo không phải là một định mệnh không thể thay đổi. Quan điểm cho rằng người cao tuổi “không thể tiếp cận công nghệ” hay “mất khả năng phòng vệ” là những định kiến cần được xóa bỏ trong công tác tuyên truyền.\n\nNgười cao tuổi sở hữu vốn sống và sự cẩn trọng vốn có. Nếu được trang bị kiến thức đúng cách, họ hoàn toàn có năng lực tự bảo vệ tài sản và thông tin cá nhân của mình.\n\nCác thủ đoạn lừa đảo phổ biến nhắm vào người cao tuổi\n\n1. Lừa đảo qua điện thoại (Voice Phishing / Vishing)\n\nĐây là hình thức tấn công tâm lý trực diện và phổ biến nhất. Các đối tượng lừa đảo sử dụng dịch vụ VoIP (gọi điện qua Internet) để giả mạo số điện thoại, kết hợp với các kỹ thuật thao túng tâm lý (social engineering) để tạo ra các “cuộc gọi sốc” khiến nạn nhân hoảng loạn và mất khả năng kiểm soát lý trí.\n\n2. Lừa đảo qua tin nhắn, mạng xã hội, đường dẫn độc hại\n\nĐây là chiêu trò lừa đảo lợi dụng sự thiếu hiểu biết về an ninh mạng và thói quen sử dụng Internet đơn giản của người cao tuổi. Kẻ gian tấn công thông qua các kênh giao tiếp hàng ngày như SMS, Zalo, Facebook Messenger.\n\n3. Lừa đảo trực tiếp tại nơi cư trú (Giả danh nhân viên công ích/Cán bộ)\n\nKhác với lừa đảo qua mạng, hình thức này mang lại rủi ro kép: vừa mất tài sản, vừa đe dọa trực tiếp đến an ninh, an toàn thân thể của người cao tuổi tại nhà riêng.\n\n4. Lừa đảo tài chính, đầu tư và sức khỏe (Đa cấp biến tướng)\n\nĐây là nhóm thủ đoạn đánh vào hai tử huyệt tâm lý lớn nhất của người cao tuổi: Nỗi lo bệnh tật và mong muốn có thêm thu nhập để không phụ thuộc con cháu.\n\n5. Lừa đảo dưới danh nghĩa từ thiện, tôn giáo và an sinh xã hội\n\nThủ đoạn này đặc biệt nham hiểm vì nó khai thác tâm lý hướng thiện, mong muốn tích đức và sự cảm thông của người cao tuổi. Kẻ gian biến lòng tốt của nạn nhân thành công cụ để trục lợi.\n\nPhòng chống lừa đảo cho người già\n\nĐể xây dựng một “tường lửa” tâm lý vững chắc cho người cao tuổi, các chuyên gia an ninh mạng và ngân hàng quốc tế đã đúc kết bộ quy tắc hành động đơn giản nhưng hiệu quả:\n\nBộ quy tắc “5 Không – 3 Nên”\n\n. Đây là kim chỉ nam giúp người cao tuổi định thần và xử lý đúng đắn trong mọi tình huống nghi ngờ.\n\nQuy tắc “5 Không”: Nguyên tắc cấm kỵ để bảo vệ an toàn thông tin và tài sản.\n\nKHÔNG CUNG CẤP thông tin bảo mật\n\nKHÔNG CHUYỂN TIỀN vì một cuộc gọi\n\nKHÔNG BẤM vào đường link lạ\n\nKHÔNG KÝ giấy tờ khi chưa hiểu rõ\n\nKHÔNG GIẤU GIẾM (Không im lặng)\n\nQuy tắc “3 Nên”: Nguyên tắc hành động để xác minh và kiểm soát tình huống.\n\nNÊN áp dụng “Quy tắc 10 phút”\n\nNÊN lưu “Danh bạ khẩn cấp”\n\nNÊN kiểm tra tài chính định kỳ\n\nQuan trọng nhất, câu “thần chú” cốt lõi để phá giải mọi chiêu trò:\n\nMọi sự việc khẩn cấp liên quan đến pháp luật và tiền bạc đều không bao giờ được giải quyết chỉ bằng điện thoại."
-  },
-  {
-    id: 9,
-    title: "Giải mã chiêu trò sử dụng deepfake để tống tiền",
-    excerpt: "Bên cạnh việc ứng dụng AI để lừa đảo nạn nhân qua các cuộc gọi video giả mạo, tội phạm mạng còn sử dụng AI để biến những bức ảnh bình thường bị biến thành",
-    date: "03/04/2026",
-    category: "Tin tức",
-    isUrgent: false,
-    source: "Chống Lừa Đảo",
-    imageUrl: "https://chongluadao.vn/blog/wp-content/uploads/2025/12/Hinh-4-Tong-tien-bang-deepfake.png",
-    content: "Bên cạnh việc ứng dụng AI để lừa đảo nạn nhân qua các cuộc gọi video giả mạo, tội phạm mạng còn sử dụng AI để biến những bức ảnh bình thường bị biến thành công cụ tống tiền.\n\nHacker lợi dụng những bức ảnh đời thường (đi biển, đi chơi, mặc đồ kín đáo) được nạn nhân (thường là phụ nữ hoặc trẻ vị thành niên) đăng tải lên Facebook/Instagram ở chế độ công khai, sử dụng công cụ AI để “lột đồ” hoặc ghép mặt nạn nhân vào thân hình người mẫu phim khiêu dâm.\n\nSau đó, hacker gửi ảnh giả này cho nạn nhân kèm lời đe dọa yêu cầu chuyển tiền hoặc sẽ gửi những hình ảnh, video nhạy cảm này cho người nhà, đồng nghiệp hoặc tung lên MXH.\n\nCông nghệ được sử dụng\n\n“Undress” AI Apps (Ứng dụng lột đồ): Các công cụ web/bot Telegram sử dụng mô hình Generative AI (như Stable Diffusion in-painting) để đoán và vẽ lại phần cơ thể trần trụi dựa trên cấu trúc cơ thể trong ảnh gốc.\n\nFace Swapping (Ghép mặt): Ghép khuôn mặt nạn nhân vào video/ảnh nóng có sẵn với độ chân thực cao, đồng bộ cả biểu cảm (DeepFaceLab, ReFace).\n\nQuy trình tấn công tống tiền bằng ảnh giả tạo bởi AI\n\nBước 1: Săn mồi\n\nHacker dùng tool quét các tài khoản Instagram/TikTok mở công khai, tìm các ảnh rõ mặt, ảnh toàn thân.\n\nBước 2: Chế tác\n\nDùng AI “bóc” quần áo khỏi ảnh gốc\n\nHoặc tìm video khiêu dâm có diễn viên dáng người tương tự và dùng Deepfake ghép mặt nạn nhân vào.\n\nBước 3: Tấn công tâm lý\n\nGửi ảnh giả (đã làm mờ một phần hoặc rõ nét) cho nạn nhân.\n\nGửi kèm danh sách bạn bè của nạn nhân để chứng minh hắn có khả năng phát tán thật.\n\nBước 4: Yêu cầu chuyển tiền qua Crypto hoặc tài khoản rác\n\nPhương pháp nhận diện\n\nChi tiết giải phẫu bất thường: Ảnh do AI tạo ra thường bị lỗi ở ngón tay (thừa/thiếu ngón), rốn, hàm răng hoặc các vùng da tiếp giáp với tóc/quần áo trông bị nhòe.\n\nÁnh sáng và Bóng đổ: Hướng ánh sáng trên khuôn mặt (ảnh gốc) không khớp với hướng ánh sáng trên cơ thể (ảnh ghép).\n\nNguồn gốc ảnh: Nạn nhân có thể nhận ra bối cảnh, tư thế đầu giống hệt một bức ảnh bình thường mình từng đăng.\n\nGiải pháp phòng tránh và xử lý\n\nPhòng tránh\n\n: Hạn chế đăng ảnh cá nhân ở chế độ “Công khai” (Public). Cân nhắc dùng sticker che các phần nhạy cảm hoặc dùng watermark tên mình chèn lên ảnh khi đăng.\n\nXử lý khi bị tống tiền\n\n:\n\nKhông chuyển tiền: Chuyển tiền không giải quyết được vấn đề, hacker sẽ tiếp tục đòi thêm.Bình tĩnh và Chặn: Chặn liên lạc, khóa tạm thời tài khoản mạng xã hội.\n\nTố cáo: Báo cáo lên nền tảng (Facebook/Telegram) và cơ quan chức năng."
-  },
-  {
-    id: 10,
-    title: "Bảo mật iCloud tối đa: Cài đặt “sống còn” mà người dùng iPhone không nên bỏ qua",
-    excerpt: "Thông thường, đối với hầu hết các dịch vụ trực tuyến (bao gồm cả Google và mặc định của iCloud), dữ liệu đồng bộ lên đám mây sẽ được mã hóa, nhưng nhà cung",
-    date: "03/04/2026",
-    category: "Tin tức",
-    isUrgent: false,
-    source: "Chống Lừa Đảo",
-    imageUrl: "https://chongluadao.vn/blog/wp-content/uploads/2026/02/Gemini_Generated_Image_oju4choju4choju4.png",
-    content: "Trong kỷ nguyên số, dữ liệu cá nhân là tài sản quý giá nhất nhưng cũng là mục tiêu hàng đầu của tội phạm mạng. Đối với người dùng hệ sinh thái Apple, có một tính năng bảo mật mạnh mẽ giúp bảo vệ dữ liệu khỏi sự xâm nhập của bên thứ ba, kể cả chính Apple, đó là:\n\nBảo vệ dữ liệu nâng cao (Advanced Data Protection).\n\nTại sao tính năng này lại quan trọng đến vậy?\n\nThông thường, đối với hầu hết các dịch vụ trực tuyến (bao gồm cả Google và mặc định của iCloud), dữ liệu đồng bộ lên đám mây sẽ được mã hóa, nhưng nhà cung cấp dịch vụ vẫn nắm giữ các khóa giải mã\n\n.\n\nĐiều này đồng nghĩa với việc:\n\nCác công ty có quyền kỹ thuật để giải mã và xem dữ liệu của bạn dựa trên Điều khoản dịch vụ (ToS).\n\nGoogle có thể truy cập dữ liệu để ngăn chặn các mối đe dọa bảo mật, lạm dụng hoặc phục vụ các yêu cầu pháp lý từ chính phủ. Apple cũng có những điều khoản tương tự.\n\nDữ liệu của bạn có thể bị lạm dụng bởi chính nhân viên nội bộ của các công ty này. Minh chứng là từ năm 2018 đến 2020, Google đã phải sa thải 80 nhân viên vì hành vi lạm dụng dữ liệu người dùng.\n\nSức mạnh của Mã hóa đầu cuối (E2E)\n\nKhi bạn bật\n\nBảo vệ dữ liệu nâng cao\n\n, Apple sẽ áp dụng mã hóa đầu cuối cho nội dung iCloud của bạn\n\n.\n\nChỉ duy nhất bạn\n\nlà người nắm giữ khóa giải mã.\n\nApple (hoặc bất kỳ nhân viên nào của Apple) không thể xem nội dung dữ liệu của bạn.\n\nApple không thể bàn giao dữ liệu đã được giải mã cho bất kỳ bên thứ ba nào.\n\nĐây chính là lý do cốt yếu khiến việc chọn iOS và Apple mang lại lợi thế về quyền riêng tư so với các sản phẩm của Google, vì hiện tại Google chưa cung cấp khả năng tương tự cho toàn bộ dữ liệu đám mây.\n\nNhững dữ liệu nào sẽ được bảo vệ?\n\nVới tính năng này, có tổng cộng 23 danh mục dữ liệu sẽ được mã hóa đầu cuối. Trong đó, quan trọng nhất bao gồm:\n\nẢnh (Photos)\n\n.\n\nBản sao lưu iCloud\n\n(bao gồm cả bản sao lưu của toàn bộ thiết bị).\n\niCloud Drive\n\n(các tệp tin cá nhân).\n\nGhi chú (Notes)\n\n,\n\nTin nhắn (Messages)\n\n.\n\nDữ liệu Safari, Siri và Home\n\n.\n\nLưu ý:\n\nTính năng này\n\nkhông được bật mặc định\n\n, bạn phải chủ động thực hiện\n\n.\n\nRủi ro và Cách phòng ngừa\n\nQuyền lực đi đôi với trách nhiệm. Vì Apple không giữ khóa giải mã, họ sẽ không thể giúp bạn khôi phục dữ liệu nếu bạn mất quyền truy cập vào tài khoản\n\n.\n\nĐể đảm bảo an toàn, Apple sẽ yêu cầu bạn thiết lập ít nhất một phương thức khôi phục thay thế:\n\nLiên hệ khôi phục:\n\nMột người bạn hoặc người thân tin cậy dùng thiết bị Apple.\n\nKhóa khôi phục:\n\nMột dãy mã riêng biệt. Bạn nên lưu trữ mã này trong các trình quản lý mật khẩu như\n\nEnpass\n\nhoặc\n\n1Password\n\nđể tránh thất lạc.\n\nHướng dẫn kích hoạt\n\nBạn cần iPhone/iPad chạy iOS 16.2 hoặc Mac chạy macOS 13.1 trở lên\n\n. Việc bật trên một thiết bị sẽ có hiệu lực cho toàn bộ tài khoản\n\n.\n\nTrên iPhone/iPad:\n\nMở\n\nCài đặt\n\n> Nhấp vào\n\nTên của bạn\n\n>\n\niCloud\n\n> Cuộn xuống chọn\n\nBảo vệ dữ liệu nâng cao\n\n> Chọn\n\nBật\n\n.\n\nTrên máy Mac:\n\nVào\n\nMenu Apple \n\n>\n\nCài đặt hệ thống\n\n>\n\nTên của bạn\n\n>\n\niCloud\n\n>\n\nBảo vệ dữ liệu nâng cao\n\n> Chọn\n\nBật\n\n.\n\nLời kết từ Chống Lừa Đảo\n\nNếu bạn đang sở hữu thiết bị Apple, hãy bật tính năng này ngay để tự bảo vệ mình trước rủi ro bị bên thứ ba hoặc các nhân viên biến chất truy cập dữ liệu\n\n. Nếu bạn chưa sử dụng Apple, hãy cân nhắc kỹ việc chuyển dịch các dữ liệu nhạy cảm ra khỏi các dịch vụ không hỗ trợ mã hóa đầu cuối toàn diện\n\n."
-  }
-]
-
-export default function NewsDetailPage() {
-  const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
-
-  const article = newsArticles.find((a) => a.id === Number(id))
-
-  if (!article) {
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+function ArticleSkeleton() {
     return (
-      <div className="flex flex-col items-center justify-center py-32 text-center">
-        <h2 className="text-2xl font-bold text-foreground mb-4">Không tìm thấy bài viết</h2>
-        <p className="text-muted-foreground mb-8">Bài viết bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.</p>
-        <Button onClick={() => navigate("/tintuc")}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Quay lại trang tin tức
-        </Button>
-      </div>
+        <div className="animate-pulse space-y-6">
+            <div className="flex gap-3">
+                <div className="h-6 w-20 rounded-full bg-muted" />
+                <div className="h-6 w-32 rounded bg-muted" />
+            </div>
+            <div className="space-y-3">
+                <div className="h-10 w-4/5 rounded bg-muted" />
+                <div className="h-10 w-2/3 rounded bg-muted" />
+            </div>
+            <div className="h-5 w-full rounded bg-muted" />
+            <div className="h-80 w-full rounded-2xl bg-muted" />
+            {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="space-y-2">
+                    <div className="h-4 w-full rounded bg-muted" />
+                    <div className="h-4 w-11/12 rounded bg-muted" />
+                    <div className="h-4 w-4/5 rounded bg-muted" />
+                </div>
+            ))}
+        </div>
     )
-  }
+}
 
-  return (
-    <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
-      {/* Back button */}
-      <Button
-        variant="ghost"
-        onClick={() => navigate("/tintuc")}
-        className="mb-8 -ml-2 flex items-center gap-2 text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Quay lại tin tức
-      </Button>
+// ─── Render rich content (newline-separated paragraphs) ───────────────────────
+function ArticleContent({ content }: { content: string }) {
+    const paragraphs = content.split(/\n\n+/).filter(p => p.trim() !== "")
+    return (
+        <div className="prose prose-slate dark:prose-invert max-w-none text-foreground/90">
+            {paragraphs.map((para, idx) => {
+                const lines = para.split(/\n/)
+                const isBullet = lines.every(l => l.trim().startsWith("•") || l.trim().startsWith("-"))
+                if (isBullet) {
+                    return (
+                        <ul key={idx} className="my-4 pl-5 space-y-1 list-disc text-foreground/80 text-[1.05rem] leading-relaxed">
+                            {lines.map((l, i) => (
+                                <li key={i}>{l.replace(/^[•\-]\s*/, "")}</li>
+                            ))}
+                        </ul>
+                    )
+                }
+                return (
+                    <p key={idx} className="mb-5 text-[1.05rem] sm:text-[1.1rem] leading-[1.9] font-[450]">
+                        {lines.map((line, i) => (
+                            <span key={i}>
+                                {line}
+                                {i < lines.length - 1 && <br />}
+                            </span>
+                        ))}
+                    </p>
+                )
+            })}
+        </div>
+    )
+}
 
-      <article>
-        {/* Header */}
-        <header className="mb-8">
-          <div className="flex flex-wrap items-center gap-3 mb-4">
-            <Badge
-              variant={article.isUrgent ? "destructive" : "secondary"}
-              className="flex items-center gap-1"
+// ─── Main Page ────────────────────────────────────────────────────────────────
+export default function NewsDetailPage() {
+    const { id } = useParams<{ id: string }>()
+    const navigate = useNavigate()
+    const [blog, setBlog] = useState<BlogResponse | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState("")
+
+    const fetchBlog = async () => {
+        if (!id) return
+        setLoading(true)
+        setError("")
+        try {
+            const res = await blogService.getBlogById(id)
+            if (res.success && res.data) {
+                setBlog(res.data)
+            } else {
+                setError(res.message || "Không tìm thấy bài viết.")
+            }
+        } catch (err: any) {
+            const msg: string = err?.message ?? ""
+            // Lỗi xác thực do endpoint getBlogById yêu cầu login
+            if (msg.toLowerCase().includes("unauthorized") || msg.toLowerCase().includes("401") ||
+                msg.toLowerCase().includes("forbidden") || msg.toLowerCase().includes("403")) {
+                
+                // WORKAROUND: Endpoint /blogs không yêu cầu login và trả về đủ content
+                try {
+                    const fallbackRes = await blogService.getBlogs({ page: 0, size: 200 })
+                    if (fallbackRes.success && fallbackRes.data?.content) {
+                        const found = fallbackRes.data.content.find((b: BlogResponse) => b.blogId === id)
+                        if (found) {
+                            setBlog(found)
+                            return
+                        }
+                    }
+                    setError("Bài viết không tồn tại hoặc yêu cầu quyền truy cập.")
+                } catch (fallbackErr) {
+                    setError("Vui lòng đăng nhập để xem chi tiết bài viết này.")
+                }
+            } else {
+                setError("Lỗi kết nối hoặc bài viết không tồn tại.")
+            }
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchBlog()
+        window.scrollTo({ top: 0 })
+    }, [id])
+
+    const formattedDate = blog?.createdAt
+        ? new Date(blog.createdAt).toLocaleDateString("vi-VN", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+          })
+        : ""
+
+    const tags = blog?.label ? blog.label.split(",").map(t => t.trim()).filter(Boolean) : []
+
+    const handleShare = async () => {
+        try {
+            await navigator.share({ title: blog?.title, url: window.location.href })
+        } catch {
+            await navigator.clipboard.writeText(window.location.href)
+        }
+    }
+
+    return (
+        <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+            {/* Back button */}
+            <Button
+                variant="ghost"
+                onClick={() => navigate("/tintuc")}
+                className="mb-8 -ml-2 flex items-center gap-2 text-muted-foreground hover:text-foreground"
             >
-              {article.isUrgent && <AlertTriangle className="h-3 w-3" />}
-              {article.category}
-            </Badge>
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              {article.date}
-            </div>
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              <Tag className="h-4 w-4" />
-              Tin tức & Cảnh báo
-            </div>
-          </div>
+                <ArrowLeft className="h-4 w-4" />
+                Quay lại tin tức
+            </Button>
 
-          <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl leading-tight">
-            {article.title}
-          </h1>
+            {/* Loading */}
+            {loading && <ArticleSkeleton />}
 
-          <p className="mt-6 text-xl font-semibold text-foreground/90 border-l-4 border-primary pl-5 italic leading-relaxed">
-            {article.excerpt}
-          </p>
-        </header>
+            {/* Error */}
+            {!loading && error && (
+                <div className="flex flex-col items-center gap-5 py-32 text-center">
+                    <AlertCircle className="h-14 w-14 text-destructive" />
+                    <h2 className="text-2xl font-bold text-foreground">Không tìm thấy bài viết</h2>
+                    <p className="text-muted-foreground max-w-sm">{error}</p>
+                    <div className="flex gap-3">
+                        <Button onClick={fetchBlog} variant="outline">
+                            <RefreshCw className="mr-2 h-4 w-4" />
+                            Thử lại
+                        </Button>
+                        <Button onClick={() => navigate("/tintuc")}>
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Về danh sách
+                        </Button>
+                    </div>
+                </div>
+            )}
 
-        <hr className="border-border mb-8" />
+            {/* Article */}
+            {!loading && !error && blog && (
+                <article>
+                    {/* Header */}
+                    <header className="mb-8">
+                        {/* Tags + date */}
+                        <div className="flex flex-wrap items-center gap-2 mb-5">
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground mr-auto">
+                                <BookOpen className="h-3.5 w-3.5" />
+                                Tin tức &amp; Cảnh báo
+                            </div>
+                            {tags.map((tag, i) => (
+                                <Badge key={i} variant="secondary" className="flex items-center gap-1 text-xs">
+                                    <Tag className="h-2.5 w-2.5" />
+                                    {tag}
+                                </Badge>
+                            ))}
+                        </div>
 
-        {/* Structured body */}
-        <div className="space-y-5">
-          {article.imageUrl && (
-            <img src={article.imageUrl} alt={article.title} className="w-full h-auto rounded-lg mb-8 object-cover max-h-[400px]" />
-          )}
-          {typeof article.content === 'string' && (
-            <div className="text-foreground/90 font-medium leading-relaxed text-[1.05rem] sm:text-[1.1rem]">
-              {article.content.split('\n\n').filter(p => p.trim() !== '').map((para, idx) => (
-                <p key={idx} className="mb-4">
-                  {para.split('\n').map((line, i) => (
-                    <span key={i}>
-                      {line}
-                      {i < para.split('\n').length - 1 && <br />}
-                    </span>
-                  ))}
-                </p>
-              ))}
-            </div>
-          )}
+                        {/* Title */}
+                        <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl leading-tight">
+                            {blog.title}
+                        </h1>
+
+                        {/* Lead / snippet */}
+                        {blog.snippet && (
+                            <p className="mt-6 text-lg font-semibold text-foreground/80 border-l-4 border-primary pl-5 italic leading-relaxed">
+                                {blog.snippet}
+                            </p>
+                        )}
+
+                        {/* Author + date + share */}
+                        <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1.5">
+                                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10">
+                                    <User className="h-4 w-4 text-primary" />
+                                </div>
+                                Ban biên tập AntiScam
+                            </div>
+                            {formattedDate && (
+                                <div className="flex items-center gap-1">
+                                    <Clock className="h-3.5 w-3.5" />
+                                    {formattedDate}
+                                </div>
+                            )}
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="ml-auto gap-1.5 text-muted-foreground"
+                                onClick={handleShare}
+                            >
+                                <Share2 className="h-3.5 w-3.5" />
+                                Chia sẻ
+                            </Button>
+                        </div>
+                    </header>
+
+                    <hr className="border-border mb-8" />
+
+                    {/* Cover image */}
+                    {blog.imageUrl && (
+                        <div className="mb-8 overflow-hidden rounded-2xl shadow-md">
+                            <img
+                                src={blog.imageUrl}
+                                alt={blog.title}
+                                className="w-full h-auto max-h-[460px] object-cover"
+                            />
+                        </div>
+                    )}
+
+                    {/* Body content */}
+                    {blog.content && <ArticleContent content={blog.content} />}
+
+                    {/* Footer */}
+                    <div className="mt-14 pt-8 border-t border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="text-sm text-muted-foreground">
+                            Nguồn: Ban biên tập An toàn mạng
+                            {formattedDate && <> &bull; {formattedDate}</>}
+                        </div>
+                        <Button variant="outline" onClick={() => navigate("/tintuc")}>
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Xem tất cả tin tức
+                        </Button>
+                    </div>
+                </article>
+            )}
         </div>
-
-        {/* Footer */}
-        <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex flex-col gap-1">
-            <p className="text-sm text-muted-foreground">
-              Nguồn: Ban biên tập An toàn mạng • {article.date}
-            </p>
-             {/* Removed source link per request */}
-          </div>
-          <Button variant="outline" onClick={() => navigate("/tintuc")}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Xem tất cả tin tức
-          </Button>
-        </div>
-      </article>
-    </div>
-  )
+    )
 }

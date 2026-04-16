@@ -4,6 +4,8 @@ import {
     PhoneOff,
     Clock,
     Activity,
+    ShieldCheck,
+    CalendarCheck,
 } from "lucide-react"
 import { Routes, Route } from "react-router-dom"
 import { useState, useEffect } from "react"
@@ -26,12 +28,15 @@ import ModeratorReports from "./ModeratorReports"
 import ManagerAssessments from "./ManagerAssessments"
 import { userService } from "@/services/user.service"
 import { reportService } from "@/services/report.service"
+import { dashboardService } from "@/services/dashboard.service"
 
 interface DashboardStats {
     totalUsers: number
     totalReports: number
     pendingReports: number
     blockedUsers: number
+    totalAssessments: number
+    reportsToday: number
 }
 
 function DashboardHome() {
@@ -51,6 +56,8 @@ function DashboardHome() {
         totalReports: 0,
         pendingReports: 0,
         blockedUsers: 0,
+        totalAssessments: 0,
+        reportsToday: 0,
     })
     const [statsLoading, setStatsLoading] = useState(true)
 
@@ -58,29 +65,59 @@ function DashboardHome() {
         async function loadStats() {
             setStatsLoading(true)
             try {
-                const isManager = user?.role === 'MANAGER'
-                // Both Manager and Admin handle Hot Reports (VALID -> RESOLVED). Admin has users access.
-                const [usersRes, allReportsRes, actionReportsRes] = await Promise.allSettled([
-                    user?.role === "ADMIN" ? userService.getAllUsers({ page: 0, size: 200 }) : Promise.resolve({ data: [] }),
-                    reportService.getHotReports({ page: 0, size: 1 }),
-                    reportService.getHotReports({ status: "VALID", page: 0, size: 1 }),
+                const isAdmin = user?.role === 'ADMIN'
+
+                // Try to get overview stats from dashboard API first
+                const [overviewRes, usersRes] = await Promise.allSettled([
+                    dashboardService.getOverviewStats(),
+                    isAdmin ? userService.getAllUsers({ page: 0, size: 200 }) : Promise.resolve({ data: [] }),
                 ])
 
-                const userList = usersRes.status === "fulfilled" ? (usersRes.value.data ?? []) : []
-                const totalReports =
-                    allReportsRes.status === "fulfilled" ? allReportsRes.value.data.totalElements : 0
-                const actionReportsCount =
-                    actionReportsRes.status === "fulfilled" ? actionReportsRes.value.data.totalElements : 0
-                const blockedUsers = userList.filter(
-                    (u: any) => u.status !== "ACTIVE" && u.status !== "active"
-                ).length
+                let totalReports = 0
+                let pendingReports = 0
+                let totalUsers = 0
+                let blockedUsers = 0
 
-                setStats({
-                    totalUsers: userList.length,
-                    totalReports,
-                    pendingReports: actionReportsCount,
-                    blockedUsers,
-                })
+                // Use dashboard overview API if available
+                if (overviewRes.status === 'fulfilled' && overviewRes.value.success) {
+                    const od = overviewRes.value.data
+                    totalReports = od.totalReports ?? 0
+                    totalUsers = od.totalUsers ?? 0
+                    // reportsToday can serve as a proxy for pending requiring attention
+                    pendingReports = od.reportsToday ?? 0
+                    // Store reportsToday and totalAssessments separately
+                    const totalAssessments = od.totalAssessments ?? 0
+                    const reportsToday = od.reportsToday ?? 0
+                    if (isAdmin && usersRes.status === 'fulfilled') {
+                        const userList = usersRes.value.data ?? []
+                        if (totalUsers === 0) totalUsers = userList.length
+                        blockedUsers = userList.filter(
+                            (u: any) => u.status !== 'ACTIVE' && u.status !== 'active'
+                        ).length
+                    }
+                    setStats({ totalUsers, totalReports, pendingReports, blockedUsers, totalAssessments, reportsToday })
+                } else {
+                    // Fallback: use hot reports count as totalReports
+                    const [allReportsRes, actionReportsRes] = await Promise.allSettled([
+                        reportService.getHotReports({ page: 0, size: 1 }),
+                        reportService.getHotReports({ status: 'VALID', page: 0, size: 1 }),
+                    ])
+                    totalReports = allReportsRes.status === 'fulfilled' ? allReportsRes.value.data.totalElements : 0
+                    pendingReports = actionReportsRes.status === 'fulfilled' ? actionReportsRes.value.data.totalElements : 0
+                }
+
+                // Fallback path: set with defaults
+                if (overviewRes.status !== 'fulfilled' || !overviewRes.value.success) {
+                    // Admin can see users
+                    if (isAdmin && usersRes.status === 'fulfilled') {
+                        const userList = usersRes.value.data ?? []
+                        if (totalUsers === 0) totalUsers = userList.length
+                        blockedUsers = userList.filter(
+                            (u: any) => u.status !== 'ACTIVE' && u.status !== 'active'
+                        ).length
+                    }
+                    setStats({ totalUsers, totalReports, pendingReports, blockedUsers, totalAssessments: 0, reportsToday: 0 })
+                }
             } catch {
                 // Silently keep zeros on complete failure
             } finally {
@@ -119,14 +156,22 @@ function DashboardHome() {
 
                 {/* Dashboard content */}
                 <main className="flex-1 overflow-y-auto p-6">
-                    {/* Stats grid */}
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    {/* Stats grid — 2 cols mobile, 3 cols tablet, 6 cols large */}
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
                         <AdminStatsCard
                             title="Tổng báo cáo"
                             value={statsLoading ? "..." : fmt(stats.totalReports)}
-                            description="số điện thoại bị báo cáo"
+                            description="báo cáo trong hệ thống"
                             icon={<FileWarning className="h-6 w-6" />}
                             trend="up"
+                            trendValue=""
+                        />
+                        <AdminStatsCard
+                            title="Hôm nay"
+                            value={statsLoading ? "..." : fmt(stats.reportsToday)}
+                            description="báo cáo mới hôm nay"
+                            icon={<CalendarCheck className="h-6 w-6" />}
+                            trend={stats.reportsToday > 0 ? "up" : "down"}
                             trendValue=""
                         />
                         <AdminStatsCard
@@ -138,9 +183,17 @@ function DashboardHome() {
                             trendValue=""
                         />
                         <AdminStatsCard
+                            title="Đánh giá"
+                            value={statsLoading ? "..." : fmt(stats.totalAssessments)}
+                            description="đánh giá chuyên gia"
+                            icon={<ShieldCheck className="h-6 w-6" />}
+                            trend="up"
+                            trendValue=""
+                        />
+                        <AdminStatsCard
                             title="Tài khoản bị chặn"
                             value={statsLoading ? "..." : fmt(stats.blockedUsers)}
-                            description="trên trang hiện tại"
+                            description="tài khoản bị khoá"
                             icon={<PhoneOff className="h-6 w-6" />}
                             trend="up"
                             trendValue=""

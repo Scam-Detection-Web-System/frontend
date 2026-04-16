@@ -91,4 +91,11 @@ export const blogService = {
             body: formData,
         })
     },
+
+    /**
+     * DELETE /blogs/{blogId}
+     * Xóa một bài blog (Admin only).
+     */
+    deleteBlog: (blogId: string) =>
+        apiFetch<ApiResponse<void>>(`/blogs/${blogId}`, { method: 'DELETE' }),
 }

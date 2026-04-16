@@ -184,7 +184,7 @@ export default function PersonalPage() {
                                             return (
                                                 <Link
                                                     key={r.reportId}
-                                                    to={`/sodienthoai/${r.phoneNumber}`}
+                                                    to={`/taikhoan/baocao/${r.reportId}`}
                                                     className="flex items-center justify-between gap-2 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 px-3 py-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group"
                                                 >
                                                     <div className="flex items-center gap-2 min-w-0">
