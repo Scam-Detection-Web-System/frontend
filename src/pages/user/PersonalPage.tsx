@@ -17,9 +17,9 @@ import { reportService, UserReportResponse } from "@/services/report.service"
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
     PENDING: { label: "Chờ duyệt", className: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" },
-    VALID:   { label: "Hợp lệ",   className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" },
+    VALID:   { label: "Đã duyệt",   className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" },
     INVALID: { label: "Từ chối",  className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300" },
-    RESOLVED:{ label: "Đã xử lý",className: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" },
+    RESOLVED:{ label: "Đã duyệt", className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" },
 }
 
 export default function PersonalPage() {
@@ -129,10 +129,7 @@ export default function PersonalPage() {
                                         <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">Đã xác thực</p>
                                     </div>
                                 </div>
-                                <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:border-slate-700/50 dark:bg-slate-800/50 sm:max-w-[calc(50%-0.375rem)]">
-                                    <p className="text-xs text-muted-foreground mb-1">Bảo mật 2 lớp</p>
-                                    <p className="text-sm font-semibold text-slate-900 dark:text-white">Chưa bật</p>
-                                </div>
+
                             </CardContent>
                         </Card>
 

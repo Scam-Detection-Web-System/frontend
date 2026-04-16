@@ -7,9 +7,9 @@ import { reportService, PhoneReportItem } from "@/services/report.service"
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
     PENDING: { label: "Chờ duyệt", className: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" },
-    VALID:   { label: "Hợp lệ",   className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" },
+    VALID:   { label: "Đã duyệt",   className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" },
     INVALID: { label: "Từ chối",  className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300" },
-    RESOLVED:{ label: "Đã xử lý",className: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" },
+    RESOLVED:{ label: "Đã duyệt", className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" },
 }
 
 const LABEL_MAP: Record<string, string> = {
@@ -174,36 +174,7 @@ export default function ReportDetailPage() {
                                     </div>
                                 )}
 
-                                {/* AI Prediction */}
-                                {report.predictionResult && (
-                                    <div>
-                                        <h3 className="text-base font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                                            <AlertTriangle className={`h-5 w-5 ${report.predictionResult.toxic ? "text-red-500" : "text-emerald-500"}`} />
-                                            Đánh giá của AI về nội dung
-                                        </h3>
-                                        <div className={`rounded-2xl border p-5 sm:p-6 shadow-sm ${
-                                            report.predictionResult.toxic 
-                                            ? "border-red-100 bg-red-50/50 dark:border-red-900/30 dark:bg-red-950/10" 
-                                            : "border-emerald-100 bg-emerald-50/50 dark:border-emerald-900/30 dark:bg-emerald-950/10"
-                                        }`}>
-                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
-                                                <span className={`text-base font-bold ${report.predictionResult.toxic ? "text-red-700 dark:text-red-400" : "text-emerald-700 dark:text-emerald-400"}`}>
-                                                    {report.predictionResult.toxic ? "Có dấu hiệu lừa đảo/độc hại" : "Nội dung bình thường"}
-                                                </span>
-                                                <span className={`text-sm font-bold px-3 py-1.5 rounded-lg border ${
-                                                    report.predictionResult.toxic 
-                                                    ? "bg-white border-red-200 text-red-700 dark:bg-slate-900 dark:border-red-800/50 dark:text-red-400" 
-                                                    : "bg-white border-emerald-200 text-emerald-700 dark:bg-slate-900 dark:border-emerald-800/50 dark:text-emerald-400"
-                                                }`}>
-                                                    Độ tin cậy: {(report.predictionResult.score * 100).toFixed(1)}%
-                                                </span>
-                                            </div>
-                                            <p className={`text-sm sm:text-base leading-relaxed ${report.predictionResult.toxic ? "text-red-900/80 dark:text-red-200/80" : "text-emerald-900/80 dark:text-emerald-200/80"}`}>
-                                                {report.predictionResult.reason}
-                                            </p>
-                                        </div>
-                                    </div>
-                                )}
+
                             </CardContent>
                         </Card>
                     </div>

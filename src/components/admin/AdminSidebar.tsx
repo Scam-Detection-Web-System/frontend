@@ -22,9 +22,11 @@ const navItems = [
     { href: "/admin/reports", label: "Báo cáo", icon: FileWarning, allowedRoles: ['ADMIN', 'MANAGER'] },
     { href: "/admin/assessments", label: "Đánh giá SĐT", icon: ClipboardList, allowedRoles: ['MANAGER'] },
     { href: "/admin/moderator-reports", label: "Duyệt báo cáo", icon: ShieldCheck, allowedRoles: ['MODERATOR'] },
-    { href: "/admin/users", label: "Người dùng", icon: Users, allowedRoles: ['ADMIN', 'MANAGER'] },
+    { href: "/admin/users/managers", label: "Quản lý Manager", icon: Users, allowedRoles: ['ADMIN'] },
+    { href: "/admin/users/moderators", label: "Quản lý Moderator", icon: Users, allowedRoles: ['ADMIN', 'MANAGER'] },
+    { href: "/admin/users/users", label: "Quản lý User", icon: Users, allowedRoles: ['ADMIN', 'MANAGER'] },
     { href: "/admin/quiz", label: "Quiz & Câu hỏi", icon: BrainCircuit, allowedRoles: ['ADMIN', 'MANAGER'] },
-    { href: "/admin/news", label: "Tin tức", icon: Newspaper, allowedRoles: ['ADMIN', 'MANAGER', 'MODERATOR'] },
+    { href: "/admin/news", label: "Tin tức", icon: Newspaper, allowedRoles: ['ADMIN', 'MANAGER'] },
     { href: "/admin/settings", label: "Cài đặt", icon: Settings, allowedRoles: ['ADMIN', 'MANAGER', 'MODERATOR'] },
 ]
 

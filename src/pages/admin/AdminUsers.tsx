@@ -29,16 +29,17 @@ interface UserModalProps {
     mode: "create" | "edit"
     user?: UserResponse
     currentUserRole?: string
+    filterRole?: "MANAGER" | "MODERATOR" | "USER"
     onClose: () => void
     onSuccess: () => void
 }
 
-function UserModal({ mode, user, currentUserRole, onClose, onSuccess }: UserModalProps) {
+function UserModal({ mode, user, currentUserRole, filterRole, onClose, onSuccess }: UserModalProps) {
     const [username, setUsername] = useState(user?.username ?? "")
     const [email, setEmail] = useState(user?.email ?? "")
     const [password, setPassword] = useState("")
     const [gender, setGender] = useState(user?.gender ?? "")
-    const [role, setRole] = useState(currentUserRole === "MANAGER" ? "MODERATOR" : "USER")
+    const [role, setRole] = useState(filterRole ?? (currentUserRole === "MANAGER" ? "MODERATOR" : "USER"))
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
 
@@ -141,15 +142,15 @@ function UserModal({ mode, user, currentUserRole, onClose, onSuccess }: UserModa
                         </select>
                     </div>
 
-                    {/* Role Selection (Chỉ khi tạo mới & là ADMIN mới được chọn) */}
+                    {/* Role Selection (Chỉ khi tạo mới) */}
                     {mode === "create" && (
                         <div className="space-y-1.5">
                             <Label htmlFor="modal-role">Vai trò</Label>
                             <select
                                 id="modal-role"
                                 value={role}
-                                onChange={e => setRole(e.target.value)}
-                                disabled={loading || currentUserRole === "MANAGER"}
+                                onChange={e => setRole(e.target.value as "MANAGER" | "MODERATOR" | "USER")}
+                                disabled={loading || filterRole !== undefined || currentUserRole === "MANAGER"}
                                 className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
                             >
                                 <option value="USER">User (Người dùng thường)</option>
@@ -180,7 +181,7 @@ function UserModal({ mode, user, currentUserRole, onClose, onSuccess }: UserModa
 }
 
 // ─── Main Page ────────────────────────────────────────────────────────
-export default function AdminUsers() {
+export default function AdminUsers({ filterRole }: { filterRole?: "MANAGER" | "MODERATOR" | "USER" }) {
     const { user: currentUser } = useAuth()
     const [users, setUsers] = useState<UserResponse[]>([])
     const [loading, setLoading] = useState(true)
@@ -198,19 +199,32 @@ export default function AdminUsers() {
         setLoading(true)
         setError('')
         try {
-            if (currentUser?.role === 'MANAGER') {
+            if (filterRole === "MANAGER") {
+                const res = await userService.getAllManagers()
+                setUsers(res.data ?? [])
+            } else if (filterRole === "MODERATOR") {
                 const res = await userService.getAllModerators()
                 setUsers(res.data ?? [])
+            } else if (filterRole === "USER") {
+                const res = await userService.getAllUsers({ page: 0, size: 500 })
+                let all = res.data ?? []
+                all = all.filter(u => u.role === "USER")
+                setUsers(all)
             } else {
-                const res = await userService.getAllUsers({ page: 0, size: 50 })
-                setUsers(res.data ?? [])
+                if (currentUser?.role === 'MANAGER') {
+                    const res = await userService.getAllModerators()
+                    setUsers(res.data ?? [])
+                } else {
+                    const res = await userService.getAllUsers({ page: 0, size: 500 })
+                    setUsers(res.data ?? [])
+                }
             }
         } catch (err: any) {
             setError(err.message ?? 'Không thể tải danh sách người dùng')
         } finally {
             setLoading(false)
         }
-    }, [currentUser?.role])
+    }, [currentUser?.role, filterRole])
 
     useEffect(() => {
         fetchUsers()
@@ -288,7 +302,7 @@ export default function AdminUsers() {
                 <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-6 dark:border-slate-700/50 dark:bg-slate-900">
                     <div>
                         <h1 className="text-lg font-semibold text-slate-900 dark:text-white">
-                            Quản lý người dùng
+                            {filterRole === "MANAGER" ? "Quản lý Manager" : filterRole === "MODERATOR" ? "Quản lý Moderator" : filterRole === "USER" ? "Quản lý Tài khoản Trực tuyến" : "Quản lý người dùng"}
                         </h1>
                         <p className="text-xs text-muted-foreground">
                             Xem, thêm và chỉnh sửa tài khoản người dùng
@@ -482,6 +496,7 @@ export default function AdminUsers() {
                     mode={modalMode}
                     user={selectedUser}
                     currentUserRole={currentUser?.role}
+                    filterRole={filterRole}
                     onClose={() => setShowModal(false)}
                     onSuccess={handleModalSuccess}
                 />

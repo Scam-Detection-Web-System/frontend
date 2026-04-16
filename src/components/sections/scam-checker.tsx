@@ -161,7 +161,17 @@ const DOMAIN_RISK_CONFIG: Record<string, { label: string; status: CheckStatus; b
 }
 
 function DomainResultBlock({ result }: { result: DomainCheckResult }) {
-    const riskCfg = DOMAIN_RISK_CONFIG[result.riskLevel?.toUpperCase() ?? ''] ?? DOMAIN_RISK_CONFIG['LOW']
+    let riskKey = 'LOW'
+    const rawLevel = result.riskLevel?.toUpperCase() ?? ''
+    if (rawLevel.includes('NGUY') || rawLevel.includes('CAO') || rawLevel === 'CRITICAL') {
+        riskKey = 'CRITICAL'
+    } else if (rawLevel === 'HIGH') {
+        riskKey = 'HIGH'
+    } else if (rawLevel.includes('NGỜ') || rawLevel.includes('CẢNH BÁO') || rawLevel === 'MEDIUM') {
+        riskKey = 'MEDIUM'
+    }
+    const riskCfg = DOMAIN_RISK_CONFIG[riskKey] || DOMAIN_RISK_CONFIG['LOW']
+
     return (
         <div className={`mt-6 rounded-2xl border p-6 ${riskCfg.bg} ${riskCfg.border}`}>
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
@@ -179,7 +189,7 @@ function DomainResultBlock({ result }: { result: DomainCheckResult }) {
                         </span>
                     </div>
                     <div className={`mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold border ${riskCfg.color} ${riskCfg.bg} ${riskCfg.border}`}>
-                        Mức độ rủi ro: {riskCfg.label} ({(result.riskScore * 100).toFixed(0)}%)
+                        Mức độ rủi ro: {result.riskLevel || riskCfg.label} (Điểm: {result.riskScore}/10)
                     </div>
                     {result.warnings && result.warnings.length > 0 && (
                         <ul className="mt-4 space-y-2">
@@ -226,40 +236,7 @@ export function ScamChecker({ hideHeader = false }: { hideHeader?: boolean }) {
             return
         }
 
-        // 2. Phân loại là Email
-        if (val.includes("@")) {
-            setActiveTab("email")
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
-                setError("Định dạng email không hợp lệ")
-                return
-            }
-            setIsChecking(true)
-            try {
-                const ai = await callPrediction({ email: val.toLowerCase() })
-                const msgMap: Record<CheckStatus, string> = {
-                    safe: "Email có vẻ an toàn",
-                    suspicious: "Cẩn thận: Email có đặc điểm đáng ngờ",
-                    dangerous: "Cảnh báo: Email này có dấu hiệu LỪA ĐẢO!",
-                }
-                const detailsMap: Record<CheckStatus, string[]> = {
-                    safe: ["Không phát hiện dấu hiệu lừa đảo rõ ràng", "Tên miền không nằm trong danh sách đen", "Luôn cẩn thận với các yêu cầu cung cấp thông tin qua email"],
-                    suspicious: ["AI phát hiện một số yếu tố đáng ngờ trong email", "Không trả lời và không cung cấp thông tin cá nhân", "Xác minh danh tính người gửi trước khi tương tác"],
-                    dangerous: ["AI xác định email này có nguy cơ phishing/lừa đảo cao", "Tuyệt đối không cung cấp thông tin cá nhân hay tài chính", "Báo cáo email này cho cơ quan chức năng"],
-                }
-                setEmailResult({
-                    status: ai.status,
-                    message: msgMap[ai.status],
-                    details: detailsMap[ai.status],
-                    aiScore: ai.score,
-                    aiWords: ai.words,
-                })
-            } catch (e) {
-                setError("Lỗi kết nối. Vui lòng thử lại.")
-            } finally { setIsChecking(false) }
-            return
-        }
-
-        // 3. Phân loại là Tên miền (Domain)
+        // 2. Phân loại là Tên miền (Domain)
         val = val.replace(/^https?:\/\//, "")
         if (val.includes(".") && !val.includes(" ")) {
             setActiveTab("domain")
@@ -277,7 +254,7 @@ export function ScamChecker({ hideHeader = false }: { hideHeader?: boolean }) {
             return
         }
 
-        setError("Không thể nhận diện định dạng (SĐT, Email, hay Tên miền)")
+        setError("Không thể nhận diện định dạng (SĐT hay Tên miền)")
     }
 
     const handleTabChange = (val: string) => {
@@ -316,15 +293,11 @@ export function ScamChecker({ hideHeader = false }: { hideHeader?: boolean }) {
                     </CardHeader>
                     <CardContent>
                         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-                            <TabsList className="grid w-full grid-cols-3 mb-6">
+                            <TabsList className="grid w-full grid-cols-2 mb-6">
                                 <TabsTrigger value="phone" className="gap-2 text-xs sm:text-sm">
                                     <Phone className="h-4 w-4 flex-shrink-0" />
                                     <span className="hidden sm:inline">Số điện thoại</span>
                                     <span className="sm:hidden">SĐT</span>
-                                </TabsTrigger>
-                                <TabsTrigger value="email" className="gap-2 text-xs sm:text-sm">
-                                    <Mail className="h-4 w-4 flex-shrink-0" />
-                                    Email
                                 </TabsTrigger>
                                 <TabsTrigger value="domain" className="gap-2 text-xs sm:text-sm">
                                     <Globe className="h-4 w-4 flex-shrink-0" />
@@ -337,7 +310,6 @@ export function ScamChecker({ hideHeader = false }: { hideHeader?: boolean }) {
                                 <div className="flex flex-col gap-4 sm:flex-row">
                                     <div className="relative flex-1">
                                         {activeTab === "phone" && <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />}
-                                        {activeTab === "email" && <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />}
                                         {activeTab === "domain" && <Globe className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />}
                                         <Input
                                             type="text"
@@ -346,7 +318,6 @@ export function ScamChecker({ hideHeader = false }: { hideHeader?: boolean }) {
                                             onKeyDown={e => e.key === "Enter" && handleCheck()}
                                             placeholder={
                                                 activeTab === "phone" ? "Nhập SĐT (VD: 0912 345 678)..." :
-                                                activeTab === "email" ? "Nhập Email (VD: scam@example.com)..." :
                                                 "Nhập tên miền (VD: example.com)..."
                                             }
                                             className={`pl-10 ${error ? "border-red-500 focus-visible:ring-red-500" : ""}`}
