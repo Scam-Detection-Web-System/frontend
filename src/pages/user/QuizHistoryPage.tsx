@@ -86,7 +86,7 @@ function HistoryCard({ item, index }: { item: QuizHistoryItem; index: number }) 
 
                 {/* Score badge */}
                 <div className="shrink-0 text-right">
-                    <p className={cn("text-2xl font-black", cfg.color)}>{pct}%</p>
+                    <p className={cn("text-2xl font-black", cfg.color)}>{(pct / 10).toFixed(1).replace('.0', '')}</p>
                     <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-semibold", cfg.badge)}>
                         {cfg.label}
                     </span>
@@ -261,8 +261,8 @@ export default function QuizHistoryPage() {
                                     <div className="flex justify-center mb-1">
                                         <TrendingUp className="h-5 w-5 text-slate-500" />
                                     </div>
-                                    <p className="text-2xl font-black text-slate-900 dark:text-white">{avgPct}%</p>
-                                    <p className="text-xs text-muted-foreground mt-0.5">Điểm trung bình</p>
+                                    <p className="text-2xl font-black text-slate-900 dark:text-white">{(avgPct / 10).toFixed(1).replace('.0', '')}</p>
+                                    <p className="text-xs text-muted-foreground mt-0.5">Điểm trung bình (thang 10)</p>
                                 </CardContent>
                             </Card>
                             <Card className="border-slate-200 dark:border-slate-700/50 text-center">
@@ -270,8 +270,8 @@ export default function QuizHistoryPage() {
                                     <div className="flex justify-center mb-1">
                                         <Award className="h-5 w-5 text-slate-500" />
                                     </div>
-                                    <p className="text-2xl font-black text-slate-900 dark:text-white">{best}%</p>
-                                    <p className="text-xs text-muted-foreground mt-0.5">Điểm cao nhất</p>
+                                    <p className="text-2xl font-black text-slate-900 dark:text-white">{(best / 10).toFixed(1).replace('.0', '')}</p>
+                                    <p className="text-xs text-muted-foreground mt-0.5">Điểm cao nhất (thang 10)</p>
                                 </CardContent>
                             </Card>
                         </div>

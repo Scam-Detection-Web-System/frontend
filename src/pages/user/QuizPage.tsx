@@ -217,10 +217,12 @@ function scoreConfig(score: number) {
 
 function ResultScreen({
     result,
+    quizDetail,
     onRetry,
     onBack,
 }: {
     result: QuizSubmitResponse
+    quizDetail?: QuizDetailResponse | null
     onRetry: () => void
     onBack: () => void
 }) {
@@ -239,8 +241,8 @@ function ResultScreen({
                     <p className="text-slate-300 text-sm">{result.topicName}</p>
                     <div className="mt-6 flex justify-center gap-8">
                         <div>
-                            <p className="text-4xl font-black">{pct}%</p>
-                            <p className="text-sm text-slate-400">Điểm số</p>
+                            <p className="text-4xl font-black">{(pct / 10).toFixed(1).replace('.0', '')}</p>
+                            <p className="text-sm text-slate-400">Điểm số (thang 10)</p>
                         </div>
                         <div>
                             <p className="text-4xl font-black">{result.correctAnswers}/{result.totalQuestions}</p>
@@ -256,41 +258,55 @@ function ResultScreen({
             {/* Question results */}
             <div className="space-y-3 mb-6">
                 <h3 className="font-semibold text-slate-900 dark:text-white">Chi tiết kết quả</h3>
-                {result.results.map((r, i) => (
-                    <Card key={r.questionId} className={cn(
-                        "border-l-4",
-                        r.correct ? "border-l-emerald-500" : "border-l-red-500"
-                    )}>
-                        <CardContent className="pt-4 pb-4">
-                            <div className="flex items-start gap-3">
-                                {r.correct
-                                    ? <CheckCircle className="h-5 w-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-                                    : <XCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
-                                }
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium text-slate-900 dark:text-white mb-2">
-                                        Câu {i + 1}: {r.content}
-                                    </p>
-                                    <div className="flex flex-wrap gap-2 text-xs">
-                                        <span className={cn(
-                                            "rounded-full px-2.5 py-1 font-medium",
-                                            r.correct
-                                                ? "bg-emerald-100 text-emerald-700"
-                                                : "bg-red-100 text-red-700"
-                                        )}>
-                                            Bạn chọn: {r.selectedAnswer || "Chưa trả lời"}
-                                        </span>
-                                        {!r.correct && (
-                                            <span className="rounded-full bg-emerald-100 px-2.5 py-1 font-medium text-emerald-700">
-                                                Đáp án: {r.correctAnswer}
-                                            </span>
-                                        )}
+                {result.results.map((r, i) => {
+                    const question = quizDetail?.questions?.find(q => q.questionId === r.questionId)
+                    const content = question?.content || r.content
+                    
+                    const getAnswerText = (key?: string) => {
+                         if (!key) return ""
+                         if (!question) return key
+                         // If key is 'A', we want question.optionA
+                         const optionKey = `option${key}` as keyof typeof question
+                         const text = question[optionKey]
+                         return text ? `${key}. ${text}` : key
+                    }
+
+                    return (
+                        <Card key={r.questionId} className={cn(
+                            "border-l-4",
+                            r.correct ? "border-l-emerald-500" : "border-l-red-500"
+                        )}>
+                            <CardContent className="pt-4 pb-4">
+                                <div className="flex items-start gap-3">
+                                    {r.correct
+                                        ? <CheckCircle className="h-5 w-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                                        : <XCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                                    }
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-slate-900 mb-2 leading-relaxed dark:text-white">
+                                            <span className="font-bold">Câu {i + 1}:</span> {content}
+                                        </p>
+                                        <div className="flex flex-col gap-2 text-xs mt-3">
+                                            <div className={cn(
+                                                "rounded-md border p-2.5 font-medium",
+                                                r.correct
+                                                    ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-800"
+                                                    : "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:border-red-800"
+                                            )}>
+                                                Bạn chọn: {getAnswerText(r.selectedAnswer) || "Chưa trả lời"}
+                                            </div>
+                                            {!r.correct && (
+                                                <div className="rounded-md bg-emerald-50 border border-emerald-200 p-2.5 font-medium text-emerald-700 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-400">
+                                                    Đáp án: {getAnswerText(r.correctAnswer)}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
+                            </CardContent>
+                        </Card>
+                    )
+                })}
             </div>
 
             {/* Actions */}
@@ -428,7 +444,7 @@ export default function QuizPage() {
 
                 {/* Result Screen */}
                 {screen === "result" && result && (
-                    <ResultScreen result={result} onRetry={handleRetry} onBack={handleBackToTopics} />
+                    <ResultScreen result={result} quizDetail={quizDetail} onRetry={handleRetry} onBack={handleBackToTopics} />
                 )}
             </div>
         </section>

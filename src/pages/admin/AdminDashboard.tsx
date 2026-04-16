@@ -23,6 +23,7 @@ import { Navigate } from "react-router-dom"
 import AdminUsers from "./AdminUsers"
 import AdminBlogs from "./AdminBlogs"
 import AdminReports from "./AdminReports"
+import { ManagerDashboardView } from "@/components/admin/ManagerDashboardView"
 import AdminQuiz from "./AdminQuiz"
 import ModeratorReports from "./ModeratorReports"
 import ManagerAssessments from "./ManagerAssessments"
@@ -156,8 +157,12 @@ function DashboardHome() {
 
                 {/* Dashboard content */}
                 <main className="flex-1 overflow-y-auto p-6">
-                    {/* Stats grid — 2 cols mobile, 3 cols tablet, 6 cols large */}
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                    {user?.role === 'MANAGER' ? (
+                        <ManagerDashboardView stats={stats} loading={statsLoading} />
+                    ) : (
+                        <>
+                            {/* Stats grid — 2 cols mobile, 3 cols tablet, 6 cols large */}
+                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
                         <AdminStatsCard
                             title="Tổng báo cáo"
                             value={statsLoading ? "..." : fmt(stats.totalReports)}
@@ -290,6 +295,8 @@ function DashboardHome() {
                             </Card>
                         </div>
                     </div>
+                    </>
+                    )}
                 </main>
             </div>
         </div>
@@ -303,11 +310,23 @@ export default function AdminDashboard() {
     return (
         <Routes>
             <Route index element={<DashboardHome />} />
-            <Route path="news" element={<AdminBlogs />} />
-            
-            {/* Mọi vai trò có thẩm quyền (ADMIN, MANAGER) đều được vào Users */}
+            {/* News/Blogs — accessible to ADMIN and MANAGER only */}
             {(user?.role === "ADMIN" || user?.role === "MANAGER") && (
-                <Route path="users" element={<AdminUsers />} />
+                <Route path="news" element={<AdminBlogs />} />
+            )}
+            {/* Managers — accessible to ADMIN only */}
+            {user?.role === "ADMIN" && (
+                <Route path="users/managers" element={<AdminUsers filterRole="MANAGER" />} />
+            )}
+            
+            {/* Moderators — accessible to ADMIN and MANAGER */}
+            {(user?.role === "ADMIN" || user?.role === "MANAGER") && (
+                <Route path="users/moderators" element={<AdminUsers filterRole="MODERATOR" />} />
+            )}
+
+            {/* Normal Users — accessible to ADMIN and MANAGER */}
+            {(user?.role === "ADMIN" || user?.role === "MANAGER") && (
+                <Route path="users/users" element={<AdminUsers filterRole="USER" />} />
             )}
 
             {/* Reports — accessible to ADMIN and MANAGER */}
@@ -340,7 +359,7 @@ export default function AdminDashboard() {
                                 ? "/admin"
                                 : user?.role === "MODERATOR"
                                 ? "/admin/moderator-reports"
-                                : "/admin/news"
+                                : "/"
                         }
                         replace
                     />
