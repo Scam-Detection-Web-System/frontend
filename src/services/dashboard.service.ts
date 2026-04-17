@@ -22,6 +22,12 @@ export interface ReportStatusStats {
     invalidReports: number
 }
 
+export interface AssessmentStats {
+    totalAssessments: number
+    totalReports: number
+    pendingReports: number
+}
+
 export interface LabelStatItem {
     label: string
     count: number
@@ -66,4 +72,11 @@ export const dashboardService = {
      */
     getLabelStats: () =>
         apiFetch<ApiResponse<LabelStatItem[]>>('/dashboards/label/stats'),
+
+    /**
+     * GET /dashboards/assessment/stats
+     * Thống kê số liệu đánh giá cho manager
+     */
+    getAssessmentStats: () =>
+        apiFetch<ApiResponse<AssessmentStats>>('/dashboards/assessment/stats'),
 }

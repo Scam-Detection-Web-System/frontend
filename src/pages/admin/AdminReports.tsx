@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { reportService, PhoneReportFilterResponse, PhoneReportItem, ReportStatus } from "@/services/report.service"
+import { dashboardService } from "@/services/dashboard.service"
 import {
     Activity,
     RefreshCw,
@@ -246,12 +247,19 @@ export default function AdminReports() {
 
     const loadStats = useCallback(async () => {
         try {
-            const res = await reportService.getHotReports({ status: "VALID", page: 0, size: 1 })
-            if (res?.data?.totalElements !== undefined) {
-                setActionCount(res.data.totalElements)
+            if (isManager) {
+                const res = await dashboardService.getAssessmentStats()
+                if (res?.success) {
+                    setActionCount(res.data.pendingReports)
+                }
+            } else {
+                const res = await dashboardService.getReportStatusStats()
+                if (res?.success) {
+                    setActionCount(res.data.pendingReports)
+                }
             }
         } catch { /* silent */ }
-    }, [])
+    }, [isManager])
 
     useEffect(() => {
         fetchReports(statusFilter)

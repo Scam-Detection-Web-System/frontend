@@ -15,20 +15,7 @@ const COLORS = [
     "hsl(347, 77%, 50%)",   // rose - rejected
 ]
 
-const chartConfig = {
-    approved: {
-        label: "Đã duyệt",
-        color: COLORS[0],
-    },
-    pending: {
-        label: "Chờ duyệt",
-        color: COLORS[1],
-    },
-    rejected: {
-        label: "Từ chối",
-        color: COLORS[2],
-    },
-} satisfies ChartConfig
+
 
 interface DashboardPieChartProps {
     data?: {
@@ -45,6 +32,22 @@ export function DashboardPieChart({ data }: DashboardPieChartProps) {
         { name: "rejected", value: data?.invalid ?? 0, label: "Từ chối" },
     ]
     const total = reportStatusData.reduce((sum, item) => sum + item.value, 0)
+    const pct = (val: number) => total === 0 ? "0" : ((val / total) * 100).toFixed(1)
+
+    const dynamicChartConfig = {
+        approved: {
+            label: `Đã duyệt ${data?.valid ?? 0} (${pct(data?.valid ?? 0)}%)`,
+            color: COLORS[0],
+        },
+        pending: {
+            label: `Chờ duyệt ${data?.pending ?? 0} (${pct(data?.pending ?? 0)}%)`,
+            color: COLORS[1],
+        },
+        rejected: {
+            label: `Từ chối ${data?.invalid ?? 0} (${pct(data?.invalid ?? 0)}%)`,
+            color: COLORS[2],
+        },
+    } satisfies ChartConfig
 
     return (
         <Card className="border-slate-200 dark:border-slate-700/50">
@@ -54,7 +57,7 @@ export function DashboardPieChart({ data }: DashboardPieChartProps) {
             </CardHeader>
             <CardContent>
                 <ChartContainer
-                    config={chartConfig}
+                    config={dynamicChartConfig}
                     className="mx-auto aspect-square max-h-[300px]"
                 >
                     <PieChart>
@@ -62,10 +65,15 @@ export function DashboardPieChart({ data }: DashboardPieChartProps) {
                             content={
                                 <ChartTooltipContent
                                     formatter={(value, name) => {
-                                        const config = chartConfig[name as keyof typeof chartConfig]
+                                        const labels: Record<string, string> = {
+                                            approved: "Đã duyệt",
+                                            pending: "Chờ duyệt",
+                                            rejected: "Từ chối"
+                                        }
+                                        const labelText = labels[name as string] || name
                                         return (
                                             <div className="flex items-center gap-2">
-                                                <span>{config?.label || name}</span>
+                                                <span>{labelText}</span>
                                                 <span className="font-mono font-bold">
                                                     {value} ({((Number(value) / total) * 100).toFixed(1)}%)
                                                 </span>
