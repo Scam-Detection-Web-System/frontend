@@ -31,14 +31,22 @@ const RISK_CONFIG: Record<string, { label: string; color: string; bg: string; bo
 }
 
 function AssessmentBlock({ assessment }: { assessment: AssessmentResponse }) {
-    const risk = RISK_CONFIG[assessment.riskLevel ?? ''] ?? RISK_CONFIG['LOW']
+    let riskKey = assessment.riskLevel ?? 'LOW'
+    const numericRisk = parseInt(riskKey, 10)
+    if (!isNaN(numericRisk)) {
+        if (numericRisk >= 80) riskKey = 'CRITICAL'
+        else if (numericRisk >= 60) riskKey = 'HIGH'
+        else if (numericRisk >= 40) riskKey = 'MEDIUM'
+        else riskKey = 'LOW'
+    }
+    const risk = RISK_CONFIG[riskKey] ?? RISK_CONFIG['LOW']
     return (
         <div className={`mt-4 rounded-2xl border p-5 ${risk.bg} ${risk.border}`}>
             <div className="flex items-center gap-2 mb-3">
                 <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 <span className="text-sm font-bold text-slate-800 dark:text-white">Đánh giá chính thức từ chuyên gia</span>
                 <span className={`ml-auto rounded-full px-2.5 py-0.5 text-xs font-semibold ${risk.color} ${risk.bg} border ${risk.border}`}>
-                    {risk.label}
+                    {!isNaN(numericRisk) ? `${numericRisk}% - ` : ""}{risk.label}
                 </span>
             </div>
             {assessment.label && (
