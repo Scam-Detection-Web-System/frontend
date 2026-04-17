@@ -374,6 +374,7 @@ export default function ManagerAssessments() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
     const [search, setSearch] = useState("")
+    const [filterCategory, setFilterCategory] = useState<"ALL" | "DANGER" | "SAFE">("ALL")
 
     // Modal state
     const [showModal, setShowModal] = useState(false)
@@ -461,7 +462,27 @@ export default function ManagerAssessments() {
         setPage(0)
     }
 
-    const filtered = assessments
+    const getRiskCategory = (level: string | null) => {
+        if (!level) return 'SAFE';
+        const riskKey = level.toUpperCase();
+        const numericRisk = parseInt(riskKey, 10);
+        if (!isNaN(numericRisk)) {
+            if (numericRisk >= 60) return 'DANGER';
+            if (numericRisk >= 40) return 'MEDIUM';
+            return 'SAFE';
+        }
+        if (riskKey === 'HIGH' || riskKey === 'CRITICAL') return 'DANGER';
+        if (riskKey === 'MEDIUM') return 'MEDIUM';
+        return 'SAFE';
+    }
+
+    const dangerCount = assessments.filter(a => getRiskCategory(a.riskLevel) === 'DANGER').length;
+    const safeCount = assessments.filter(a => getRiskCategory(a.riskLevel) === 'SAFE').length;
+
+    const filtered = assessments.filter(a => {
+        if (filterCategory === 'ALL') return true;
+        return getRiskCategory(a.riskLevel) === filterCategory;
+    });
 
     return (
         <div className="flex h-screen bg-slate-50 dark:bg-slate-950">
@@ -491,37 +512,42 @@ export default function ManagerAssessments() {
                 <main className="flex-1 overflow-y-auto p-6">
                     {/* Stats */}
                     <div className="mb-6 grid gap-4 sm:grid-cols-3">
-                        <Card>
+                        <Card 
+                            className={`cursor-pointer transition-colors ${filterCategory === 'ALL' ? 'border-indigo-500 ring-1 ring-indigo-500' : 'hover:border-indigo-300'}`}
+                            onClick={() => setFilterCategory('ALL')}
+                        >
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
                                 <CardTitle className="text-sm font-medium text-muted-foreground">Tổng đánh giá</CardTitle>
                                 <Phone className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
                                 <p className="text-2xl font-bold text-slate-900 dark:text-white">{totalElements}</p>
-                                <p className="text-xs text-muted-foreground mt-0.5">số điện thoại được đánh giá</p>
+                                <p className="text-xs text-muted-foreground mt-0.5">tất cả dữ liệu</p>
                             </CardContent>
                         </Card>
-                        <Card>
+                        <Card 
+                            className={`cursor-pointer transition-colors ${filterCategory === 'DANGER' ? 'border-orange-500 ring-1 ring-orange-500' : 'hover:border-orange-300'}`}
+                            onClick={() => setFilterCategory('DANGER')}
+                        >
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
                                 <CardTitle className="text-sm font-medium text-muted-foreground">Nguy hiểm cao</CardTitle>
                                 <Clock className="h-4 w-4 text-amber-500" />
                             </CardHeader>
                             <CardContent>
-                                <p className="text-2xl font-bold text-amber-500">
-                                    {assessments.filter(a => a.riskLevel === "HIGH" || a.riskLevel === "CRITICAL").length}
-                                </p>
+                                <p className="text-2xl font-bold text-amber-500">{dangerCount}</p>
                                 <p className="text-xs text-muted-foreground mt-0.5">trên trang này</p>
                             </CardContent>
                         </Card>
-                        <Card>
+                        <Card 
+                            className={`cursor-pointer transition-colors ${filterCategory === 'SAFE' ? 'border-emerald-500 ring-1 ring-emerald-500' : 'hover:border-emerald-300'}`}
+                            onClick={() => setFilterCategory('SAFE')}
+                        >
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
                                 <CardTitle className="text-sm font-medium text-muted-foreground">An toàn</CardTitle>
-                                <ClipboardList className="h-4 w-4 text-muted-foreground" />
+                                <ClipboardList className="h-4 w-4 text-emerald-500" />
                             </CardHeader>
                             <CardContent>
-                                <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                                    {assessments.filter(a => a.riskLevel === "LOW").length}
-                                </p>
+                                <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{safeCount}</p>
                                 <p className="text-xs text-muted-foreground mt-0.5">trên trang này</p>
                             </CardContent>
                         </Card>

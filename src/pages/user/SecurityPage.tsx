@@ -18,8 +18,10 @@ import { LoginSessions } from "@/components/shared/LoginSessions"
 export default function SecurityPage() {
     const { updateProfile } = useAuth()
 
+    const [oldPassword, setOldPassword] = useState("")
     const [newPassword, setNewPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
+    const [showOldPassword, setShowOldPassword] = useState(false)
     const [showNewPassword, setShowNewPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [error, setError] = useState("")
@@ -32,8 +34,13 @@ export default function SecurityPage() {
         e.preventDefault()
         setError("")
 
-        if (newPassword.length < 6) {
-            setError("Mật khẩu mới phải có ít nhất 6 ký tự")
+        if (!oldPassword) {
+            setError("Vui lòng nhập mật khẩu cũ")
+            return
+        }
+
+        if (newPassword.length < 8) {
+            setError("Mật khẩu mới phải có ít nhất 8 ký tự")
             return
         }
 
@@ -44,10 +51,11 @@ export default function SecurityPage() {
 
         setIsLoading(true)
         try {
-            await updateProfile({ newPassword })
+            await updateProfile({ oldPassword, newPassword, confirmPassword })
             toast.success("Đổi mật khẩu thành công", {
                 description: "Mật khẩu của bạn đã được cập nhật.",
             })
+            setOldPassword("")
             setNewPassword("")
             setConfirmPassword("")
         } catch (err) {
@@ -87,6 +95,29 @@ export default function SecurityPage() {
                     <CardContent>
                         <form onSubmit={handleChangePassword} className="space-y-4">
                             <div className="space-y-2">
+                                <Label htmlFor="sec-old-password">Mật khẩu hiện tại</Label>
+                                <div className="relative">
+                                    <Input
+                                        id="sec-old-password"
+                                        type={showOldPassword ? "text" : "password"}
+                                        value={oldPassword}
+                                        onChange={(e) => setOldPassword(e.target.value)}
+                                        placeholder="Nhập mật khẩu hiện tại"
+                                        required
+                                        disabled={isLoading}
+                                        className="pr-10"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowOldPassword(!showOldPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                    >
+                                        {showOldPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
                                 <Label htmlFor="sec-new-password">Mật khẩu mới</Label>
                                 <div className="relative">
                                     <Input
@@ -94,8 +125,8 @@ export default function SecurityPage() {
                                         type={showNewPassword ? "text" : "password"}
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
-                                        placeholder="Nhập mật khẩu mới (ít nhất 6 ký tự)"
-                                        minLength={6}
+                                        placeholder="Nhập mật khẩu mới (ít nhất 8 ký tự)"
+                                        minLength={8}
                                         required
                                         disabled={isLoading}
                                         className="pr-10"
@@ -108,12 +139,12 @@ export default function SecurityPage() {
                                         {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                     </button>
                                 </div>
-                                {newPassword.length > 0 && newPassword.length < 6 && (
+                                {newPassword.length > 0 && newPassword.length < 8 && (
                                     <p className="text-xs text-amber-600 dark:text-amber-400">
-                                        ⚠ Mật khẩu phải có ít nhất 6 ký tự
+                                        ⚠ Mật khẩu phải có ít nhất 8 ký tự
                                     </p>
                                 )}
-                                {newPassword.length >= 6 && (
+                                {newPassword.length >= 8 && (
                                     <p className="text-xs text-emerald-600 dark:text-emerald-400">
                                         ✓ Độ dài mật khẩu hợp lệ
                                     </p>

@@ -21,8 +21,15 @@ import {
     ShieldOff,
     ShieldCheck,
 } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/contexts/auth-context"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 // ─── Create / Edit Modal Component ────────────────────────────────────
 interface UserModalProps {
@@ -247,16 +254,11 @@ export default function AdminUsers({ filterRole }: { filterRole?: "MANAGER" | "M
         fetchUsers()
     }
 
-    const handleToggleBlock = async (u: UserResponse) => {
-        setBlockingId(u.userId)
+    const handleChangeStatus = async (user: UserResponse, newStatus: string) => {
+        setBlockingId(user.userId)
         setError("")
         try {
-            const isActive = u.status === "ACTIVE" || u.status === "active"
-            if (isActive) {
-                await userService.blockUser(u.userId)
-            } else {
-                await userService.activateUser(u.userId)
-            }
+            await userService.updateUserStatus(user.userId, newStatus)
             await fetchUsers()
         } catch (err: any) {
             setError(err.message ?? "Không thể thay đổi trạng thái người dùng")
@@ -281,11 +283,14 @@ export default function AdminUsers({ filterRole }: { filterRole?: "MANAGER" | "M
         return map[role] ?? "bg-slate-100 text-slate-700"
     }
 
-    const getStatusBadge = (status: string) => {
-        const active = status === "ACTIVE" || status === "active"
-        return active
-            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
-            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+    const getStatusInfo = (status: string) => {
+        const s = status.toUpperCase()
+        if (s === "ACTIVE") return { class: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300", label: "Hoạt động" }
+        if (s === "PENDING") return { class: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300", label: "Chờ duyệt" }
+        if (s === "INACTIVE") return { class: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300", label: "Không HĐ" }
+        if (s === "SUSPENDED" || s === "BLOCKED") return { class: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300", label: "Đình chỉ" }
+        if (s === "DELETED") return { class: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 line-through opacity-80", label: "Đã xóa" }
+        return { class: "bg-slate-100 text-slate-700", label: status }
     }
 
     const getGenderLabel = (gender: string) => {
@@ -434,9 +439,14 @@ export default function AdminUsers({ filterRole }: { filterRole?: "MANAGER" | "M
                                                     </span>
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusBadge(u.status)}`}>
-                                                        {u.status === "ACTIVE" || u.status === "active" ? "Hoạt động" : u.status}
-                                                    </span>
+                                                    {(() => {
+                                                        const info = getStatusInfo(u.status)
+                                                        return (
+                                                            <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${info.class}`}>
+                                                                {info.label}
+                                                            </span>
+                                                        )
+                                                    })()}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <div className="flex items-center gap-1">
@@ -444,33 +454,42 @@ export default function AdminUsers({ filterRole }: { filterRole?: "MANAGER" | "M
                                                             variant="ghost"
                                                             size="sm"
                                                             onClick={() => openEdit(u)}
-                                                            className="gap-1.5"
+                                                            className="gap-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/40"
                                                             id={`edit-user-${u.userId}`}
                                                         >
                                                             <Edit2 className="h-3.5 w-3.5" />
                                                             Sửa
                                                         </Button>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            disabled={blockingId === u.userId}
-                                                            onClick={() => handleToggleBlock(u)}
-                                                            className={`gap-1.5 ${
-                                                                u.status === "ACTIVE" || u.status === "active"
-                                                                    ? "text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/50"
-                                                                    : "text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/50"
-                                                            }`}
-                                                            id={`block-user-${u.userId}`}
-                                                        >
-                                                            {blockingId === u.userId ? (
-                                                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                                            ) : u.status === "ACTIVE" || u.status === "active" ? (
-                                                                <ShieldOff className="h-3.5 w-3.5" />
-                                                            ) : (
-                                                                <ShieldCheck className="h-3.5 w-3.5" />
-                                                            )}
-                                                            {u.status === "ACTIVE" || u.status === "active" ? "Chặn" : "Kích hoạt"}
-                                                        </Button>
+
+                                                        {/* Phân quyền thay đổi trạng thái */}
+                                                        {(currentUser?.role === 'ADMIN' || (currentUser?.role === 'MANAGER' && u.role === 'MODERATOR')) && (
+                                                            <DropdownMenu>
+                                                                <DropdownMenuTrigger asChild>
+                                                                    <Button variant="ghost" size="sm" className="gap-1.5" disabled={blockingId === u.userId}>
+                                                                        {blockingId === u.userId ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShieldOff className="h-3.5 w-3.5" />}
+                                                                        Trạng thái
+                                                                    </Button>
+                                                                </DropdownMenuTrigger>
+                                                                <DropdownMenuContent align="end">
+                                                                    <DropdownMenuItem onClick={() => handleChangeStatus(u, 'ACTIVE')}>
+                                                                        🟢 Kích hoạt (Active)
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem onClick={() => handleChangeStatus(u, 'PENDING')}>
+                                                                        🟡 Chờ duyệt (Pending)
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem onClick={() => handleChangeStatus(u, 'INACTIVE')}>
+                                                                        ⚪ Vô hiệu hóa (Inactive)
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem onClick={() => handleChangeStatus(u, 'SUSPENDED')}>
+                                                                        🟠 Đình chỉ (Suspended)
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuSeparator />
+                                                                    <DropdownMenuItem className="text-red-600 focus:bg-red-50 focus:text-red-700" onClick={() => handleChangeStatus(u, 'DELETED')}>
+                                                                        🔴 Xóa tài khoản (Deleted)
+                                                                    </DropdownMenuItem>
+                                                                </DropdownMenuContent>
+                                                            </DropdownMenu>
+                                                        )}
                                                     </div>
                                                 </td>
                                             </tr>

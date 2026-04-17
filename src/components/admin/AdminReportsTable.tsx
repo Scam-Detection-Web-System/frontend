@@ -9,7 +9,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Check, X, Loader2 } from "lucide-react"
+import { Check, X, Loader2, Phone, ChevronRight } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Link } from "react-router-dom"
 import { reportService, PhoneReportItem, ReportStatus } from "@/services/report.service"
@@ -17,9 +17,9 @@ import { useAuth } from "@/contexts/auth-context"
 
 const statusConfig: Record<ReportStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
     PENDING: { label: "Chờ duyệt", variant: "outline" },
-    VALID: { label: "Hợp lệ", variant: "default" },
+    VALID: { label: "Đã duyệt", variant: "default" },
     INVALID: { label: "Từ chối", variant: "destructive" },
-    RESOLVED: { label: "Đã xử lý", variant: "secondary" },
+    RESOLVED: { label: "Đã xử lý", variant: "secondary" }, // keep in record type for TS compatibility, but unused
 }
 
 export function AdminReportsTable() {
@@ -33,7 +33,9 @@ export function AdminReportsTable() {
     const loadReports = async () => {
         setLoading(true)
         try {
-            const res = await reportService.getReportByStatus("VALID")
+            // Cả Admin và Manager đều xem các báo cáo "Chờ duyệt" (PENDING) ở bảng dashboard
+            const targetStatus = "PENDING"
+            const res = await reportService.getReportByStatus(targetStatus)
             if (res.data) {
                 // Chuyển đổi báo cáo chi tiết thành PhoneReportItem tổng hợp để hiển thị 
                 // Do AdminReportsTable là bảng summary nhỏ ở Dashboard, ta phẳng data ra để hiện
@@ -110,8 +112,16 @@ export function AdminReportsTable() {
                             <TableBody>
                                 {reports.map((report) => (
                                     <TableRow key={report.reportId} className="group">
-                                        <TableCell className="font-mono text-xs font-medium">
-                                            {report.phoneNumber}
+                                        <TableCell>
+                                            <div className="flex items-center gap-2">
+                                                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 shrink-0">
+                                                    <Phone className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+                                                </div>
+                                                <span className="font-bold text-slate-900 dark:text-white font-mono">
+                                                    {report.phoneNumber}
+                                                </span>
+                                            </div>
                                         </TableCell>
                                         <TableCell className="max-w-[160px] truncate text-sm text-muted-foreground">
                                             {report.content}
@@ -127,8 +137,8 @@ export function AdminReportsTable() {
                                         <TableCell className="text-right">
                                             {/* ✅ Fix 3: Hiện nút đúng theo role */}
                                             
-                                            {/* Admin: duyệt hoặc từ chối báo cáo PENDING */}
-                                            {!isManager && report.status === "PENDING" && (
+                                            {/* Process PENDING reports */}
+                                            {report.status === "PENDING" && (
                                                 <div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                                                     <Button
                                                         variant="ghost"
@@ -157,23 +167,7 @@ export function AdminReportsTable() {
                                                 </div>
                                             )}
 
-                                            {/* Manager: đánh dấu RESOLVED báo cáo VALID */}
-                                            {isManager && report.status === "VALID" && (
-                                                <div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-8 w-8 text-emerald-600 hover:text-emerald-700"
-                                                        title="Đánh dấu đã xử lý"
-                                                        disabled={updatingId === report.reportId}
-                                                        onClick={() => handleAction(report.reportId, "RESOLVED")}
-                                                    >
-                                                        {updatingId === report.reportId
-                                                            ? <Loader2 className="h-4 w-4 animate-spin" />
-                                                            : <Check className="h-4 w-4" />}
-                                                    </Button>
-                                                </div>
-                                            )}
+                                            {/* Manager: removed marking as RESOLVED */}
                                         </TableCell>
                                     </TableRow>
                                 ))}
