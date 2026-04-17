@@ -74,7 +74,7 @@ function DashboardHome() {
                 const isManager = user?.role === 'MANAGER'
 
                 // Fire all queries simultaneously to grab actual live data
-                const [overviewRes, usersRes, assessmentsRes, allReportsRes, pendingReportsRes, statusRes, labelRes] = await Promise.allSettled([
+                const [overviewRes, usersRes, assessmentsRes, allReportsRes, pendingReportsRes, statusRes, labelRes, managerStatsRes] = await Promise.allSettled([
                     // 1. Dashboard Overview API (may be blocked for non-admins, but try anyway)
                     dashboardService.getOverviewStats(),
                     // 2. Users API (Admin only)
@@ -88,7 +88,9 @@ function DashboardHome() {
                     // 6. Status Stats for Pie Chart
                     dashboardService.getReportStatusStats(),
                     // 7. Label Stats
-                    dashboardService.getLabelStats()
+                    dashboardService.getLabelStats(),
+                    // 8. Manager Assessment Stats
+                    isManager ? dashboardService.getAssessmentStats() : Promise.resolve(null)
                 ])
 
                 let totalReports = 0
@@ -133,6 +135,14 @@ function DashboardHome() {
 
                 if (labelRes.status === 'fulfilled' && labelRes.value.success) {
                     setLabelStats(labelRes.value.data)
+                }
+
+                // If Manager, use the new dedicated stats API to override
+                if (isManager && managerStatsRes.status === 'fulfilled' && managerStatsRes.value?.success) {
+                    const ms = managerStatsRes.value.data;
+                    totalAssessments = ms.totalAssessments ?? totalAssessments;
+                    totalReports = ms.totalReports ?? totalReports;
+                    pendingReports = ms.pendingReports ?? pendingReports;
                 }
 
                 setStats({ totalUsers, totalReports, pendingReports, blockedUsers, totalAssessments, reportsToday })
