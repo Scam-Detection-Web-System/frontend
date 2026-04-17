@@ -15,6 +15,18 @@ export interface OverviewStats {
     totalUsers: number
 }
 
+export interface ReportStatusStats {
+    totalReports: number
+    pendingReports: number
+    validReports: number
+    invalidReports: number
+}
+
+export interface LabelStatItem {
+    label: string
+    count: number
+}
+
 interface ApiResponse<T> {
     code: number
     message: string
@@ -40,4 +52,18 @@ export const dashboardService = {
      */
     getOverviewStats: () =>
         apiFetch<ApiResponse<OverviewStats>>('/dashboards/overview/stats'),
+
+    /**
+     * GET /dashboards/status/stats
+     * Thống kê báo cáo theo trạng thái (Đã duyệt, chờ duyệt, từ chối)
+     */
+    getReportStatusStats: () =>
+        apiFetch<ApiResponse<ReportStatusStats>>('/dashboards/status/stats'),
+
+    /**
+     * GET /dashboards/label/stats
+     * Thống kê số lượng báo cáo theo loại hình lừa đảo (label)
+     */
+    getLabelStats: () =>
+        apiFetch<ApiResponse<LabelStatItem[]>>('/dashboards/label/stats'),
 }

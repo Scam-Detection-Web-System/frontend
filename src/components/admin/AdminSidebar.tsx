@@ -15,6 +15,7 @@ import {
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/auth-context"
+import { getDashboardPath } from "@/App"
 import { cn } from "@/lib/utils"
 
 const navItems = [
@@ -59,11 +60,14 @@ export function AdminSidebar() {
             {/* Navigation */}
             <nav className="flex-1 space-y-1 px-3 py-4">
                 {navItems.filter(item => !item.allowedRoles || item.allowedRoles.includes(user?.role ?? '')).map((item) => {
-                    const isActive = location.pathname === item.href
+                    const basePath = getDashboardPath(user?.role)
+                    const dynamicHref = item.href === "/admin" ? basePath : item.href.replace("/admin", basePath)
+
+                    const isActive = location.pathname === dynamicHref || (dynamicHref !== basePath && location.pathname.startsWith(dynamicHref))
                     return (
                         <Link
                             key={item.href}
-                            to={item.href}
+                            to={dynamicHref}
                             className={cn(
                                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                                 isActive

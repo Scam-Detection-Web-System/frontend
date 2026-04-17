@@ -59,23 +59,7 @@ export function HeroSection() {
           </div>
         </div>
 
-        <div className="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-3">
-          {[
-            { number: "10,000+", label: "SĐT đã được kiểm tra" },
-            { number: "500+", label: "Báo cáo lừa đảo" },
-            { number: "50,000+", label: "Người dùng đã bảo vệ" },
-          ].map((stat) => (
-            <div
-              key={stat.label}
-              className="rounded-xl border border-primary-foreground/10 bg-primary-foreground/5 p-6 text-center backdrop-blur"
-            >
-              <p className="text-3xl font-bold text-primary-foreground sm:text-4xl">
-                {stat.number}
-              </p>
-              <p className="mt-2 text-sm text-primary-foreground/70">{stat.label}</p>
-            </div>
-          ))}
-        </div>
+
       </div>
     </section>
   )
