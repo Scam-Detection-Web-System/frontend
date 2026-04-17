@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react"
-import { MessageCircle, Bot, X, Send, Loader2, RotateCcw } from "lucide-react"
+import { MessageCircle, Bot, X, Send, Loader2, RotateCcw, ImagePlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { chatbotService } from "@/services/chatbot.service"
 
@@ -8,6 +8,7 @@ interface Message {
     role: "user" | "bot"
     content: string
     timestamp: Date
+    imageUrl?: string
 }
 
 export function ChatbotButton() {
@@ -21,10 +22,33 @@ export function ChatbotButton() {
         },
     ])
     const [input, setInput] = useState("")
+    const [selectedImage, setSelectedImage] = useState<File | null>(null)
+    const [imagePreview, setImagePreview] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
     const [chatId] = useState(() => crypto.randomUUID())
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLTextAreaElement>(null)
+    const fileInputRef = useRef<HTMLInputElement>(null)
+
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            setSelectedImage(file)
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string)
+            }
+            reader.readAsDataURL(file)
+        }
+    }
+
+    const removeImage = () => {
+        setSelectedImage(null)
+        setImagePreview(null)
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ""
+        }
+    }
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -36,22 +60,35 @@ export function ChatbotButton() {
         }
     }, [open])
 
+    useEffect(() => {
+        if (!input && inputRef.current) {
+            inputRef.current.style.height = '42px'
+        }
+    }, [input])
+
     const sendMessage = async () => {
         const text = input.trim()
-        if (!text || loading) return
+        if ((!text && !selectedImage) || loading) return
 
         const userMsg: Message = {
             id: crypto.randomUUID(),
             role: "user",
             content: text,
             timestamp: new Date(),
+            imageUrl: imagePreview || undefined,
         }
         setMessages(prev => [...prev, userMsg])
         setInput("")
+
+        const currentImage = selectedImage
+        setSelectedImage(null)
+        setImagePreview(null)
+        if (fileInputRef.current) fileInputRef.current.value = ""
+
         setLoading(true)
 
         try {
-            const res = await chatbotService.ask(text, chatId)
+            const res = await chatbotService.ask(text, chatId, currentImage)
             const botMsg: Message = {
                 id: crypto.randomUUID(),
                 role: "bot",
@@ -135,12 +172,14 @@ export function ChatbotButton() {
                                     </div>
                                 )}
                                 <div
-                                    className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm whitespace-pre-wrap ${
-                                        msg.role === "user"
+                                    className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm whitespace-pre-wrap ${msg.role === "user"
                                             ? "bg-blue-600 text-white rounded-br-sm"
                                             : "bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-bl-sm shadow-sm"
-                                    }`}
+                                        }`}
                                 >
+                                    {msg.imageUrl && (
+                                        <img src={msg.imageUrl} alt="Uploaded" className="mb-2 max-w-full rounded-lg" />
+                                    )}
                                     {msg.content}
                                 </div>
                             </div>
@@ -162,22 +201,56 @@ export function ChatbotButton() {
 
                     {/* Input */}
                     <div className="border-t border-slate-200 dark:border-slate-700 p-3 bg-white dark:bg-slate-900">
+                        {imagePreview && (
+                            <div className="mb-3 flex items-start">
+                                <div className="relative inline-block">
+                                    <img src={imagePreview} alt="Preview" className="h-16 w-16 object-cover rounded-lg border border-slate-200" />
+                                    <button
+                                        onClick={removeImage}
+                                        className="absolute -top-2 -right-2 bg-white dark:bg-slate-800 rounded-full p-0.5 text-slate-500 hover:text-red-500 border border-slate-200 dark:border-slate-700 shadow-sm"
+                                    >
+                                        <X className="h-3 w-3" />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                         <div className="flex items-end gap-2">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                ref={fileInputRef}
+                                onChange={handleImageSelect}
+                                className="hidden"
+                            />
+                            <Button
+                                size="icon"
+                                variant="outline"
+                                className="h-[42px] w-[42px] shrink-0 rounded-xl bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={loading}
+                                title="Tải ảnh lên"
+                            >
+                                <ImagePlus className="h-4 w-4 text-slate-500" />
+                            </Button>
                             <textarea
                                 ref={inputRef}
                                 value={input}
-                                onChange={e => setInput(e.target.value)}
+                                onChange={e => {
+                                    setInput(e.target.value)
+                                    e.target.style.height = '42px'
+                                    e.target.style.height = `${Math.min(e.target.scrollHeight, 112)}px`
+                                }}
                                 onKeyDown={handleKeyDown}
                                 placeholder="Nhập câu hỏi... (Enter để gửi)"
                                 rows={1}
-                                className="flex-1 resize-none rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 max-h-28 overflow-y-auto"
-                                style={{ minHeight: "42px" }}
+                                className="flex-1 resize-none rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                                style={{ minHeight: "42px", height: "42px" }}
                             />
                             <Button
                                 size="icon"
                                 className="h-[42px] w-[42px] shrink-0 bg-blue-600 hover:bg-blue-700 rounded-xl"
                                 onClick={sendMessage}
-                                disabled={!input.trim() || loading}
+                                disabled={(!input.trim() && !selectedImage) || loading}
                                 id="chatbot-send"
                             >
                                 {loading ? (
