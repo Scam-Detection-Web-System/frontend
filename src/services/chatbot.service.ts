@@ -26,9 +26,15 @@ export const chatbotService = {
      * @param text - Nội dung câu hỏi
      * @param chatId - Session chat ID (optional, để giữ context)
      */
-    ask: (text: string, chatId?: string) =>
-        apiFetch<ApiResponse<AIResponse>>('/chatbot/ask', {
+    ask: (text: string, chatId?: string, image?: File | null) => {
+        const formData = new FormData();
+        formData.append("text", text);
+        if (chatId) formData.append("chatId", chatId);
+        if (image) formData.append("image", image);
+
+        return apiFetch<ApiResponse<AIResponse>>('/chatbot/ask', {
             method: 'POST',
-            body: JSON.stringify({ text, ...(chatId ? { chatId } : {}) }),
-        }),
+            body: formData,
+        });
+    },
 }
