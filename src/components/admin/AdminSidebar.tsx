@@ -24,7 +24,7 @@ const navItems = [
     { href: "/admin/moderator-reports", label: "Duyệt báo cáo", icon: ShieldCheck, allowedRoles: ['MODERATOR'] },
     { href: "/admin/users/managers", label: "Quản lý Manager", icon: Users, allowedRoles: ['ADMIN'] },
     { href: "/admin/users/moderators", label: "Quản lý Moderator", icon: Users, allowedRoles: ['ADMIN', 'MANAGER'] },
-    { href: "/admin/users/users", label: "Quản lý User", icon: Users, allowedRoles: ['ADMIN', 'MANAGER'] },
+    { href: "/admin/users/users", label: "Quản lý User", icon: Users, allowedRoles: ['ADMIN'] },
     { href: "/admin/quiz", label: "Quiz & Câu hỏi", icon: BrainCircuit, allowedRoles: ['ADMIN', 'MANAGER'] },
     { href: "/admin/news", label: "Tin tức", icon: Newspaper, allowedRoles: ['ADMIN', 'MANAGER'] },
     { href: "/admin/settings", label: "Cài đặt", icon: Settings, allowedRoles: ['ADMIN', 'MANAGER', 'MODERATOR'] },

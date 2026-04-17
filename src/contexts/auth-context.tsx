@@ -146,7 +146,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser(userData)
             localStorage.setItem('auth_user', JSON.stringify(userData))
         } catch (error: any) {
-            throw new Error(error.message || 'Đăng nhập thất bại')
+            let errorMsg = error.message || 'Đăng nhập thất bại'
+            if (errorMsg === 'Phiên làm việc không hợp lệ hoặc bạn chưa đăng nhập') {
+                errorMsg = 'Email hoặc mật khẩu không chính xác'
+            }
+            throw new Error(errorMsg)
         }
     }
 

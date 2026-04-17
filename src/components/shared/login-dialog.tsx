@@ -120,6 +120,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
             } else if (mode === "register") {
                 if (!registerUsername.trim()) throw new Error("Vui lòng nhập tên đăng nhập")
                 if (!gender) throw new Error("Vui lòng chọn giới tính")
+                if (password.length < 8) throw new Error("Mật khẩu phải có ít nhất 8 ký tự")
                 await register(registerEmail, password, registerUsername, gender)
                 // Sau đăng ký backend gửi OTP email, chuyển sang màn hình xác minh
                 setOtpCode(Array(OTP_LENGTH).fill(""))
@@ -248,6 +249,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
     // ── Step 3 — Reset password ──────────────────────────────────
     const handleResetPassword = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (newPassword.length < 8) { setError("Mật khẩu mới phải có ít nhất 8 ký tự"); return }
         if (newPassword !== confirmPassword) { setError("Mật khẩu xác nhận không khớp"); return }
         setError("")
         setIsLoading(true)

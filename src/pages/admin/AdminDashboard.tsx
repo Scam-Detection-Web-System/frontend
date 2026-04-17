@@ -30,6 +30,7 @@ import ManagerAssessments from "./ManagerAssessments"
 import { userService } from "@/services/user.service"
 import { reportService } from "@/services/report.service"
 import { dashboardService } from "@/services/dashboard.service"
+import { assessmentService } from "@/services/assessment.service"
 
 interface DashboardStats {
     totalUsers: number
@@ -67,60 +68,62 @@ function DashboardHome() {
             setStatsLoading(true)
             try {
                 const isAdmin = user?.role === 'ADMIN'
+                const isManager = user?.role === 'MANAGER'
 
-                // Try to get overview stats from dashboard API first
-                const [overviewRes, usersRes] = await Promise.allSettled([
+                // Fire all queries simultaneously to grab actual live data
+                const [overviewRes, usersRes, assessmentsRes, allReportsRes, pendingReportsRes] = await Promise.allSettled([
+                    // 1. Dashboard Overview API (may be blocked for non-admins, but try anyway)
                     dashboardService.getOverviewStats(),
-                    isAdmin ? userService.getAllUsers({ page: 0, size: 200 }) : Promise.resolve({ data: [] }),
+                    // 2. Users API (Admin only)
+                    isAdmin ? userService.getAllUsers({ page: 0, size: 1 }) : Promise.resolve({ data: [] }),
+                    // 3. Assessments API (Manager handles this)
+                    assessmentService.getAssessmentsPage({ page: 0, size: 1 }),
+                    // 4. All Grouped Reports API
+                    reportService.getGroupedReports({ page: 0, size: 1 }),
+                    // 5. Pending Requires Action Reports (For Managers context, VALID status is pending assessment)
+                    isManager ? reportService.getGroupedReports({ status: 'VALID', page: 0, size: 1 }) : reportService.getHotReports({ status: 'VALID', page: 0, size: 1 })
                 ])
 
                 let totalReports = 0
                 let pendingReports = 0
                 let totalUsers = 0
                 let blockedUsers = 0
+                let totalAssessments = 0
+                let reportsToday = 0
 
-                // Use dashboard overview API if available
+                // Attempt to use overview stats if successful
                 if (overviewRes.status === 'fulfilled' && overviewRes.value.success) {
                     const od = overviewRes.value.data
                     totalReports = od.totalReports ?? 0
                     totalUsers = od.totalUsers ?? 0
-                    // reportsToday can serve as a proxy for pending requiring attention
+                    reportsToday = od.reportsToday ?? 0
+                    totalAssessments = od.totalAssessments ?? 0
+                    // In overview, reportsToday was used as a generic proxy for "pending", but we will override it with actual pending count if available
                     pendingReports = od.reportsToday ?? 0
-                    // Store reportsToday and totalAssessments separately
-                    const totalAssessments = od.totalAssessments ?? 0
-                    const reportsToday = od.reportsToday ?? 0
-                    if (isAdmin && usersRes.status === 'fulfilled') {
-                        const userList = usersRes.value.data ?? []
-                        if (totalUsers === 0) totalUsers = userList.length
-                        blockedUsers = userList.filter(
-                            (u: any) => u.status !== 'ACTIVE' && u.status !== 'active'
-                        ).length
-                    }
-                    setStats({ totalUsers, totalReports, pendingReports, blockedUsers, totalAssessments, reportsToday })
-                } else {
-                    // Fallback: use hot reports count as totalReports
-                    const [allReportsRes, actionReportsRes] = await Promise.allSettled([
-                        reportService.getHotReports({ page: 0, size: 1 }),
-                        reportService.getHotReports({ status: 'VALID', page: 0, size: 1 }),
-                    ])
-                    totalReports = allReportsRes.status === 'fulfilled' ? allReportsRes.value.data.totalElements : 0
-                    pendingReports = actionReportsRes.status === 'fulfilled' ? actionReportsRes.value.data.totalElements : 0
                 }
 
-                // Fallback path: set with defaults
-                if (overviewRes.status !== 'fulfilled' || !overviewRes.value.success) {
-                    // Admin can see users
-                    if (isAdmin && usersRes.status === 'fulfilled') {
-                        const userList = usersRes.value.data ?? []
-                        if (totalUsers === 0) totalUsers = userList.length
-                        blockedUsers = userList.filter(
-                            (u: any) => u.status !== 'ACTIVE' && u.status !== 'active'
-                        ).length
-                    }
-                    setStats({ totalUsers, totalReports, pendingReports, blockedUsers, totalAssessments: 0, reportsToday: 0 })
+                // Explicitly override with real data from direct services if they succeeded
+                if (assessmentsRes.status === 'fulfilled') {
+                    totalAssessments = assessmentsRes.value.data.totalElements ?? totalAssessments;
                 }
-            } catch {
-                // Silently keep zeros on complete failure
+                if (allReportsRes.status === 'fulfilled') {
+                    // Update totalReports if direct query has more up-to-date data 
+                    // (Dashboard Overview might cache or not count correctly)
+                    totalReports = allReportsRes.value.data.totalElements ?? totalReports;
+                }
+                if (pendingReportsRes.status === 'fulfilled') {
+                    pendingReports = pendingReportsRes.value.data.totalElements ?? pendingReports;
+                }
+                if (isAdmin && usersRes.status === 'fulfilled' && (usersRes.value as any)?.data?.totalElements) {
+                    totalUsers = (usersRes.value as any).data.totalElements ?? totalUsers;
+                    // Note: Cannot easily get blocked users count from page 0 size 1 without a filter endpoint,
+                    // so we keep blockedUsers as 0 unless overview API provided it. 
+                }
+
+                setStats({ totalUsers, totalReports, pendingReports, blockedUsers, totalAssessments, reportsToday })
+
+            } catch (err) {
+                console.error("Dashboard stats error:", err)
             } finally {
                 setStatsLoading(false)
             }

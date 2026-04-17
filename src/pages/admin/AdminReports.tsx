@@ -23,16 +23,15 @@ import { ReportDetailModal, LABEL_MAP } from "./ModeratorReports"
 const ALL_STATUS_OPTIONS: { value: ReportStatus | "ALL"; label: string }[] = [
     { value: "ALL", label: "Tất cả" },
     { value: "PENDING", label: "Chờ duyệt" },
-    { value: "VALID", label: "Hợp lệ" },
-    { value: "INVALID", label: "Không hợp lệ" },
-    { value: "RESOLVED", label: "Đã xử lý" },
+    { value: "VALID", label: "Đã duyệt" },
+    { value: "INVALID", label: "Từ chối" },
 ]
 
 function getStatusBadge(status: ReportStatus) {
     const map: Record<ReportStatus, { label: string; className: string }> = {
         PENDING: { label: "Chờ duyệt", className: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" },
-        VALID: { label: "Hợp lệ", className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" },
-        INVALID: { label: "Không hợp lệ", className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300" },
+        VALID: { label: "Đã duyệt", className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" },
+        INVALID: { label: "Từ chối", className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300" },
         RESOLVED: { label: "Đã xử lý", className: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" },
     }
     const s = map[status] ?? { label: status, className: "bg-slate-100 text-slate-700" }
@@ -159,15 +158,6 @@ function ReportGroupRow({ group, onUpdateStatus, onViewDetail }: {
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
-                                                        onClick={() => onUpdateStatus(report.reportId, "RESOLVED")}
-                                                        className="flex-1 md:flex-none text-xs h-8 text-blue-600 hover:bg-blue-50"
-                                                    >
-                                                        Đánh dấu xử lý
-                                                    </Button>
-                                                ) : report.status === "RESOLVED" ? (
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
                                                         onClick={() => handleCreateAssessment(report)}
                                                         className="flex-1 md:flex-none text-xs h-8 text-amber-600 hover:bg-amber-50 dark:text-amber-500"
                                                     >
@@ -207,27 +197,23 @@ export default function AdminReports() {
     const [detailReportId, setDetailReportId] = useState<string | null>(null)
     const [modalUpdating, setModalUpdating] = useState(false)
     const [actionCount, setActionCount] = useState(0)
-
-    const availableOptions = isManager
-        ? ALL_STATUS_OPTIONS.filter(o => o.value !== "ALL" && o.value !== "PENDING")
-        : ALL_STATUS_OPTIONS;
+    // Allow Managers to see all options including PENDING
+    const availableOptions = ALL_STATUS_OPTIONS;
 
     const fetchReports = useCallback(async (status: ReportStatus | "ALL" = statusFilter) => {
         setLoading(true)
         setError("")
         try {
             if (status === "ALL") {
-                const [pRes, vRes, iRes, rRes] = await Promise.allSettled([
+                const [pRes, vRes, iRes] = await Promise.allSettled([
                     reportService.getReportByStatus("PENDING"),
                     reportService.getReportByStatus("VALID"),
                     reportService.getReportByStatus("INVALID"),
-                    reportService.getReportByStatus("RESOLVED"),
                 ])
                 let allReports: PhoneReportFilterResponse[] = []
                 if (pRes.status === "fulfilled") allReports = [...allReports, ...(pRes.value.data ?? [])]
                 if (vRes.status === "fulfilled") allReports = [...allReports, ...(vRes.value.data ?? [])]
                 if (iRes.status === "fulfilled") allReports = [...allReports, ...(iRes.value.data ?? [])]
-                if (rRes.status === "fulfilled") allReports = [...allReports, ...(rRes.value.data ?? [])]
                 
                 const mergedMap = new Map<string, PhoneReportFilterResponse>()
                 allReports.forEach(r => {

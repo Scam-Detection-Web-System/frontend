@@ -47,10 +47,6 @@ function StatusBadge({ status }: { status: ReportStatus }) {
             label: "Từ chối",
             className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
         },
-        RESOLVED: {
-            label: "Đã xử lý",
-            className: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-        },
     }
     const s = map[status] ?? { label: status, className: "bg-slate-100 text-slate-700" }
     return (
@@ -459,17 +455,15 @@ export default function ModeratorReports() {
             try {
                 if (status === "ALL") {
                     // Cần fetch tất cả status vì API chỉ cho phép tìm theo status cụ thể
-                    const [pRes, vRes, iRes, rRes] = await Promise.allSettled([
+                    const [pRes, vRes, iRes] = await Promise.allSettled([
                         reportService.getReportByStatus("PENDING"),
                         reportService.getReportByStatus("VALID"),
                         reportService.getReportByStatus("INVALID"),
-                        reportService.getReportByStatus("RESOLVED"),
                     ])
                     let allReports: PhoneReportFilterResponse[] = []
                     if (pRes.status === "fulfilled") allReports = [...allReports, ...(pRes.value.data ?? [])]
                     if (vRes.status === "fulfilled") allReports = [...allReports, ...(vRes.value.data ?? [])]
                     if (iRes.status === "fulfilled") allReports = [...allReports, ...(iRes.value.data ?? [])]
-                    if (rRes.status === "fulfilled") allReports = [...allReports, ...(rRes.value.data ?? [])]
                     
                     // Gộp các report trùng phoneNumber
                     const mergedMap = new Map<string, PhoneReportFilterResponse>()
@@ -626,7 +620,7 @@ export default function ModeratorReports() {
                         <p className="text-xs text-slate-700 dark:text-slate-300">
                             <strong>Quy trình:</strong> Người dùng gửi báo cáo →
                             <span className="font-semibold"> Moderator duyệt</span> (PENDING → VALID/INVALID) →
-                            <span className="font-semibold"> Manager xem xét</span> (VALID → RESOLVED)
+                            <span className="font-semibold"> Manager xem xét</span> (viết đánh giá cảnh báo)
                         </p>
                     </div>
 

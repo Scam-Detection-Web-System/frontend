@@ -207,7 +207,7 @@ export default function PhoneAssessmentPage() {
                                 {carrier && (
                                     <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${carrierColorClass}`}>
                                         <Network className="h-3.5 w-3.5" />
-                                        {carrier}
+                                        {carrier.toUpperCase().replace(/-/g, ' ')}
                                     </span>
                                 )}
                                 {phoneTypeConfig && (
@@ -303,13 +303,22 @@ export default function PhoneAssessmentPage() {
                                         <div className="p-6 sm:p-8">
                                             <div className="flex items-center gap-2 mb-4 text-slate-900 dark:text-white">
                                                 <Shield className="h-5 w-5 text-blue-600" />
-                                                <h3 className="text-lg font-bold">Nhận xét từ chuyên gia</h3>
+                                                <h3 className="text-lg font-bold">Nhận xét</h3>
                                             </div>
                                             <div className="prose prose-slate dark:prose-invert max-w-none text-slate-600 dark:text-slate-400 leading-relaxed text-[15px]">
                                                 {assessment.review ? (
-                                                    <p className="whitespace-pre-wrap">{assessment.review}</p>
+                                                    <ul className="list-disc pl-5 space-y-1.5 marker:text-slate-400">
+                                                        {assessment.review
+                                                            .split('\n')
+                                                            .filter(line => line.trim())
+                                                            .map((line, idx) => (
+                                                                <li key={idx}>
+                                                                    {line.trim().replace(/^[-*•]\s*/, '')}
+                                                                </li>
+                                                            ))}
+                                                    </ul>
                                                 ) : (
-                                                    <p className="italic text-slate-400">Chuyên gia chưa để lại nhận xét chi tiết.</p>
+                                                    <p className="italic text-slate-400">Chưa có nhận xét chi tiết.</p>
                                                 )}
                                             </div>
 

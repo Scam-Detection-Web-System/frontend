@@ -56,6 +56,16 @@ export const userService = {
         }),
 
     /**
+     * PUT /users/status/{userId}
+     * Cập nhật trạng thái người dùng (Admin/Manager)
+     */
+    updateUserStatus: (userId: string, status: string) =>
+        apiFetch<ApiResponse<UserResponse>>(`/users/status/${userId}`, {
+            method: 'PUT',
+            body: JSON.stringify({ userStatus: status })
+        }),
+
+    /**
      * GET /users
      * Lấy danh sách tất cả người dùng (Admin/Manager).
      */
