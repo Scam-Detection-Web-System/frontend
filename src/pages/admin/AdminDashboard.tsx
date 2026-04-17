@@ -238,43 +238,66 @@ function DashboardHome() {
                             <CardContent>
                                 <div className="space-y-3">
                                     {labelStats.length > 0 ? (
-                                        labelStats.map((item, idx) => {
-                                            const totalLabelCount = labelStats.reduce((sum, a) => sum + a.count, 0)
-                                            const pct = totalLabelCount === 0 ? 0 : Math.round((item.count / totalLabelCount) * 100)
-                                            
-                                            const LABEL_TRANSLATIONS: Record<string, string> = {
-                                                "SUSPICIOUS": "Đáng ngờ (Suspicious)",
-                                                "ADVERTISING": "Quảng cáo/Tiếp thị",
-                                                "SAFE": "An toàn",
-                                                "SCAM": "Lừa đảo",
-                                                "SPAM": "Làm phiền",
-                                                "FINANCIAL_SCAM": "Lừa đảo tài chính",
-                                                "IMPERSONATION": "Mạo danh",
-                                                "EMPLOYMENT_SCAM": "Lừa đảo việc làm",
-                                                "THREAT": "Đe doạ",
-                                                "FRAUD": "Chiếm đoạt",
-                                                "OTHER": "Khác"
-                                            }
-                                            const translatedLabel = LABEL_TRANSLATIONS[item.label.toUpperCase()] || item.label
+                                        (() => {
+                                            // 1. Nhóm theo các nhãn chuẩn
+                                            const grouped: Record<string, number> = {}
+                                            let totalCount = 0
 
-                                            // Rotate through a set of vibrant colors
+                                            // Danh sách 6 nhãn chuẩn theo yêu cầu
+                                            const STANDARD_LABELS = {
+                                                "Lừa đảo": 0,
+                                                "Quảng cáo": 0,
+                                                "Đáng ngờ": 0,
+                                                "Làm phiền": 0,
+                                                "Không rõ": 0,
+                                                "An toàn": 0
+                                            }
+                                            
+                                            Object.assign(grouped, STANDARD_LABELS)
+
+                                            labelStats.forEach(item => {
+                                                const l = item.label.toLowerCase()
+                                                let normalized = "Không rõ"
+                                                
+                                                if (l.includes('lừa đảo') || l.includes('scam') || l.includes('fraud') || l.includes('chiếm đoạt') || l.includes('mạo danh')) normalized = "Lừa đảo"
+                                                else if (l.includes('quảng cáo') || l.includes('tiếp thị') || l.includes('advertising')) normalized = "Quảng cáo"
+                                                else if (l.includes('đáng ngờ') || l.includes('suspicious')) normalized = "Đáng ngờ"
+                                                else if (l.includes('làm phiền') || l.includes('spam') || l.includes('đe doạ') || l.includes('quấy rối')) normalized = "Làm phiền"
+                                                else if (l.includes('an toàn') || l.includes('uy tín') || l.includes('safe') || l.includes('hợp pháp')) normalized = "An toàn"
+                                                
+                                                grouped[normalized] = (grouped[normalized] || 0) + item.count
+                                                totalCount += item.count
+                                            })
+
+                                            // 2. Chuyển thành mảng, lọc các nhãn có count > 0 và sắp xếp giảm dần
+                                            const displayStats = Object.entries(grouped)
+                                                .filter(([_, count]) => count > 0)
+                                                .sort((a, b) => b[1] - a[1])
+
+                                            if (displayStats.length === 0) return <p className="text-sm text-muted-foreground">Không có dữ liệu</p>
+
                                             const colors = ["bg-red-500", "bg-orange-500", "bg-amber-500", "bg-blue-500", "bg-slate-500", "bg-emerald-500", "bg-indigo-500"]
-                                            const color = colors[idx % colors.length]
-                                            return (
-                                                <div key={item.label} className="space-y-1.5">
-                                                    <div className="flex items-center justify-between text-sm">
-                                                        <span className="text-muted-foreground">{translatedLabel}</span>
-                                                        <span className="font-medium">{item.count}</span>
+
+                                            return displayStats.map(([label, count], idx) => {
+                                                const pct = totalCount === 0 ? 0 : Math.round((count / totalCount) * 100)
+                                                const color = colors[idx % colors.length]
+                                                
+                                                return (
+                                                    <div key={label} className="space-y-1.5">
+                                                        <div className="flex items-center justify-between text-sm">
+                                                            <span className="text-muted-foreground">{label}</span>
+                                                            <span className="font-medium">{count}</span>
+                                                        </div>
+                                                        <div className="h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800">
+                                                            <div
+                                                                className={`h-full rounded-full ${color} transition-all duration-500`}
+                                                                style={{ width: `${pct}%` }}
+                                                            />
+                                                        </div>
                                                     </div>
-                                                    <div className="h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800">
-                                                        <div
-                                                            className={`h-full rounded-full ${color} transition-all duration-500`}
-                                                            style={{ width: `${pct}%` }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            )
-                                        })
+                                                )
+                                            })
+                                        })()
                                     ) : (
                                         <p className="text-sm text-muted-foreground">Không có dữ liệu</p>
                                     )}

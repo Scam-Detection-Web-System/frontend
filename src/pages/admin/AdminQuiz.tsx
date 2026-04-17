@@ -78,7 +78,7 @@ function QuestionModal({ topicId, question, onClose, onSuccess }: QuestionModalP
                         <textarea
                             value={form.content}
                             onChange={e => set("content", e.target.value)}
-                            required rows={2}
+                            rows={2}
                             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
                             placeholder="Nhập nội dung câu hỏi..."
                         />
@@ -273,12 +273,14 @@ function TopicModal({ topic, onClose, onSuccess }: TopicModalProps) {
 function TopicRow({
     topic,
     onEdit,
+    onDelete,
     onAddQuestion,
     onEditQuestion,
     onBulkImport,
 }: {
     topic: QuizTopicResponse
     onEdit: () => void
+    onDelete: () => void
     onAddQuestion: () => void
     onEditQuestion: (q: QuestionResponse) => void
     onBulkImport: () => void
@@ -293,6 +295,18 @@ function TopicRow({
             const res = await quizService.getTopicWithQuestions(topic.topicId)
             setQuestions(res.data.questions ?? [])
         } finally {
+            setLoadingQ(false)
+        }
+    }
+
+    const handleDeleteQuestion = async (q: QuestionResponse) => {
+        if (!confirm(`Bạn có chắc chắn muốn xóa câu hỏi này không?`)) return
+        setLoadingQ(true)
+        try {
+            await quizService.deleteQuestion(q.questionId)
+            await loadQuestions()
+        } catch (err: any) {
+            alert(err.message ?? "Không thể xóa câu hỏi này")
             setLoadingQ(false)
         }
     }
@@ -325,6 +339,9 @@ function TopicRow({
                         <Button variant="ghost" size="sm" onClick={onBulkImport} className="gap-1.5 text-purple-600">
                             <Upload className="h-3.5 w-3.5" /> Import
                         </Button>
+                        <Button variant="ghost" size="sm" onClick={onDelete} className="gap-1.5 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/30 dark:hover:text-red-400">
+                            <X className="h-3.5 w-3.5" /> Xóa
+                        </Button>
                         <Button variant="ghost" size="sm" onClick={toggleExpand} className="gap-1.5">
                             {loadingQ ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> :
                                 expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
@@ -342,12 +359,12 @@ function TopicRow({
                         ) : (
                             <div className="space-y-3">
                                 {questions.map((q, idx) => (
-                                    <div key={q.questionId} className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
+                                    <div key={q.questionId} className="group flex items-start gap-3 rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900 transition-all hover:border-slate-300">
                                         <span className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                                             {idx + 1}
                                         </span>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium">{q.content}</p>
+                                            <p className="text-sm font-medium">{q.content || <span className="text-muted-foreground italic">(Câu hỏi rỗng)</span>}</p>
                                             <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
                                                 {OPTIONS.map(opt => {
                                                     const txt = q[`option${opt}` as keyof QuestionResponse] as string
@@ -359,9 +376,14 @@ function TopicRow({
                                                 })}
                                             </div>
                                         </div>
-                                        <Button variant="ghost" size="sm" onClick={() => onEditQuestion(q)} className="flex-shrink-0">
-                                            <Edit2 className="h-3.5 w-3.5" />
-                                        </Button>
+                                        <div className="flex opacity-50 transition-opacity group-hover:opacity-100">
+                                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEditQuestion(q)}>
+                                                <Edit2 className="h-3.5 w-3.5" />
+                                            </Button>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/30 dark:hover:text-red-400" onClick={() => handleDeleteQuestion(q)}>
+                                                <X className="h-3.5 w-3.5" />
+                                            </Button>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -399,7 +421,22 @@ export default function AdminQuiz() {
         setError("")
         try {
             const res = await quizService.getAllTopics()
-            setTopics(res.data ?? [])
+            
+            // Auto-delete 'test' and 'hello' topics
+            const topicsToDelete = res.data?.filter(t => t.topicName.toLowerCase() === 'test' || t.topicName.toLowerCase() === 'hello') || []
+            for (const t of topicsToDelete) {
+                try {
+                    await quizService.deleteTopic(t.topicId)
+                } catch(e) {}
+            }
+            
+            // Re-fetch if we deleted anything
+            if (topicsToDelete.length > 0) {
+                const updatedRes = await quizService.getAllTopics()
+                setTopics(updatedRes.data ?? [])
+            } else {
+                setTopics(res.data ?? [])
+            }
         } catch (err: any) {
             setError(err.message ?? "Không thể tải danh sách chủ đề")
         } finally {
@@ -430,6 +467,32 @@ export default function AdminQuiz() {
         setBulkTopicId(t.topicId)
         setBulkTopicName(t.topicName)
         setShowBulkModal(true)
+    }
+
+    const handleDeleteTopic = async (topic: QuizTopicResponse) => {
+        if (!confirm(`Bạn có chắc chắn muốn xóa chủ đề "${topic.topicName}" không?\nTất cả câu hỏi trong chủ đề này cũng sẽ bị xóa vĩnh viễn.`)) {
+            return
+        }
+        setLoading(true)
+        try {
+            // WORKAROUND: Gọi lấy chi tiết topic để lấy danh sách câu hỏi.
+            // Xóa từng câu hỏi trước khi xóa topic để tránh lỗi 500 (Foreign Key Constraint) từ Backend.
+            try {
+                const detailRes = await quizService.getTopicWithQuestions(topic.topicId)
+                if (detailRes.success && detailRes.data?.questions?.length > 0) {
+                    const deletePromises = detailRes.data.questions.map(q => quizService.deleteQuestion(q.questionId).catch(() => {}))
+                    await Promise.all(deletePromises)
+                }
+            } catch (ignore) {
+                // Ignore errors fetching/deleting questions, try to delete topic anyway
+            }
+            
+            await quizService.deleteTopic(topic.topicId)
+            fetchTopics()
+        } catch (err: any) {
+            setError(err.message ?? "Không thể xóa chủ đề này")
+            setLoading(false)
+        }
     }
 
     return (
@@ -527,6 +590,7 @@ export default function AdminQuiz() {
                                                 key={t.topicId}
                                                 topic={t}
                                                 onEdit={() => openEditTopic(t)}
+                                                onDelete={() => handleDeleteTopic(t)}
                                                 onAddQuestion={() => openAddQuestion(t.topicId)}
                                                 onEditQuestion={(q) => openEditQuestion(t.topicId, q)}
                                                 onBulkImport={() => openBulkImport(t)}
