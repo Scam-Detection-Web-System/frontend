@@ -78,6 +78,7 @@ const ERROR_MAP: Record<string, string> = {
   // ===== Entities (Report / Scam / Domain / Blog) =====
   'Report not found': 'Không tìm thấy báo cáo này trong hệ thống',
   'Report already exists': 'Bạn đã gửi báo cáo cho trường hợp này rồi',
+  'You have already reported this number': 'Bạn đã gửi báo cáo cho số điện thoại này rồi',
   'URL is invalid': 'Đường dẫn liên kết (URL) không hợp lệ',
   'Phone number is invalid': 'Số điện thoại không đúng định dạng',
   'Invalid domain': 'Tên miền không hợp lệ (Ví dụ đúng: example.com)',

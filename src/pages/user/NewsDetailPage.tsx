@@ -82,28 +82,24 @@ export default function NewsDetailPage() {
                 setError(res.message || "Không tìm thấy bài viết.")
             }
         } catch (err: any) {
-            const msg: string = err?.message ?? ""
-            // Lỗi xác thực do endpoint getBlogById yêu cầu login
-            if (msg.toLowerCase().includes("unauthorized") || msg.toLowerCase().includes("401") ||
-                msg.toLowerCase().includes("forbidden") || msg.toLowerCase().includes("403")) {
-                
-                // WORKAROUND: Endpoint /blogs không yêu cầu login và trả về đủ content
-                try {
-                    const fallbackRes = await blogService.getBlogs({ page: 0, size: 200 })
-                    if (fallbackRes.success && fallbackRes.data?.content) {
-                        const found = fallbackRes.data.content.find((b: BlogResponse) => b.blogId === id)
-                        if (found) {
-                            setBlog(found)
-                            return
-                        }
+            // WORKAROUND: Endpoint /blogs/{id} của backend hiện tại có thể yêu cầu login chặn người dùng khách.
+            // Trong khi đó endpoint /blogs (danh sách) lại cho phép Guest truy cập và trả về đầy đủ nội dung.
+            // Vì vậy nếu gọi ID trực tiếp bị lỗi (bất kể lỗi 401, 403 hay lỗi khác), chúng ta thử tìm trong danh sách.
+            try {
+                const fallbackRes = await blogService.getBlogs({ page: 0, size: 200 })
+                if (fallbackRes.success && fallbackRes.data?.content) {
+                    const found = fallbackRes.data.content.find((b: BlogResponse) => b.blogId === id)
+                    if (found) {
+                        setBlog(found)
+                        return
                     }
-                    setError("Bài viết không tồn tại hoặc yêu cầu quyền truy cập.")
-                } catch (fallbackErr) {
-                    setError("Vui lòng đăng nhập để xem chi tiết bài viết này.")
                 }
-            } else {
-                setError("Lỗi kết nối hoặc bài viết không tồn tại.")
+            } catch (fallbackErr) {
+                // Nếu cách vớt vát cũng lỗi, cứ tiếp tục xuống dưới để báo lỗi
             }
+            
+            // Nếu cả 2 cách đều thất bại
+            setError("Lỗi kết nối hoặc bài viết không tồn tại.")
         } finally {
             setLoading(false)
         }

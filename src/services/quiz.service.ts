@@ -143,6 +143,15 @@ export const quizService = {
         }),
 
     /**
+     * DELETE /quiz-topics/{topicId}
+     * Xóa topic.
+     */
+    deleteTopic: (topicId: string) =>
+        apiFetch<ApiResponse<void>>(`/quiz-topics/${topicId}`, {
+            method: 'DELETE',
+        }),
+
+    /**
      * POST /questions/topic/{topicId}
      * Thêm một câu hỏi vào topic.
      */
@@ -170,6 +179,15 @@ export const quizService = {
         apiFetch<ApiResponse<QuestionResponse>>(`/questions/${questionId}`, {
             method: 'PUT',
             body: JSON.stringify(data),
+        }),
+
+    /**
+     * DELETE /questions/{questionId}
+     * Xóa một câu hỏi.
+     */
+    deleteQuestion: (questionId: string) =>
+        apiFetch<ApiResponse<void>>(`/questions/${questionId}`, {
+            method: 'DELETE',
         }),
 
     /**
