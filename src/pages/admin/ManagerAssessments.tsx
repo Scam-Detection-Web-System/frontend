@@ -44,12 +44,19 @@ const RISK_CONFIG: Record<RiskKey, { label: string; className: string }> = {
 
 function RiskBadge({ level }: { level: string | null }) {
     if (!level) return <span className="text-slate-500">Chưa đánh giá</span>
-    const normalized = level.toUpperCase()
+    let riskKey = level.toUpperCase()
+    const numericRisk = parseInt(riskKey, 10)
+    if (!isNaN(numericRisk)) {
+        if (numericRisk >= 80) riskKey = 'CRITICAL'
+        else if (numericRisk >= 60) riskKey = 'HIGH'
+        else if (numericRisk >= 40) riskKey = 'MEDIUM'
+        else riskKey = 'LOW'
+    }
     
     // Minimalist monochrome/neutral styling for badges
     return (
         <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-            {RISK_CONFIG[normalized as RiskKey]?.label || level}
+            {!isNaN(numericRisk) ? `${numericRisk}% - ` : ""}{RISK_CONFIG[riskKey as RiskKey]?.label || level}
         </span>
     )
 }
@@ -58,7 +65,7 @@ function RiskBadge({ level }: { level: string | null }) {
 interface FormState {
     phoneNumber: string
     label: string
-    riskLevel: RiskKey
+    riskLevel: string
     review: string
     actions: string[]
     advices: string[]
@@ -80,7 +87,7 @@ function AssessmentFormModal({
     const [form, setForm] = useState<FormState>({
         phoneNumber: editing?.phoneNumber ?? initialData?.phoneNumber ?? "",
         label:       editing?.label ?? initialData?.label ?? "",
-        riskLevel:   (editing?.riskLevel as RiskKey) ?? initialData?.riskLevel ?? "LOW",
+        riskLevel:   editing?.riskLevel ?? initialData?.riskLevel ?? "0",
         review:      editing?.review ?? initialData?.review ?? "",
         actions:     editing?.actions ?? [],
         advices:     editing?.advices ?? [],
@@ -119,8 +126,8 @@ function AssessmentFormModal({
                     label:     form.label || undefined,
                     riskLevel: form.riskLevel,
                     review:    form.review || undefined,
-                    actions:   form.actions.length > 0 ? form.actions : undefined,
-                    advices:   form.advices.length > 0 ? form.advices : undefined,
+                    actions:   form.actions,
+                    advices:   form.advices,
                 }
                 await assessmentService.updateAssessment(editing.assessmentId, req)
             } else {
@@ -129,8 +136,8 @@ function AssessmentFormModal({
                     label:       form.label || undefined,
                     riskLevel:   form.riskLevel,
                     review:      form.review || undefined,
-                    actions:     form.actions.length > 0 ? form.actions : undefined,
-                    advices:     form.advices.length > 0 ? form.advices : undefined,
+                    actions:   form.actions,
+                    advices:   form.advices,
                 }
                 await assessmentService.createAssessment(req)
             }
@@ -197,24 +204,19 @@ function AssessmentFormModal({
                     {/* Risk Level */}
                     <div>
                         <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">
-                            Mức độ nguy hiểm
+                            Mức độ nguy hiểm (Risk Level - %)
                         </label>
-                        <div className="grid grid-cols-2 gap-2">
-                            {RISK_LEVELS.map(level => (
-                                <button
-                                    key={level}
-                                    type="button"
-                                    onClick={() => handleChange("riskLevel", level)}
-                                    className={`rounded-lg border-2 px-3 py-2 text-xs font-semibold transition-all ${
-                                        form.riskLevel === level
-                                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                                            : "border-slate-200 dark:border-slate-700 text-muted-foreground hover:border-slate-300"
-                                    }`}
-                                    id={`risk-${level}`}
-                                >
-                                    {RISK_CONFIG[level].label}
-                                </button>
-                            ))}
+                        <div className="relative max-w-[150px]">
+                            <Input
+                                type="number"
+                                min={0}
+                                max={100}
+                                value={form.riskLevel.replace('%', '')}
+                                onChange={e => handleChange("riskLevel", e.target.value)}
+                                placeholder="VD: 85"
+                                className="pr-8"
+                            />
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">%</span>
                         </div>
                     </div>
 

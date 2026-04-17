@@ -4,7 +4,7 @@ import { defineConfig, loadEnv } from "vite"
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '')
-    const apiBaseUrl = env.VITE_API_BASE_URL || 'http://antiscaq.ap-northeast-1.elasticbeanstalk.com'
+    const apiBaseUrl = env.VITE_API_BASE_URL || 'http://scam-detection.ap-northeast-1.elasticbeanstalk.com'
     const apiPrefix = env.VITE_API_PREFIX || '/anti-scaq/api'
 
     return {

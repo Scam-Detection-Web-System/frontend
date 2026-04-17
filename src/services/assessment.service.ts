@@ -29,9 +29,9 @@ export interface AssessmentResponse {
     riskLevel: RiskLevel | null
     review: string | null
     /** Các hành động Manager khuyên người dùng nên làm khi gặp số này */
-    actions: string[]
+    actions: string[] | null
     /** Các lời khuyên chung về phòng tránh lừa đảo từ số này */
-    advices: string[]
+    advices: string[] | null
     comments: CommentResponse[]
 }
 

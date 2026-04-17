@@ -216,10 +216,22 @@ export default function PhoneAssessmentPage() {
                                         {phoneTypeConfig.label}
                                     </span>
                                 )}
-                                {area && (
+                                {(area && area.toLowerCase() !== 'string' && area.toLowerCase() !== 'none' && area.trim() !== '') && (
                                     <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-200 bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700 dark:border-violet-800 dark:bg-violet-900/30 dark:text-violet-300">
                                         <MapPin className="h-3.5 w-3.5" />
                                         {area}
+                                    </span>
+                                )}
+                                {assessment?.totalReports !== undefined && assessment.totalReports > 0 && (
+                                    <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700 dark:border-orange-800 dark:bg-orange-900/30 dark:text-orange-300">
+                                        <AlertTriangle className="h-3.5 w-3.5" />
+                                        {assessment.totalReports} báo cáo
+                                    </span>
+                                )}
+                                {assessment?.validReports !== undefined && assessment.validReports > 0 && (
+                                    <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-100 px-3 py-1 text-xs font-semibold text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300">
+                                        <Shield className="h-3.5 w-3.5" />
+                                        {assessment.validReports} vi phạm
                                     </span>
                                 )}
                                 {!assessment && (carrier || phoneType) && (
@@ -260,7 +272,15 @@ export default function PhoneAssessmentPage() {
                         {/* Official Assessment Card */}
                         <div className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:border-slate-800 dark:bg-slate-900">
                             {(() => {
-                                const risk = RISK_CONFIG[assessment.riskLevel ?? 'LOW'] ?? RISK_CONFIG['LOW']
+                                let riskKey = assessment.riskLevel ?? 'LOW'
+                                const numericRisk = parseInt(riskKey, 10)
+                                if (!isNaN(numericRisk)) {
+                                    if (numericRisk >= 80) riskKey = 'CRITICAL'
+                                    else if (numericRisk >= 60) riskKey = 'HIGH'
+                                    else if (numericRisk >= 40) riskKey = 'MEDIUM'
+                                    else riskKey = 'LOW'
+                                }
+                                const risk = RISK_CONFIG[riskKey] ?? RISK_CONFIG['LOW']
                                 const Icon = risk.icon
                                 return (
                                     <>
@@ -270,7 +290,7 @@ export default function PhoneAssessmentPage() {
                                             </div>
                                             <div className="flex-1 text-center sm:text-left">
                                                 <h2 className={`text-2xl font-bold ${risk.color}`}>
-                                                    {risk.label}
+                                                    {!isNaN(numericRisk) ? `${numericRisk}% - ` : ""}{risk.label}
                                                 </h2>
                                                 {assessment.label && (
                                                     <p className="mt-2 inline-flex items-center rounded-full bg-white/60 dark:bg-slate-900/60 px-3 py-1 text-sm font-medium border border-slate-200/50 dark:border-slate-700/50 text-slate-800 dark:text-slate-200">

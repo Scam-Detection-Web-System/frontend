@@ -6,6 +6,7 @@ const ERROR_MAP: Record<string, string> = {
   // Auth
   'Bad credentials': 'Email hoặc mật khẩu không đúng',
   'Invalid credentials': 'Email hoặc mật khẩu không đúng',
+  'Unauthenticated': 'Email hoặc mật khẩu không đúng',
   'Wrong password': 'Mật khẩu không đúng',
   'User not found': 'Không tìm thấy tài khoản',
   'Email not found': 'Email không tồn tại trong hệ thống',
