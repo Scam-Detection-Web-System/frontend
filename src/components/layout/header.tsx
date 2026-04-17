@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/shared/mode-toggle"
 import { LoginDialog } from "@/components/shared/login-dialog"
 import { useAuth } from "@/contexts/auth-context"
+import { getDashboardPath } from "@/App"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import {
   DropdownMenu,
@@ -115,7 +116,7 @@ export function Header() {
                   <>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild className="gap-2 py-2.5">
-                      <Link to="/admin">
+                      <Link to={getDashboardPath(user?.role)}>
                         <LayoutDashboard className="h-4 w-4" />
                         Quản trị
                       </Link>
@@ -194,7 +195,7 @@ export function Header() {
                   </Button>
                   {isAdmin && (
                     <Button variant="outline" asChild className="w-full" onClick={() => setIsMenuOpen(false)}>
-                      <Link to="/admin">
+                      <Link to={getDashboardPath(user?.role)}>
                         <LayoutDashboard className="mr-2 h-4 w-4" />
                         Quản trị
                       </Link>

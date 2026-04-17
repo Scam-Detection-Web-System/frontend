@@ -9,12 +9,6 @@ import {
     ChartLegendContent,
 } from "@/components/ui/chart"
 
-const reportStatusData = [
-    { name: "approved", value: 534, label: "Đã duyệt" },
-    { name: "pending", value: 247, label: "Chờ duyệt" },
-    { name: "rejected", value: 103, label: "Từ chối" },
-]
-
 const COLORS = [
     "hsl(152, 69%, 41%)",   // emerald - approved
     "hsl(38, 92%, 50%)",    // amber - pending
@@ -36,9 +30,22 @@ const chartConfig = {
     },
 } satisfies ChartConfig
 
-const total = reportStatusData.reduce((sum, item) => sum + item.value, 0)
+interface DashboardPieChartProps {
+    data?: {
+        valid: number;
+        pending: number;
+        invalid: number;
+    }
+}
 
-export function DashboardPieChart() {
+export function DashboardPieChart({ data }: DashboardPieChartProps) {
+    const reportStatusData = [
+        { name: "approved", value: data?.valid ?? 0, label: "Đã duyệt" },
+        { name: "pending", value: data?.pending ?? 0, label: "Chờ duyệt" },
+        { name: "rejected", value: data?.invalid ?? 0, label: "Từ chối" },
+    ]
+    const total = reportStatusData.reduce((sum, item) => sum + item.value, 0)
+
     return (
         <Card className="border-slate-200 dark:border-slate-700/50">
             <CardHeader className="pb-2">

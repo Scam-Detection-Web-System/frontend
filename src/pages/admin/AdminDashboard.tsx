@@ -13,7 +13,6 @@ import { AdminSidebar } from "@/components/admin/AdminSidebar"
 import { AdminStatsCard } from "@/components/admin/AdminStatsCard"
 import { AdminReportsTable } from "@/components/admin/AdminReportsTable"
 import { DashboardPieChart } from "@/components/admin/DashboardPieChart"
-import { DashboardFeatureChart } from "@/components/admin/DashboardFeatureChart"
 import { DashboardProviderStats } from "@/components/admin/DashboardProviderStats"
 import { ModeToggle } from "@/components/shared/mode-toggle"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -24,6 +23,7 @@ import AdminUsers from "./AdminUsers"
 import AdminBlogs from "./AdminBlogs"
 import AdminReports from "./AdminReports"
 import { ManagerDashboardView } from "@/components/admin/ManagerDashboardView"
+import { getDashboardPath } from "@/App"
 import AdminQuiz from "./AdminQuiz"
 import ModeratorReports from "./ModeratorReports"
 import ManagerAssessments from "./ManagerAssessments"
@@ -43,14 +43,15 @@ interface DashboardStats {
 
 function DashboardHome() {
     const { user } = useAuth()
+    const basePath = getDashboardPath(user?.role)
     
     // MODERATOR có trang riêng, redirect về moderator-reports
     if (user?.role === 'MODERATOR') {
-        return <Navigate to="/admin/moderator-reports" replace />
+        return <Navigate to={`${basePath}/moderator-reports`} replace />
     }
     // Roles khác ngoài ADMIN/MANAGER redirect về news
     if (user?.role !== 'ADMIN' && user?.role !== 'MANAGER') {
-        return <Navigate to="/admin/news" replace />
+        return <Navigate to={`${basePath}/news`} replace />
     }
 
     const [stats, setStats] = useState<DashboardStats>({
@@ -61,6 +62,8 @@ function DashboardHome() {
         totalAssessments: 0,
         reportsToday: 0,
     })
+    const [statusStats, setStatusStats] = useState<import("@/services/dashboard.service").ReportStatusStats | null>(null)
+    const [labelStats, setLabelStats] = useState<import("@/services/dashboard.service").LabelStatItem[]>([])
     const [statsLoading, setStatsLoading] = useState(true)
 
     useEffect(() => {
@@ -71,7 +74,7 @@ function DashboardHome() {
                 const isManager = user?.role === 'MANAGER'
 
                 // Fire all queries simultaneously to grab actual live data
-                const [overviewRes, usersRes, assessmentsRes, allReportsRes, pendingReportsRes] = await Promise.allSettled([
+                const [overviewRes, usersRes, assessmentsRes, allReportsRes, pendingReportsRes, statusRes, labelRes] = await Promise.allSettled([
                     // 1. Dashboard Overview API (may be blocked for non-admins, but try anyway)
                     dashboardService.getOverviewStats(),
                     // 2. Users API (Admin only)
@@ -81,7 +84,11 @@ function DashboardHome() {
                     // 4. All Grouped Reports API
                     reportService.getGroupedReports({ page: 0, size: 1 }),
                     // 5. Pending Requires Action Reports (For Managers context, VALID status is pending assessment)
-                    isManager ? reportService.getGroupedReports({ status: 'VALID', page: 0, size: 1 }) : reportService.getHotReports({ status: 'VALID', page: 0, size: 1 })
+                    isManager ? reportService.getGroupedReports({ status: 'VALID', page: 0, size: 1 }) : reportService.getHotReports({ status: 'VALID', page: 0, size: 1 }),
+                    // 6. Status Stats for Pie Chart
+                    dashboardService.getReportStatusStats(),
+                    // 7. Label Stats
+                    dashboardService.getLabelStats()
                 ])
 
                 let totalReports = 0
@@ -118,6 +125,14 @@ function DashboardHome() {
                     totalUsers = (usersRes.value as any).data.totalElements ?? totalUsers;
                     // Note: Cannot easily get blocked users count from page 0 size 1 without a filter endpoint,
                     // so we keep blockedUsers as 0 unless overview API provided it. 
+                }
+
+                if (statusRes.status === 'fulfilled' && statusRes.value.success) {
+                    setStatusStats(statusRes.value.data)
+                }
+
+                if (labelRes.status === 'fulfilled' && labelRes.value.success) {
+                    setLabelStats(labelRes.value.data)
                 }
 
                 setStats({ totalUsers, totalReports, pendingReports, blockedUsers, totalAssessments, reportsToday })
@@ -164,8 +179,8 @@ function DashboardHome() {
                         <ManagerDashboardView stats={stats} loading={statsLoading} />
                     ) : (
                         <>
-                            {/* Stats grid — 2 cols mobile, 3 cols tablet, 6 cols large */}
-                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                            {/* Stats grid — 2 cols mobile, 4 cols tablet/large */}
+                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4">
                         <AdminStatsCard
                             title="Tổng báo cáo"
                             value={statsLoading ? "..." : fmt(stats.totalReports)}
@@ -198,28 +213,64 @@ function DashboardHome() {
                             trend="up"
                             trendValue=""
                         />
-                        <AdminStatsCard
-                            title="Tài khoản bị chặn"
-                            value={statsLoading ? "..." : fmt(stats.blockedUsers)}
-                            description="tài khoản bị khoá"
-                            icon={<PhoneOff className="h-6 w-6" />}
-                            trend="up"
-                            trendValue=""
-                        />
-                        <AdminStatsCard
-                            title="Cần xử lý"
-                            value={statsLoading ? "..." : fmt(stats.pendingReports)}
-                            description="báo cáo cần xử lý"
-                            icon={<Clock className="h-6 w-6" />}
-                            trend={stats.pendingReports > 0 ? "up" : "down"}
-                            trendValue=""
-                        />
                     </div>
 
-                    {/* Charts row: Pie chart + Feature chart */}
+                    {/* Charts row: Pie chart + Scam type breakdown */}
                     <div className="mt-6 grid gap-6 lg:grid-cols-2">
-                        <DashboardPieChart />
-                        <DashboardFeatureChart />
+                        <DashboardPieChart data={{ valid: statusStats?.validReports ?? 0, pending: statusStats?.pendingReports ?? 0, invalid: statusStats?.invalidReports ?? 0 }} />
+                        
+                        {/* Scam type breakdown */}
+                        <Card className="border-slate-200 dark:border-slate-700/50">
+                            <CardHeader>
+                                <CardTitle className="text-lg">Loại lừa đảo</CardTitle>
+                                <CardDescription>Phân loại theo loại hình</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-3">
+                                    {labelStats.length > 0 ? (
+                                        labelStats.map((item, idx) => {
+                                            const totalLabelCount = labelStats.reduce((sum, a) => sum + a.count, 0)
+                                            const pct = totalLabelCount === 0 ? 0 : Math.round((item.count / totalLabelCount) * 100)
+                                            
+                                            const LABEL_TRANSLATIONS: Record<string, string> = {
+                                                "SUSPICIOUS": "Đáng ngờ (Suspicious)",
+                                                "ADVERTISING": "Quảng cáo/Tiếp thị",
+                                                "SAFE": "An toàn",
+                                                "SCAM": "Lừa đảo",
+                                                "SPAM": "Làm phiền",
+                                                "FINANCIAL_SCAM": "Lừa đảo tài chính",
+                                                "IMPERSONATION": "Mạo danh",
+                                                "EMPLOYMENT_SCAM": "Lừa đảo việc làm",
+                                                "THREAT": "Đe doạ",
+                                                "FRAUD": "Chiếm đoạt",
+                                                "OTHER": "Khác"
+                                            }
+                                            const translatedLabel = LABEL_TRANSLATIONS[item.label.toUpperCase()] || item.label
+
+                                            // Rotate through a set of vibrant colors
+                                            const colors = ["bg-red-500", "bg-orange-500", "bg-amber-500", "bg-blue-500", "bg-slate-500", "bg-emerald-500", "bg-indigo-500"]
+                                            const color = colors[idx % colors.length]
+                                            return (
+                                                <div key={item.label} className="space-y-1.5">
+                                                    <div className="flex items-center justify-between text-sm">
+                                                        <span className="text-muted-foreground">{translatedLabel}</span>
+                                                        <span className="font-medium">{item.count}</span>
+                                                    </div>
+                                                    <div className="h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800">
+                                                        <div
+                                                            className={`h-full rounded-full ${color} transition-all duration-500`}
+                                                            style={{ width: `${pct}%` }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )
+                                        })
+                                    ) : (
+                                        <p className="text-sm text-muted-foreground">Không có dữ liệu</p>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
 
                     {/* Provider statistics table */}
@@ -265,37 +316,7 @@ function DashboardHome() {
                                 </CardContent>
                             </Card>
 
-                            {/* Scam type breakdown */}
-                            <Card className="border-slate-200 dark:border-slate-700/50">
-                                <CardHeader>
-                                    <CardTitle className="text-lg">Loại lừa đảo</CardTitle>
-                                    <CardDescription>Phân loại theo loại hình</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-3">
-                                        {[
-                                            { label: "Lừa đảo tài chính", count: 342, pct: 27, color: "bg-red-500" },
-                                            { label: "Giả mạo ngân hàng", count: 289, pct: 23, color: "bg-orange-500" },
-                                            { label: "Lừa đảo việc làm", count: 218, pct: 17, color: "bg-amber-500" },
-                                            { label: "Mạo danh công an", count: 187, pct: 15, color: "bg-blue-500" },
-                                            { label: "Khác", count: 248, pct: 18, color: "bg-slate-400" },
-                                        ].map((item) => (
-                                            <div key={item.label} className="space-y-1.5">
-                                                <div className="flex items-center justify-between text-sm">
-                                                    <span className="text-muted-foreground">{item.label}</span>
-                                                    <span className="font-medium">{item.count}</span>
-                                                </div>
-                                                <div className="h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800">
-                                                    <div
-                                                        className={`h-full rounded-full ${item.color} transition-all duration-500`}
-                                                        style={{ width: `${item.pct}%` }}
-                                                    />
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </CardContent>
-                            </Card>
+
                         </div>
                     </div>
                     </>
@@ -309,6 +330,7 @@ function DashboardHome() {
 
 export default function AdminDashboard() {
     const { user } = useAuth()
+    const basePath = getDashboardPath(user?.role)
 
     return (
         <Routes>
@@ -359,9 +381,9 @@ export default function AdminDashboard() {
                     <Navigate
                         to={
                             user?.role === "ADMIN" || user?.role === "MANAGER"
-                                ? "/admin"
+                                ? basePath
                                 : user?.role === "MODERATOR"
-                                ? "/admin/moderator-reports"
+                                ? `${basePath}/moderator-reports`
                                 : "/"
                         }
                         replace

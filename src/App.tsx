@@ -23,6 +23,13 @@ import PhoneAssessmentPage from "./pages/user/PhoneAssessmentPage"
 import ReportDetailPage from "./pages/user/ReportDetailPage"
 import { ChatbotButton } from "@/components/shared/chatbot-button"
 
+export function getDashboardPath(role?: string) {
+    if (role === 'ADMIN') return '/admin';
+    if (role === 'MANAGER') return '/manager';
+    if (role === 'MODERATOR') return '/moderator';
+    return '/admin';
+}
+
 // Protected route component for admin pages
 function AdminRoute({ children }: { children: React.ReactNode }) {
     const { isAuthenticated, isAdmin } = useAuth()
@@ -34,12 +41,12 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
     return <>{children}</>
 }
 
-// User-only route: redirect admin to /admin
 function UserRoute({ children }: { children: React.ReactNode }) {
-    const { isAdmin, isAuthenticated } = useAuth()
+    const { isAdmin, isAuthenticated, user } = useAuth()
 
     if (isAuthenticated && isAdmin) {
-        return <Navigate to="/admin" replace />
+        const basePath = getDashboardPath(user?.role);
+        return <Navigate to={basePath} replace />
     }
 
     return <>{children}</>
@@ -56,15 +63,18 @@ function ScrollToTop() {
 function AppRoutes() {
     return (
         <Routes>
-            {/* Admin route — full-screen layout, no header/footer */}
-            <Route
-                path="/admin/*"
-                element={
-                    <AdminRoute>
-                        <AdminDashboard />
-                    </AdminRoute>
-                }
-            />
+            {/* Admin/Manager/Moderator route — full-screen layout, no header/footer */}
+            {['/admin/*', '/manager/*', '/moderator/*'].map((path) => (
+                <Route
+                    key={path}
+                    path={path}
+                    element={
+                        <AdminRoute>
+                            <AdminDashboard />
+                        </AdminRoute>
+                    }
+                />
+            ))}
 
             {/* Public routes with shared header/footer */}
             <Route

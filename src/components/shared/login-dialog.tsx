@@ -29,7 +29,7 @@ const OTP_LENGTH = 6
 const RESEND_COUNTDOWN = 60
 
 export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
-    const { login, register, isAdmin } = useAuth()
+    const { login, register, isAdmin, user } = useAuth()
     const navigate = useNavigate()
 
     // ── Auth modes ──────────────────────────────────────────────
@@ -61,9 +61,12 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
     useEffect(() => {
         if (shouldRedirectAdmin && isAdmin) {
             setShouldRedirectAdmin(false)
-            navigate('/admin')
+            let basePath = '/admin';
+            if (user?.role === 'MANAGER') basePath = '/manager';
+            if (user?.role === 'MODERATOR') basePath = '/moderator';
+            navigate(basePath)
         }
-    }, [isAdmin, shouldRedirectAdmin, navigate])
+    }, [isAdmin, user?.role, shouldRedirectAdmin, navigate])
 
     // Reset everything when dialog closes
     useEffect(() => {

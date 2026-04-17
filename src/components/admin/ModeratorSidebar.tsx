@@ -12,6 +12,7 @@ import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/auth-context"
 import { cn } from "@/lib/utils"
+import { getDashboardPath } from "@/App"
 import { reportService } from "@/services/report.service"
 
 const navItems = [
@@ -86,13 +87,16 @@ export function ModeratorSidebar() {
             {/* Navigation */}
             <nav className="flex-1 space-y-1 px-3 py-4">
                 {navItems.map((item) => {
+                    const basePath = getDashboardPath(user?.role)
+                    const dynamicHref = item.href === "/admin" ? basePath : item.href.replace("/admin", basePath)
+
                     const isActive =
-                        location.pathname === item.href ||
-                        (item.href !== "/admin" && location.pathname.startsWith(item.href))
+                        location.pathname === dynamicHref ||
+                        (dynamicHref !== basePath && location.pathname.startsWith(dynamicHref))
                     return (
                         <Link
                             key={item.href}
-                            to={item.href}
+                            to={dynamicHref}
                             className={cn(
                                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                                 isActive
